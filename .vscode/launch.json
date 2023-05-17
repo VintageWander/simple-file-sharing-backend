@@ -1,0 +1,82 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'prisma-cli'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=prisma-cli",
+                    "--package=prisma-cli"
+                ],
+                "filter": {
+                    "name": "prisma-cli",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'prisma-cli'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=prisma-cli",
+                    "--package=prisma-cli"
+                ],
+                "filter": {
+                    "name": "prisma-cli",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'simple-file-sharing-backend'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=simple-file-sharing-backend",
+                    "--package=simple-file-sharing-backend"
+                ],
+                "filter": {
+                    "name": "simple-file-sharing-backend",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'simple-file-sharing-backend'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=simple-file-sharing-backend",
+                    "--package=simple-file-sharing-backend"
+                ],
+                "filter": {
+                    "name": "simple-file-sharing-backend",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
