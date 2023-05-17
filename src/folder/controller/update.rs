@@ -26,8 +26,10 @@ impl FolderController {
         ) -> WebResult {
             let old_folder = db
                 .folder()
-                .find_unique(folder::id::equals(param_folder_id.clone()))
-                .include(folder::include!({
+                .find_unique(folder::id::equals(param_folder_id))
+                .select(folder::select!({
+                    id
+                    parent_folder_id
                     owner : select {
                         id username email created_at updated_at
                     }
@@ -36,12 +38,14 @@ impl FolderController {
                 .await?
                 .ok_or_else(|| Error::NotFound)?;
 
-            // Just return if the form is empty
-            if let (None, None, None) = (&parent, &folder_name, &visibility) {
-                return Ok(Web::ok("There is nothing to update", old_folder));
+            if old_folder.parent_folder_id.is_none() {
+                return Err(Error::Forbidden);
             }
 
-            // Else - actually doing the update
+            if let (&None, &None, &None) = (&parent, &folder_name, &visibility) {
+                return Ok(Web::ok("Theres nothing to be updated", old_folder));
+            }
+
             let mut actions = vec![];
 
             if let Some(parent) = parent {
@@ -58,15 +62,14 @@ impl FolderController {
 
             let updated_folder = db
                 .folder()
-                .update(folder::id::equals(param_folder_id), actions)
-                .include(folder::include!({
-                    owner : select {
-                        id username email created_at updated_at
-                    }
-                }))
+                .update_unchecked(folder::id::equals(old_folder.id), actions)
+                .include(folder::include!({ owner: select {
+                    id username email created_at updated_at
+                }}))
                 .exec()
                 .await?;
-            Ok(Web::ok("Update folder success", updated_folder))
+
+            Ok(Web::ok("Update folder success", ()))
         }
         Router::new().route("/update/:folder_id", put(update_folder_handler))
     }

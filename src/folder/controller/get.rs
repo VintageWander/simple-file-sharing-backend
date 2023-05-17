@@ -3,13 +3,16 @@ use axum::{
     routing::get,
     Router,
 };
+use serde::Deserialize;
+use uuid::Uuid;
 
-use crate::{
-    error::Error,
-    prisma::{folder, user},
-    web::Web,
-    Database, WebResult,
-};
+use crate::{prisma::folder, web::Web, Database, WebResult};
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct FolderQuery {
+    parent_folder_id: Option<Uuid>,
+}
 
 use super::FolderController;
 
@@ -19,15 +22,15 @@ impl FolderController {
         // But rather lists all folders in the root directory
         async fn get_folders_handler(
             State(db): State<Database>,
-            Query(param_root_folder_id_optional): Query<Option<String>>,
+            Query(FolderQuery { parent_folder_id }): Query<FolderQuery>,
         ) -> WebResult {
             // If the root folder provided in the param
             // Go find them
-            if let Some(param_root_folder_id) = param_root_folder_id_optional {
+            if let Some(parent_folder_id) = parent_folder_id {
                 let folders = db
                     .folder()
                     .find_many(vec![folder::parent_folder_id::equals(Some(
-                        param_root_folder_id,
+                        parent_folder_id.to_string(),
                     ))])
                     .include(folder::include!({
                         owner: select {
@@ -36,52 +39,35 @@ impl FolderController {
                     }))
                     .exec()
                     .await?;
-                return Ok(Web::ok("Get all folders at path success", folders));
+                return Ok(Web::ok("Get all folders at position success", folders));
             }
 
             // Else
             // Get all folders NEXT to the root folder
             // By
-            // Get all users
-            let users = db
-                .user()
-                .find_many(vec![])
-                .select(user::select!({ id }))
+            let folders = db
+                .folder()
+                .find_many(vec![folder::parent_folder_id::equals(None)])
+                .select(folder::select!({
+                    child_folders: select {
+                        id
+                        owner: select {
+                            id username email created_at updated_at
+                        }
+                        parent_folder_id
+                        folder_name
+                        visibility
+                        created_at
+                        updated_at
+                    }
+                }))
                 .exec()
-                .await?;
+                .await?
+                .into_iter()
+                .flat_map(|root_folder| root_folder.child_folders)
+                .collect::<Vec<_>>();
 
-            let mut root_folders = vec![];
-
-            // Get all root folders
-            for user in users {
-                root_folders.push(
-                    db.folder()
-                        .find_first(vec![folder::parent_folder_id::equals(Some(user.id))])
-                        .select(folder::select!({ id }))
-                        .exec()
-                        .await?
-                        .ok_or_else(|| Error::NotFound)?,
-                )
-            }
-
-            let mut results = vec![];
-            // Get the folder that has a root folder as parent
-            for root_folder in root_folders {
-                results.push(
-                    db.folder()
-                        .find_first(vec![folder::parent_folder_id::equals(Some(root_folder.id))])
-                        .include(folder::include!({
-                            owner: select {
-                                id username email created_at updated_at
-                            }
-                        }))
-                        .exec()
-                        .await?
-                        .ok_or_else(|| Error::NotFound)?,
-                )
-            }
-
-            Ok(Web::ok("Get all folders successfully", results))
+            Ok(Web::ok("Get all folders successfully", folders))
         }
         Router::new().route("/", get(get_folders_handler))
     }

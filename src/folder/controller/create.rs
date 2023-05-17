@@ -1,12 +1,9 @@
 use axum::{extract::State, routing::post, Router};
 
 use crate::{
+    error::Error,
     folder::request::create::CreateFolderRequest,
-    prisma::{
-        folder,
-        user::{self, Data},
-        Visibility,
-    },
+    prisma::{folder, user::Data, Visibility},
     user::request::loggedin::LoggedInUser,
     web::Web,
     Database, WebResult,
@@ -25,16 +22,28 @@ impl FolderController {
                 visibility: optional_visibility,
             }: CreateFolderRequest,
         ) -> WebResult {
+            let root_folder = db
+                .folder()
+                .find_first(vec![
+                    folder::owner_id::equals(user_id.clone()),
+                    folder::parent_folder_id::equals(None),
+                ])
+                .select(folder::select!({ id }))
+                .exec()
+                .await?
+                .ok_or_else(|| Error::NotFound)?;
+
             let parent = match optional_parent {
                 Some(parent) => parent.to_string(),
-                None => user_id.clone(),
+                None => root_folder.id,
             };
-            let visibility = optional_visibility.unwrap_or(Visibility::Public);
+
+            let visibility = optional_visibility.unwrap_or(Visibility::Private);
 
             let new_folder = db
                 .folder()
-                .create(
-                    user::id::equals(user_id),
+                .create_unchecked(
+                    user_id,
                     folder_name,
                     visibility,
                     vec![folder::parent_folder_id::set(Some(parent))],
