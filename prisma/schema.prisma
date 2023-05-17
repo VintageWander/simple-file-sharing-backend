@@ -55,7 +55,7 @@ model Folder {
   collaborators User[] @relation("FolderCollaborator")
 
   parentFolder   Folder? @relation("NestedFolders", fields: [parentFolderId], references: [id], onDelete: Cascade)
-  parentFolderId String?
+  parentFolderId String? // Use create_unchecked and update_unchecked to make this work!!!
 
   childFolders Folder[] @relation("NestedFolders")
   childFiles   File[]
