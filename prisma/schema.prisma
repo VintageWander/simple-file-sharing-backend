@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "cargo prisma"
+  output   = "../src/prisma.rs"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Visibility {
+  PUBLIC
+  SHARED
+  PRIVATE
+}
+
+enum Extension {
+  PNG
+  JPEG
+  JPG
+  TXT
+  MP3
+  OTHER
+}
+
+model User {
+  id String @id @default(uuid())
+
+  username String @unique
+  email    String @unique
+
+  password String
+
+  refreshToken String @default("")
+
+  files   File[]
+  folders Folder[]
+
+  favFolder Folder[] @relation("FavouriteFolders")
+  favFiles  File[]   @relation("FavouriteFiles")
+
+  sharedToMeFolders Folder[] @relation("CollaborateFolders")
+  sharedToMeFiles   File[]   @relation("CollaborateFiles")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Folder {
+  id String @id @default(uuid())
+
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+
+  collaborator User[] @relation("CollaborateFolders")
+
+  parentFolder   Folder? @relation("ParentToChildFolder", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  parentFolderId String?
+
+  folderName String
+  visibility Visibility
+
+  childFolders Folder[] @relation("ParentToChildFolder")
+  childFiles   File[]
+
+  favBy User[] @relation("FavouriteFolders")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId, parentFolderId, folderName])
+}
+
+model File {
+  id String @id @default(uuid())
+
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+
+  collaborator User[] @relation("CollaborateFiles")
+
+  parentFolder   Folder @relation(fields: [parentFolderId], references: [id], onDelete: Cascade)
+  parentFolderId String
+
+  filename  String
+  extension Extension
+  versions  FileVersion[]
+
+  favBy User[] @relation("FavouriteFiles")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId, parentFolderId, filename, extension])
+}
+
+model FileVersion {
+  id String @id @default(uuid())
+
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String
+
+  versionNumber Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
