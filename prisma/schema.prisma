@@ -19,11 +19,9 @@ enum Visibility {
 
 enum Extension {
   PNG
-  JPEG
   JPG
-  TXT
-  MP3
-  OTHER
+  JPEG
+  SVG
 }
 
 model User {
@@ -36,14 +34,13 @@ model User {
 
   refreshToken String @default("")
 
-  files   File[]
-  folders Folder[]
+  myFolders Folder[]
+  myFiles   File[]
 
-  favFolder Folder[] @relation("FavouriteFolders")
-  favFiles  File[]   @relation("FavouriteFiles")
+  sharedToMeFolders Folder[] @relation("FolderCollaborator")
+  sharedToMeFiles   File[]   @relation("FileCollaborator")
 
-  sharedToMeFolders Folder[] @relation("CollaborateFolders")
-  sharedToMeFiles   File[]   @relation("CollaborateFiles")
+  myTags Tag[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -55,23 +52,20 @@ model Folder {
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String
 
-  collaborator User[] @relation("CollaborateFolders")
+  collaborators User[] @relation("FolderCollaborator")
 
-  parentFolder   Folder? @relation("ParentToChildFolder", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  parentFolder   Folder? @relation("NestedFolders", fields: [parentFolderId], references: [id], onDelete: Cascade)
   parentFolderId String?
+
+  childFolders Folder[] @relation("NestedFolders")
+  childFiles   File[]
 
   folderName String
   visibility Visibility
-
-  childFolders Folder[] @relation("ParentToChildFolder")
-  childFiles   File[]
-
-  favBy User[] @relation("FavouriteFolders")
+  tags       Tag[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([ownerId, parentFolderId, folderName])
 }
 
 model File {
@@ -80,21 +74,19 @@ model File {
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String
 
-  collaborator User[] @relation("CollaborateFiles")
+  collaborators User[] @relation("FileCollaborator")
 
   parentFolder   Folder @relation(fields: [parentFolderId], references: [id], onDelete: Cascade)
   parentFolderId String
 
-  filename  String
-  extension Extension
-  versions  FileVersion[]
-
-  favBy User[] @relation("FavouriteFiles")
+  filename   String
+  extension  Extension
+  visibility Visibility
+  tags       Tag[]
+  versions   FileVersion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([ownerId, parentFolderId, filename, extension])
 }
 
 model FileVersion {
@@ -103,8 +95,17 @@ model FileVersion {
   file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String
 
-  versionNumber Int @default(0)
+  versionNumber Int
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Tag {
+  id String @id @default(uuid())
+
+  tagName String @unique
+
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+
+  files   File[]
+  folders Folder[]
 }
