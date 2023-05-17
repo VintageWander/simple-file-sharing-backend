@@ -32,19 +32,27 @@ impl FolderController {
                     .find_many(vec![folder::parent_folder_id::equals(Some(
                         parent_folder_id.to_string(),
                     ))])
-                    .include(folder::include!({
+                    .select(folder::select!({
+                        id
                         owner: select {
-                            id username email created_at updated_at
+                            id
+                            username
+                            email
+                            created_at
+                            updated_at
                         }
+                        parent_folder_id
+                        folder_name
+                        visibility
+                        tags
+                        created_at
+                        updated_at
                     }))
                     .exec()
                     .await?;
                 return Ok(Web::ok("Get all folders at position success", folders));
             }
 
-            // Else
-            // Get all folders NEXT to the root folder
-            // By
             let folders = db
                 .folder()
                 .find_many(vec![folder::parent_folder_id::equals(None)])
@@ -52,11 +60,16 @@ impl FolderController {
                     child_folders: select {
                         id
                         owner: select {
-                            id username email created_at updated_at
+                            id
+                            username
+                            email
+                            created_at
+                            updated_at
                         }
                         parent_folder_id
                         folder_name
                         visibility
+                        tags
                         created_at
                         updated_at
                     }

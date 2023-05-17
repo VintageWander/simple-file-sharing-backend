@@ -48,10 +48,21 @@ impl FolderController {
                     visibility,
                     vec![folder::parent_folder_id::set(Some(parent))],
                 )
-                .include(folder::include!({
+                .select(folder::select!({
+                    id
                     owner: select {
-                        id username email created_at updated_at
+                        id
+                        username
+                        email
+                        created_at
+                        updated_at
                     }
+                    parent_folder_id
+                    folder_name
+                    visibility
+                    tags
+                    created_at
+                    updated_at
                 }))
                 .exec()
                 .await?;

@@ -28,7 +28,7 @@ mod error;
 mod extractors;
 mod folder;
 
-pub mod file;
+mod file;
 #[allow(warnings)]
 mod prisma;
 mod user;
