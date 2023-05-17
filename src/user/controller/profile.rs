@@ -1,4 +1,4 @@
-use axum::{extract::State, Router};
+use axum::{extract::State, routing::get, Router};
 
 use crate::{
     error::Error,
@@ -27,6 +27,6 @@ impl UserController {
                 .ok_or_else(|| Error::NotFound)?;
             Ok(Web::ok("Get user's profile success", filtered_user))
         }
-        Router::new()
+        Router::new().route("/profile", get(profile_handler))
     }
 }

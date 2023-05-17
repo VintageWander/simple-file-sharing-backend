@@ -30,12 +30,17 @@ impl UserController {
                 .await?;
 
             db.folder()
-                .create(
-                    user::id::equals(new_user.id.clone()),
+                .create_unchecked(
+                    new_user.id.clone(),
                     new_user.id.clone(),
                     Visibility::Private,
-                    vec![folder::parent_folder_id::set(Some(new_user.id.clone()))],
+                    vec![folder::parent_folder_id::set(None)],
                 )
+                .include(folder::include!({
+                    owner: select {
+                        id username email created_at updated_at
+                    }
+                }))
                 .exec()
                 .await?;
             Ok(Web::ok("Created user successfully", new_user))
