@@ -16,6 +16,7 @@ use axum::{
 };
 use dotenvy::var;
 use error::Error;
+use file::controller::FileController;
 use folder::controller::FolderController;
 use prisma::PrismaClient;
 
@@ -27,6 +28,7 @@ mod error;
 mod extractors;
 mod folder;
 
+pub mod file;
 #[allow(warnings)]
 mod prisma;
 mod user;
@@ -38,6 +40,7 @@ type WebResult = std::result::Result<Response, Error>;
 
 #[tokio::main]
 async fn main() {
+    // unsafe { backtrace_on_stack_overflow::enable() }
     let client = PrismaClient::_builder()
         .build()
         .await
@@ -49,6 +52,7 @@ async fn main() {
         .merge(UserController::routes())
         .merge(AuthController::routes())
         .merge(FolderController::routes())
+        .merge(FileController::routes())
         .with_state(Arc::new(client))
         .layer(
             CorsLayer::new()
