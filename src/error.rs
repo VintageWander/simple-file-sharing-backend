@@ -123,7 +123,9 @@ impl IntoResponse for Error {
                 Web::bad_request("Refresh token not found", "Please provide a refresh token")
             }
             Error::Unauthorized => Web::unauthorized("Unauthorized", "You have to be logged in"),
-            Error::Forbidden => Web::forbidden("Forbidden", "You cannot delete the root folder"),
+            Error::Forbidden => {
+                Web::forbidden("Forbidden", "You cannot perform actions the root folder")
+            }
             Error::Decode => Web::bad_request(
                 "Decode token failed",
                 "This is due to your refresh token expired",
