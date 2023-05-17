@@ -1,4 +1,4 @@
-use axum::{async_trait, body::Body, extract::FromRequest, http::Request};
+use axum::{async_trait, body::Body, extract::FromRequest, http::Request, Json};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -22,7 +22,7 @@ pub struct DeleteUserRequest {
 impl FromRequest<Database, Body> for DeleteUserRequest {
     type Rejection = Error;
     async fn from_request(req: Request<Body>, state: &Database) -> Result<Self, Self::Rejection> {
-        let body = DeleteUserRequest::from_request(req, state).await?;
+        let Json(body) = Json::<DeleteUserRequest>::from_request(req, state).await?;
         let DeleteUserRequest {
             password,
             confirm_password,

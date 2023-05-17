@@ -1,4 +1,4 @@
-use axum::{async_trait, body::Body, extract::FromRequest, http::Request};
+use axum::{async_trait, body::Body, extract::FromRequest, http::Request, Json};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -28,7 +28,7 @@ pub struct CreateUserRequest {
 impl FromRequest<Database, Body> for CreateUserRequest {
     type Rejection = Error;
     async fn from_request(req: Request<Body>, state: &Database) -> Result<Self, Self::Rejection> {
-        let body = CreateUserRequest::from_request(req, state).await?;
+        let Json(body) = Json::<CreateUserRequest>::from_request(req, state).await?;
         let CreateUserRequest {
             password,
             confirm_password,
