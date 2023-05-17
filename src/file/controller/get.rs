@@ -7,7 +7,6 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::{
-    error::Error,
     prisma::{file, folder, user},
     web::Web,
     Database, WebResult,
@@ -49,34 +48,33 @@ impl FileController {
                 .exec()
                 .await?;
 
-            let mut root_folders = vec![];
-            for user in users {
-                root_folders.push(
-                    db.folder()
-                        .find_first(vec![folder::parent_folder_id::equals(None)])
-                        .select(folder::select!({ id }))
-                        .exec()
-                        .await?
-                        .ok_or_else(|| Error::NotFound)?,
-                )
-            }
+            let files = db
+                .folder()
+                .find_many(vec![folder::parent_folder_id::equals(None)])
+                .select(folder::select!({
+                    child_files: select {
+                        id
+                        owner: select {
+                            id
+                            username
+                            email
+                            created_at
+                            updated_at
+                        }
+                        parent_folder_id
+                        filename
+                        extension
+                        visibility
+                        tags
+                        versions
+                        created_at
+                        updated_at
+                    }
+                }))
+                .exec()
+                .await?;
 
-            let mut results = vec![];
-            for root_folder in root_folders {
-                results.push(
-                    db.file()
-                        .find_many(vec![file::parent_folder_id::equals(root_folder.id)])
-                        .include(file::include!({
-                            owner : select {
-                                id username email created_at updated_at
-                            }
-                        }))
-                        .exec()
-                        .await?,
-                )
-            }
-
-            Ok(Web::ok("Get all files successfully", results))
+            Ok(Web::ok("Get all files successfully", files))
         }
         Router::new().route("/", get(get_files_handler))
     }
