@@ -8,7 +8,6 @@ pub mod get;
 pub mod profile;
 pub mod update;
 
-#[derive(Clone)]
 pub struct UserController {}
 impl UserController {
     pub fn routes() -> Router<Database> {
