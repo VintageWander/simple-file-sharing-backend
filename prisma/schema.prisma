@@ -12,16 +12,16 @@ datasource db {
 }
 
 enum Visibility {
-  PUBLIC
-  SHARED
-  PRIVATE
+  public
+  shared
+  private
 }
 
 enum Extension {
-  PNG
-  JPG
-  JPEG
-  SVG
+  png
+  jpg
+  jpeg
+  svg
 }
 
 model User {
