@@ -3,6 +3,7 @@ use validator::ValidationError;
 
 pub mod file;
 pub mod user;
+pub mod uuid;
 
 pub fn validation_message(msg: &'static str) -> ValidationError {
     let mut error = ValidationError::new("");
