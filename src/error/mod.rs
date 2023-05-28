@@ -1,3 +1,12 @@
+pub mod print;
+pub mod query;
+
+use aws_sdk_s3::operation::{
+    copy_object::CopyObjectError, delete_object::DeleteObjectError,
+    delete_objects::DeleteObjectsError, get_object::GetObjectError,
+    list_objects_v2::ListObjectsV2Error, put_object::PutObjectError,
+};
+use aws_smithy_http::result::SdkError;
 use axum::{
     extract::rejection::{JsonRejection, PathRejection},
     response::IntoResponse,
@@ -8,21 +17,7 @@ use validator::{ValidationError, ValidationErrors};
 
 use crate::web::Web;
 
-pub fn extract_validation_error(e: &ValidationErrors) -> String {
-    let mut message = "".to_string();
-    message.insert(0, 'F');
-    for field in e.field_errors() {
-        message.insert_str(message.len(), format!("ield {}: ", field.0).as_str());
-        for field_error in field.1 {
-            if let Some(msg) = &field_error.message {
-                message.insert_str(message.len(), format!("{}; F", msg).as_str())
-            } else {
-                message.insert_str(message.len(), format!("{}; F", field_error.code).as_str())
-            }
-        }
-    }
-    message[0..message.len() - 3].to_string()
-}
+use self::{print::extract_validation_error, query::match_query_error};
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -69,6 +64,27 @@ pub enum Error {
     Decode,
 
     /*
+        AWS errors
+    */
+    #[error("Upload file error")]
+    PutObject(#[from] SdkError<PutObjectError>),
+
+    #[error("Get single file error")]
+    GetObject(#[from] SdkError<GetObjectError>),
+
+    #[error("List all files error")]
+    ListObject(#[from] SdkError<ListObjectsV2Error>),
+
+    #[error("Copy file error")]
+    CopyObject(#[from] SdkError<CopyObjectError>),
+
+    #[error("Delete file error")]
+    DeleteObject(#[from] SdkError<DeleteObjectError>),
+
+    #[error("Delete files error")]
+    DeleteObjects(#[from] SdkError<DeleteObjectsError>),
+
+    /*
         General errors
     */
     #[error("Not Found")]
@@ -81,13 +97,7 @@ impl IntoResponse for Error {
             /*
                 Database errors
             */
-            Error::Query(e) => Web::bad_request(
-                "Query error",
-                format!(
-                    "The information provided could not be found in the database. Error: {}",
-                    e
-                ),
-            ),
+            Error::Query(e) => match_query_error(e),
 
             /*
                 Request parsing errors
@@ -130,6 +140,40 @@ impl IntoResponse for Error {
                 "Decode token failed",
                 "This is due to your refresh token expired",
             ),
+
+            /*
+                AWS S3 errors
+            */
+            Error::GetObject(_) => Web::bad_request(
+                "Get file error",
+                "This maybe due to the information provided was incorrect",
+            ),
+
+            Error::PutObject(_) => Web::bad_request(
+                "Cannot upload file",
+                "This is maybe due to the file is in wrong format or too large for upload",
+            ),
+
+            Error::CopyObject(_) => Web::internal_error(
+                "Cannot copy file",
+                "This is maybe due to the storage server unable to copy, please try again later",
+            ),
+
+            Error::ListObject(_) => Web::internal_error(
+                "Cannot get all files",
+                "Probably database error, please try again later",
+            ),
+
+            Error::DeleteObject(_) => 
+                Web::internal_error(
+                    "Cannot delete file", 
+                    "This is due to the database have problems that prevent the file from being deleted"
+                ),
+            Error::DeleteObjects(_) => 
+                Web::internal_error(
+                    "Cannot delete multiple files",
+                     "This is due to database error, which make some files couldn't be deleted"
+                    ),
 
             /*
                 General errors
