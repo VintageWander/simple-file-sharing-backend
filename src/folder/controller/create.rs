@@ -31,7 +31,7 @@ pub fn create_folder() -> Router<GlobalState> {
             .ok_or_else(|| Error::NotFound)?;
 
         let parent = match optional_parent {
-            Some(parent) => parent.to_string(),
+            Some(parent) => parent,
             None => root_folder.id,
         };
 

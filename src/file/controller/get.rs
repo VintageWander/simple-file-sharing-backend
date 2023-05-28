@@ -4,7 +4,6 @@ use axum::{
     Router,
 };
 use serde::Deserialize;
-use uuid::Uuid;
 
 use crate::{
     prisma::{file, folder, user},
@@ -14,7 +13,7 @@ use crate::{
 
 #[derive(Deserialize)]
 struct FileQuery {
-    pub parent_folder_id: Option<Uuid>,
+    pub parent_folder_id: Option<String>,
 }
 
 pub fn get_files() -> Router<GlobalState> {
@@ -25,9 +24,7 @@ pub fn get_files() -> Router<GlobalState> {
         if let Some(parent_folder_id) = parent_folder_id {
             let files = db
                 .file()
-                .find_many(vec![file::parent_folder_id::equals(
-                    parent_folder_id.to_string(),
-                )])
+                .find_many(vec![file::parent_folder_id::equals(parent_folder_id)])
                 .select(file::select!({
                     owner : select {
                         id username email created_at updated_at

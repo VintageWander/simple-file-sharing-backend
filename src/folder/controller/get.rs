@@ -4,14 +4,13 @@ use axum::{
     Router,
 };
 use serde::Deserialize;
-use uuid::Uuid;
 
 use crate::{folder::response::folder_response, prisma::folder, web::Web, GlobalState, WebResult};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct FolderQuery {
-    parent_folder_id: Option<Uuid>,
+    parent_folder_id: Option<String>,
 }
 
 pub fn get_folders() -> Router<GlobalState> {
@@ -27,7 +26,7 @@ pub fn get_folders() -> Router<GlobalState> {
             let folders = db
                 .folder()
                 .find_many(vec![folder::parent_folder_id::equals(Some(
-                    parent_folder_id.to_string(),
+                    parent_folder_id,
                 ))])
                 .select(folder_response::select())
                 .exec()

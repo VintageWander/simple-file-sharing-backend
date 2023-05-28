@@ -8,7 +8,7 @@ use aws_sdk_s3::operation::{
 };
 use aws_smithy_http::result::SdkError;
 use axum::{
-    extract::rejection::{JsonRejection, PathRejection},
+    extract::rejection::{JsonRejection, PathRejection, QueryRejection},
     response::IntoResponse,
 };
 use prisma_client_rust::QueryError;
@@ -25,7 +25,7 @@ pub enum Error {
         Database errors
     */
     #[error("Query error")]
-    Query(#[from] QueryError),
+    DatabaseQuery(#[from] QueryError),
 
     /*
         Request parsing errors
@@ -35,6 +35,9 @@ pub enum Error {
 
     #[error("Json parse error")]
     Json(#[from] JsonRejection),
+
+    #[error("Query string parse error")]
+    Query(#[from] QueryRejection),
 
     /*
         Validation errors
@@ -97,7 +100,7 @@ impl IntoResponse for Error {
             /*
                 Database errors
             */
-            Error::Query(e) => match_query_error(e),
+            Error::DatabaseQuery(e) => match_query_error(e),
 
             /*
                 Request parsing errors
@@ -110,6 +113,7 @@ impl IntoResponse for Error {
                 ),
             ),
             Error::Json(e) => Web::bad_request("Json request error", e),
+            Error::Query(e) => Web::bad_request("Query string invalid", e),
 
             /*
                 Validation errors

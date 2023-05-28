@@ -40,7 +40,7 @@ pub fn update_folder() -> Router<GlobalState> {
         let mut actions = vec![];
 
         if let Some(parent) = parent {
-            actions.push(folder::parent_folder_id::set(Some(parent.to_string())))
+            actions.push(folder::parent_folder_id::set(Some(parent)))
         }
 
         if let Some(folder_name) = folder_name {
