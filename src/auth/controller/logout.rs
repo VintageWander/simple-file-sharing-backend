@@ -9,42 +9,38 @@ use crate::{
     prisma::user,
     user::request::loggedin::LoggedInUser,
     web::Web,
-    Database, WebResult,
+    GlobalState, WebResult,
 };
 
-use super::AuthController;
+pub fn logout() -> Router<GlobalState> {
+    async fn logout_handler(
+        State(GlobalState { db, .. }): State<GlobalState>,
+        cookies: CookieJar,
+        LoggedInUser(user): LoggedInUser,
+    ) -> WebResult {
+        let (access_token, refresh_token) =
+            (encode_access_token(&user)?, encode_refresh_token(&user)?);
 
-impl AuthController {
-    pub fn logout(&self) -> Router<Database> {
-        async fn logout_handler(
-            State(db): State<Database>,
-            cookies: CookieJar,
-            LoggedInUser(user): LoggedInUser,
-        ) -> WebResult {
-            let (access_token, refresh_token) =
-                (encode_access_token(&user)?, encode_refresh_token(&user)?);
+        let (access_cookie, refresh_cookie) = (
+            make_access_cookie(access_token),
+            make_refresh_cookie(refresh_token),
+        );
 
-            let (access_cookie, refresh_cookie) = (
-                make_access_cookie(access_token),
-                make_refresh_cookie(refresh_token),
-            );
+        db.user()
+            .update(
+                user::id::equals(user.id),
+                vec![user::refresh_token::set("".into())],
+            )
+            .exec()
+            .await?;
 
-            db.user()
-                .update(
-                    user::id::equals(user.id),
-                    vec![user::refresh_token::set("".into())],
-                )
-                .exec()
-                .await?;
+        let response = (
+            StatusCode::OK,
+            cookies.remove(access_cookie).remove(refresh_cookie),
+            Web::ok("Logout successful", ()),
+        );
 
-            let response = (
-                StatusCode::OK,
-                cookies.remove(access_cookie).remove(refresh_cookie),
-                Web::ok("Logout successful", ()),
-            );
-
-            Ok(response.into_response())
-        }
-        Router::new().route("/logout", delete(logout_handler))
+        Ok(response.into_response())
     }
+    Router::new().route("/logout", delete(logout_handler))
 }

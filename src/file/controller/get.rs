@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::{
     prisma::{file, folder, user},
     web::Web,
-    Database, WebResult,
+    GlobalState, WebResult,
 };
 
 #[derive(Deserialize)]
@@ -17,65 +17,61 @@ struct FileQuery {
     pub parent_folder_id: Option<Uuid>,
 }
 
-use super::FileController;
-
-impl FileController {
-    pub fn get_files(&self) -> Router<Database> {
-        async fn get_files_handler(
-            State(db): State<Database>,
-            Query(FileQuery { parent_folder_id }): Query<FileQuery>,
-        ) -> WebResult {
-            if let Some(parent_folder_id) = parent_folder_id {
-                let files = db
-                    .file()
-                    .find_many(vec![file::parent_folder_id::equals(
-                        parent_folder_id.to_string(),
-                    )])
-                    .select(file::select!({
-                        owner : select {
-                            id username email created_at updated_at
-                        }
-                    }))
-                    .exec()
-                    .await?;
-                return Ok(Web::ok("Get all folders at position success", files));
-            }
-
-            let users = db
-                .user()
-                .find_many(vec![])
-                .select(user::select!({ id }))
-                .exec()
-                .await?;
-
+pub fn get_files() -> Router<GlobalState> {
+    async fn get_files_handler(
+        State(GlobalState { db, .. }): State<GlobalState>,
+        Query(FileQuery { parent_folder_id }): Query<FileQuery>,
+    ) -> WebResult {
+        if let Some(parent_folder_id) = parent_folder_id {
             let files = db
-                .folder()
-                .find_many(vec![folder::parent_folder_id::equals(None)])
-                .select(folder::select!({
-                    child_files: select {
-                        id
-                        owner: select {
-                            id
-                            username
-                            email
-                            created_at
-                            updated_at
-                        }
-                        parent_folder_id
-                        filename
-                        extension
-                        visibility
-                        tags
-                        versions
-                        created_at
-                        updated_at
+                .file()
+                .find_many(vec![file::parent_folder_id::equals(
+                    parent_folder_id.to_string(),
+                )])
+                .select(file::select!({
+                    owner : select {
+                        id username email created_at updated_at
                     }
                 }))
                 .exec()
                 .await?;
-
-            Ok(Web::ok("Get all files successfully", files))
+            return Ok(Web::ok("Get all folders at position success", files));
         }
-        Router::new().route("/", get(get_files_handler))
+
+        let users = db
+            .user()
+            .find_many(vec![])
+            .select(user::select!({ id }))
+            .exec()
+            .await?;
+
+        let files = db
+            .folder()
+            .find_many(vec![folder::parent_folder_id::equals(None)])
+            .select(folder::select!({
+                child_files: select {
+                    id
+                    owner: select {
+                        id
+                        username
+                        email
+                        created_at
+                        updated_at
+                    }
+                    parent_folder_id
+                    filename
+                    extension
+                    visibility
+                    tags
+                    versions
+                    created_at
+                    updated_at
+                }
+            }))
+            .exec()
+            .await?;
+
+        Ok(Web::ok("Get all files successfully", files))
     }
+    Router::new().route("/", get(get_files_handler))
 }

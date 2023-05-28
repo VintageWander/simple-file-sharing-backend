@@ -6,41 +6,37 @@ use crate::{
     prisma::{folder, user::Data},
     user::request::loggedin::LoggedInUser,
     web::Web,
-    Database, WebResult,
+    GlobalState, WebResult,
 };
 
-use super::FolderController;
+pub fn delete_folder() -> Router<GlobalState> {
+    async fn delete_folder_handler(
+        State(GlobalState { db, .. }): State<GlobalState>,
+        LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
+        ParamId(param_folder_id): ParamId,
+    ) -> WebResult {
+        let target = db
+            .folder()
+            .find_unique(folder::id::equals(param_folder_id))
+            .select(folder::select!({ id parent_folder_id }))
+            .exec()
+            .await?
+            .ok_or_else(|| Error::NotFound)?;
 
-impl FolderController {
-    pub fn delete_folder(&self) -> Router<Database> {
-        async fn delete_folder_handler(
-            State(db): State<Database>,
-            LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
-            ParamId(param_folder_id): ParamId,
-        ) -> WebResult {
-            let target = db
-                .folder()
-                .find_unique(folder::id::equals(param_folder_id))
-                .select(folder::select!({ id parent_folder_id }))
-                .exec()
-                .await?
-                .ok_or_else(|| Error::NotFound)?;
+        // Match the status of the target folder
+        match target.parent_folder_id.is_none() {
+            // If it is None -> Root Folder
+            true => Err(Error::Forbidden),
+            // Else -> Delete
+            false => {
+                db.folder()
+                    .delete(folder::id::equals(target.id))
+                    .exec()
+                    .await?;
 
-            // Match the status of the target folder
-            match target.parent_folder_id.is_none() {
-                // If it is None -> Root Folder
-                true => Err(Error::Forbidden),
-                // Else -> Delete
-                false => {
-                    db.folder()
-                        .delete(folder::id::equals(target.id))
-                        .exec()
-                        .await?;
-
-                    Ok(Web::ok("Deleted folder successfully", ()))
-                }
+                Ok(Web::ok("Deleted folder successfully", ()))
             }
         }
-        Router::new()
     }
+    Router::new()
 }

@@ -1,25 +1,23 @@
 use axum::Router;
 
-use crate::Database;
+use crate::GlobalState;
 
 pub mod create;
 pub mod delete;
 pub mod get;
 pub mod update;
 
-pub struct FolderController {}
-impl FolderController {
-    pub fn routes() -> Router<Database> {
-        let controller = FolderController {};
-        Router::new().nest(
-            "/folder",
-            Router::new()
-                // /folder?parentFolderId={folder id}
-                .merge(controller.get_folders())
-                // /folder/create
-                .merge(controller.create_folder())
-                .merge(controller.update_folder())
-                .merge(controller.delete_folder()),
-        )
-    }
+use {create::create_folder, delete::delete_folder, get::get_folders, update::update_folder};
+
+pub fn folder_routes() -> Router<GlobalState> {
+    Router::new().nest(
+        "/folder",
+        Router::new()
+            // /folder?parentFolderId={folder id}
+            .merge(get_folders())
+            // /folder/create
+            .merge(create_folder())
+            .merge(update_folder())
+            .merge(delete_folder()),
+    )
 }

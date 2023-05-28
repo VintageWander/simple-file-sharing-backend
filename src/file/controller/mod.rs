@@ -2,12 +2,10 @@ pub mod get;
 
 use axum::Router;
 
-use crate::Database;
+use crate::GlobalState;
 
-pub struct FileController {}
-impl FileController {
-    pub fn routes() -> Router<Database> {
-        let controller = FileController {};
-        Router::new().nest("/file", Router::new().merge(controller.get_files()))
-    }
+use self::get::get_files;
+
+pub fn file_routes() -> Router<GlobalState> {
+    Router::new().nest("/file", Router::new().merge(get_files()))
 }

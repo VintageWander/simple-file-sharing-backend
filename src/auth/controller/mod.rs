@@ -3,20 +3,16 @@ pub mod logout;
 pub mod refresh;
 
 use axum::Router;
+use {login::login, logout::logout, refresh::refresh};
 
-use crate::Database;
+use crate::GlobalState;
 
-#[derive(Clone)]
-pub struct AuthController {}
-impl AuthController {
-    pub fn routes() -> Router<Database> {
-        let controller = AuthController {};
-        Router::new().nest(
-            "/auth",
-            Router::new()
-                .merge(controller.login())
-                .merge(controller.logout())
-                .merge(controller.refresh()),
-        )
-    }
+pub fn auth_routes() -> Router<GlobalState> {
+    Router::new().nest(
+        "/auth",
+        Router::new()
+            .merge(login())
+            .merge(logout())
+            .merge(refresh()),
+    )
 }
