@@ -5,17 +5,17 @@ use crate::{
     auth::utils::decode::decode_access_token,
     error::Error,
     prisma::user::{self, Data},
-    Database,
+    GlobalState,
 };
 
 pub struct LoggedInUser(pub Data);
 
 #[async_trait]
-impl FromRequestParts<Database> for LoggedInUser {
+impl FromRequestParts<GlobalState> for LoggedInUser {
     type Rejection = Error;
     async fn from_request_parts(
         parts: &mut Parts,
-        state: &Database,
+        state: &GlobalState,
     ) -> Result<Self, Self::Rejection> {
         let cookies = CookieJar::from_request_parts(parts, state)
             .await
@@ -29,6 +29,7 @@ impl FromRequestParts<Database> for LoggedInUser {
 
         let user_id = decode_access_token(access_token)?;
         let user = state
+            .db
             .user()
             .find_unique(user::id::equals(user_id))
             .exec()

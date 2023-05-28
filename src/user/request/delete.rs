@@ -5,7 +5,7 @@ use validator::Validate;
 use crate::{
     error::Error,
     validation::{user::check_password, validation_message},
-    Database,
+    GlobalState,
 };
 
 #[derive(Deserialize, Validate)]
@@ -19,9 +19,12 @@ pub struct DeleteUserRequest {
 }
 
 #[async_trait]
-impl FromRequest<Database, Body> for DeleteUserRequest {
+impl FromRequest<GlobalState, Body> for DeleteUserRequest {
     type Rejection = Error;
-    async fn from_request(req: Request<Body>, state: &Database) -> Result<Self, Self::Rejection> {
+    async fn from_request(
+        req: Request<Body>,
+        state: &GlobalState,
+    ) -> Result<Self, Self::Rejection> {
         let Json(body) = Json::<DeleteUserRequest>::from_request(req, state).await?;
         let DeleteUserRequest {
             password,

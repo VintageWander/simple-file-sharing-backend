@@ -2,7 +2,8 @@
 
 use std::{net::SocketAddr, sync::Arc};
 
-use auth::controller::AuthController;
+use auth::controller::auth_routes;
+use aws::S3;
 use axum::{
     http::{
         header::{
@@ -16,14 +17,15 @@ use axum::{
 };
 use dotenvy::var;
 use error::Error;
-use file::controller::FileController;
-use folder::controller::FolderController;
+use file::controller::file_routes;
+use folder::controller::folder_routes;
 use prisma::PrismaClient;
 
 use tower_http::cors::CorsLayer;
-use user::controller::UserController;
+use user::controller::user_routes;
 
 mod auth;
+mod aws;
 mod error;
 mod extractors;
 mod folder;
@@ -35,7 +37,12 @@ mod user;
 mod validation;
 mod web;
 
-type Database = Arc<PrismaClient>;
+#[derive(Clone)]
+pub struct GlobalState {
+    pub storage: S3,
+    pub db: Arc<PrismaClient>,
+}
+
 type WebResult = std::result::Result<Response, Error>;
 
 #[tokio::main]
@@ -46,14 +53,19 @@ async fn main() {
         .await
         .expect("Cannot connect to Postgres");
 
+    let state = GlobalState {
+        storage: S3::init(),
+        db: Arc::new(client),
+    };
+
     let origin = var("ORIGIN").expect("ORIGIN must be in .env");
 
     let routes = Router::new()
-        .merge(UserController::routes())
-        .merge(AuthController::routes())
-        .merge(FolderController::routes())
-        .merge(FileController::routes())
-        .with_state(Arc::new(client))
+        .merge(user_routes())
+        .merge(auth_routes())
+        .merge(folder_routes())
+        .merge(file_routes())
+        .with_state(state)
         .layer(
             CorsLayer::new()
                 .allow_credentials(true)

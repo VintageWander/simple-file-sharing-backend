@@ -5,7 +5,7 @@ use validator::Validate;
 use crate::{
     error::Error,
     validation::{user::*, validation_message},
-    Database,
+    GlobalState,
 };
 
 #[derive(Deserialize, Validate)]
@@ -28,9 +28,12 @@ pub struct UpdateUserRequest {
 }
 
 #[async_trait]
-impl FromRequest<Database, Body> for UpdateUserRequest {
+impl FromRequest<GlobalState, Body> for UpdateUserRequest {
     type Rejection = Error;
-    async fn from_request(req: Request<Body>, state: &Database) -> Result<Self, Self::Rejection> {
+    async fn from_request(
+        req: Request<Body>,
+        state: &GlobalState,
+    ) -> Result<Self, Self::Rejection> {
         let Json(body) = Json::<UpdateUserRequest>::from_request(req, state).await?;
         let UpdateUserRequest {
             new_password,
