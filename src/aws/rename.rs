@@ -31,8 +31,8 @@ pub fn get_file_position(str: &str) -> Result<String, Error> {
 
 impl S3 {
     pub async fn rename_file(&self, fullpath: &str, rename_path: &str) -> Result<(), Error> {
-        check_fullpath(fullpath);
-        check_fullpath(rename_path);
+        check_fullpath(fullpath)?;
+        check_fullpath(rename_path)?;
 
         if get_folder_position(fullpath)? != get_folder_position(rename_path)? {
             return Err(validation_message(
@@ -48,8 +48,8 @@ impl S3 {
     }
 
     pub async fn rename_folder(&self, dir_path: &str, rename_path: &str) -> Result<(), Error> {
-        check_dir(dir_path);
-        check_dir(rename_path);
+        check_dir(dir_path)?;
+        check_dir(rename_path)?;
 
         if get_folder_position(dir_path)? != get_folder_position(rename_path)? {
             return Err(validation_message(
