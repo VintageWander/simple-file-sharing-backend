@@ -2,30 +2,30 @@ use axum::{extract::State, routing::get, Router};
 
 use crate::{
     file::request::query::FileQuery,
-    prisma::{file, folder, Visibility},
+    prisma::{file, folder, user},
+    user::request::loggedin::LoggedInUser,
     web::Web,
     GlobalState, WebResult,
 };
 
-// PUBLIC route ignores visibility field
-
 // On the handlers side
 // We only have to deal with owner_id, parent, and visiblity
 
-pub fn get_public_files() -> Router<GlobalState> {
-    async fn get_public_files_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+pub fn get_my_files() -> Router<GlobalState> {
+    async fn get_my_files_handler(
+        State(GlobalState { storage, db }): State<GlobalState>,
+        LoggedInUser(user::Data { id: user_id, .. }): LoggedInUser,
         FileQuery {
-            owner_id,
             parent,
+            visibility,
             mut filters,
             ..
         }: FileQuery,
     ) -> WebResult {
-        filters.push(file::visibility::equals(Visibility::Public));
+        filters.push(file::owner_id::equals(user_id));
 
-        if let Some(owner_id) = owner_id {
-            filters.push(file::owner_id::equals(owner_id))
+        if let Some(visibility) = visibility {
+            filters.push(file::visibility::equals(visibility))
         }
 
         let starting_point = match parent {
@@ -33,7 +33,7 @@ pub fn get_public_files() -> Router<GlobalState> {
             None => folder::parent_folder_id::equals(None),
         };
 
-        let public_files: Vec<_> = db
+        let my_files: Vec<_> = db
             .folder()
             .find_many(vec![starting_point])
             .select(folder::select!({
@@ -56,7 +56,7 @@ pub fn get_public_files() -> Router<GlobalState> {
             .flat_map(|root_folder| root_folder.child_files)
             .collect();
 
-        Ok(Web::ok("Get all public files success", public_files))
+        Ok(Web::ok("Get all personal files successfully", my_files))
     }
-    Router::new().route("/public", get(get_public_files_handler))
+    Router::new().route("/my", get(get_my_files_handler))
 }
