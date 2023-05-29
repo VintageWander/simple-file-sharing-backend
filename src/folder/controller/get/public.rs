@@ -1,7 +1,10 @@
 use axum::{extract::State, routing::get, Router};
 
 use crate::{
-    folder::request::query::FolderQuery, prisma::folder, web::Web, GlobalState, WebResult,
+    folder::request::query::FolderQuery,
+    prisma::{folder, Visibility},
+    web::Web,
+    GlobalState, WebResult,
 };
 
 // This route will discard visibility search in the query string
@@ -14,14 +17,14 @@ pub fn get_public_folders() -> Router<GlobalState> {
         FolderQuery {
             id,
             owner_id,
-            parent_folder_id,
+            parent: parent_folder_id,
             folder_name,
             created_at,
             updated_at,
             ..
         }: FolderQuery,
     ) -> WebResult {
-        let mut filters = vec![];
+        let mut filters = vec![folder::visibility::equals(Visibility::Public)];
 
         if let Some(id) = id {
             filters.push(folder::id::equals(id))
@@ -73,7 +76,7 @@ pub fn get_public_folders() -> Router<GlobalState> {
             .flat_map(|root_folder| root_folder.child_folders)
             .collect();
 
-        Ok(Web::ok("Get all folders successfully", folders))
+        Ok(Web::ok("Get all public folders successfully", folders))
     }
     Router::new().route("/public", get(get_public_folders_handler))
 }

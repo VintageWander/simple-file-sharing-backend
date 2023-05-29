@@ -1,4 +1,4 @@
-use axum::{extract::State, Router};
+use axum::{extract::State, routing::delete, Router};
 
 use crate::{
     error::Error,
@@ -38,5 +38,5 @@ pub fn delete_folder() -> Router<GlobalState> {
             }
         }
     }
-    Router::new()
+    Router::new().route("/delete/:folder_id", delete(delete_folder_handler))
 }
