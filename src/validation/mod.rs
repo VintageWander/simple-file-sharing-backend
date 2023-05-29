@@ -1,6 +1,7 @@
 use fancy_regex::Regex;
 use validator::ValidationError;
 
+pub mod aws;
 pub mod file;
 pub mod user;
 pub mod uuid;

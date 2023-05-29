@@ -9,7 +9,7 @@ use super::S3;
 
 impl S3 {
     pub async fn delete_file(&self, fullpath: &str) -> Result<(), Error> {
-        check_fullpath(fullpath);
+        check_fullpath(fullpath)?;
         self.client
             .delete_object()
             .bucket(&self.bucket_name)
@@ -20,7 +20,7 @@ impl S3 {
     }
 
     pub async fn delete_folder(&self, fullpath: &str) -> Result<(), Error> {
-        check_dir(fullpath);
+        check_dir(fullpath)?;
 
         let objs = self.get_all(fullpath).await?;
         let delete = objs

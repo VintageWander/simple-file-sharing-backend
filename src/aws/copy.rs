@@ -6,8 +6,8 @@ use crate::{
 
 impl S3 {
     pub async fn copy_file(&self, fullpath: &str, dest_fullpath: &str) -> Result<(), Error> {
-        check_fullpath(fullpath);
-        check_fullpath(dest_fullpath);
+        check_fullpath(fullpath)?;
+        check_fullpath(dest_fullpath)?;
 
         let src = format!("{}/{fullpath}", self.bucket_name);
 
@@ -23,8 +23,8 @@ impl S3 {
     }
 
     pub async fn copy_folder(&self, dir: &str, dest_dir: &str) -> Result<(), Error> {
-        check_dir(dir);
-        check_dir(dest_dir);
+        check_dir(dir)?;
+        check_dir(dest_dir)?;
 
         let objs = self.get_all(dir).await?;
 

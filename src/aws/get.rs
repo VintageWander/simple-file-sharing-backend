@@ -21,7 +21,7 @@ impl S3 {
     }
 
     pub async fn get_data_by_key(&self, fullpath: &str) -> Result<ByteStream, Error> {
-        check_fullpath(fullpath);
+        check_fullpath(fullpath)?;
         let req = self
             .client
             .get_object()
