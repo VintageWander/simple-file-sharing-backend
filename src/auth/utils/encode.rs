@@ -1,21 +1,20 @@
 use chrono::{Duration, Utc};
-use dotenvy::var;
 use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 
-use crate::{error::Error, prisma::user::Data};
+use crate::{config::Config, error::Error, prisma::user::Data};
 
 use super::{Claims, TokenType};
 
 fn encode_token(user: &Data, token_type: TokenType) -> Result<String, Error> {
+    let Config {
+        jwt_access,
+        jwt_refresh,
+        ..
+    } = Config::from_env();
+
     let (token_secret, duration) = match token_type {
-        TokenType::Access => (
-            var("JWT_ACCESS").expect("No JWT_ACCESS in .env"),
-            Duration::hours(3),
-        ),
-        TokenType::Refresh => (
-            var("JWT_REFRESH").expect("No JWT_REFRESH in .env"),
-            Duration::hours(12),
-        ),
+        TokenType::Access => (jwt_access, Duration::hours(3)),
+        TokenType::Refresh => (jwt_refresh, Duration::hours(12)),
     };
 
     let exp = Utc::now().checked_add_signed(duration).unwrap().timestamp() as usize;
