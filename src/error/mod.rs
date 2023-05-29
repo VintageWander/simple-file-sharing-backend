@@ -1,5 +1,6 @@
 pub mod print;
 pub mod query;
+pub mod multipart;
 
 use aws_sdk_s3::operation::{
     copy_object::CopyObjectError, delete_object::DeleteObjectError,
@@ -9,15 +10,17 @@ use aws_sdk_s3::operation::{
 use aws_smithy_http::result::SdkError;
 use axum::{
     extract::rejection::{JsonRejection, PathRejection, QueryRejection},
-    response::IntoResponse,
+    response::{IntoResponse}, 
 };
+use axum_typed_multipart::TypedMultipartError;
 use prisma_client_rust::QueryError;
+
 use thiserror::Error;
 use validator::{ValidationError, ValidationErrors};
 
 use crate::web::Web;
 
-use self::{print::extract_validation_error, query::match_query_error};
+use self::{print::extract_validation_error, query::match_query_error, multipart::match_multipart_error};
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -38,6 +41,9 @@ pub enum Error {
 
     #[error("Query string parse error")]
     Query(#[from] QueryRejection),
+
+    #[error("Multipart error")]
+    Multipart(#[from] TypedMultipartError),
 
     /*
         Validation errors
@@ -92,6 +98,9 @@ pub enum Error {
     */
     #[error("Not Found")]
     NotFound,
+
+    #[error("No content for response")]
+    NoContent,
 }
 
 impl IntoResponse for Error {
@@ -114,6 +123,7 @@ impl IntoResponse for Error {
             ),
             Error::Json(e) => Web::bad_request("Json request error", e),
             Error::Query(e) => Web::bad_request("Query string invalid", e),
+            Error::Multipart(e) => match_multipart_error(e),
 
             /*
                 Validation errors
@@ -186,6 +196,7 @@ impl IntoResponse for Error {
                 "Not found",
                 "The value provided for query could not be found",
             ),
+            Error::NoContent => Web::no_content("None updated", "Since no data was provided, nothing has changed")
         }
     }
 }
