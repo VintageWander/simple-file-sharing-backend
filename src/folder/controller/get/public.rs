@@ -9,41 +9,26 @@ use crate::{
 
 // This route will discard visibility search in the query string
 // And sets visibility to Public
+
+// On the handlers side
+// We only have to deal with owner_id, parent, and visiblity
+
 pub fn get_public_folders() -> Router<GlobalState> {
     // This function does not list all folders that exists in the database
     // But rather lists all folders in the root directory
     async fn get_public_folders_handler(
         State(GlobalState { db, .. }): State<GlobalState>,
         FolderQuery {
-            id,
             owner_id,
             parent: parent_folder_id,
-            folder_name,
-            created_at,
-            updated_at,
+            mut filters,
             ..
         }: FolderQuery,
     ) -> WebResult {
-        let mut filters = vec![folder::visibility::equals(Visibility::Public)];
-
-        if let Some(id) = id {
-            filters.push(folder::id::equals(id))
-        }
+        filters.push(folder::visibility::equals(Visibility::Public));
 
         if let Some(owner_id) = owner_id {
             filters.push(folder::owner_id::equals(owner_id))
-        }
-
-        if let Some(folder_name) = folder_name {
-            filters.push(folder::folder_name::equals(folder_name))
-        }
-
-        if let Some(created_at) = created_at {
-            filters.push(folder::created_at::equals(created_at))
-        }
-
-        if let Some(updated_at) = updated_at {
-            filters.push(folder::updated_at::equals(updated_at))
         }
 
         // If the parent folder id is provided, then that should be a starting point folder

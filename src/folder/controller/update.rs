@@ -15,11 +15,7 @@ pub fn update_folder() -> Router<GlobalState> {
         State(GlobalState { db, .. }): State<GlobalState>,
         LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
         ParamId(param_folder_id): ParamId,
-        UpdateFolderRequest {
-            parent,
-            folder_name,
-            visibility,
-        }: UpdateFolderRequest,
+        UpdateFolderRequest { actions, .. }: UpdateFolderRequest,
     ) -> WebResult {
         let old_folder = db
             .folder()
@@ -29,26 +25,10 @@ pub fn update_folder() -> Router<GlobalState> {
             .await?
             .ok_or_else(|| Error::NotFound)?;
 
+        // If the requested folder, has no parent, then it is a root folder
+        // Therefore it should be a forbidden response
         if old_folder.parent_folder_id.is_none() {
             return Err(Error::Forbidden);
-        }
-
-        if let (&None, &None, &None) = (&parent, &folder_name, &visibility) {
-            return Ok(Web::ok("Theres nothing to be updated", old_folder));
-        }
-
-        let mut actions = vec![];
-
-        if let Some(parent) = parent {
-            actions.push(folder::parent_folder_id::set(Some(parent)))
-        }
-
-        if let Some(folder_name) = folder_name {
-            actions.push(folder::folder_name::set(folder_name))
-        }
-
-        if let Some(visibility) = visibility {
-            actions.push(folder::visibility::set(visibility))
         }
 
         let updated_folder = db
