@@ -10,14 +10,14 @@ use validator::Validate;
 
 use crate::{
     error::Error,
-    prisma::Visibility,
-    validation::{file::check_folder_name, uuid::check_uuid},
+    prisma::{Extension, Visibility},
+    validation::{file::check_filename, uuid::check_uuid},
     GlobalState,
 };
 
 #[derive(Deserialize, Validate, IsEmpty)]
 #[serde(rename_all = "camelCase")]
-pub struct FolderQuery {
+pub struct FileQuery {
     #[validate(custom = "check_uuid")]
     pub id: Option<String>,
 
@@ -27,8 +27,10 @@ pub struct FolderQuery {
     #[validate(custom = "check_uuid")]
     pub parent: Option<String>,
 
-    #[validate(custom = "check_folder_name")]
-    pub folder_name: Option<String>,
+    #[validate(custom = "check_filename")]
+    pub filename: Option<String>,
+
+    pub extension: Option<Extension>,
 
     pub visibility: Option<Visibility>,
 
@@ -38,13 +40,13 @@ pub struct FolderQuery {
 }
 
 #[async_trait]
-impl FromRequestParts<GlobalState> for FolderQuery {
+impl FromRequestParts<GlobalState> for FileQuery {
     type Rejection = Error;
     async fn from_request_parts(
         parts: &mut Parts,
         state: &GlobalState,
     ) -> Result<Self, Self::Rejection> {
-        let Query(query) = Query::<FolderQuery>::from_request_parts(parts, state).await?;
+        let Query(query) = Query::<FileQuery>::from_request_parts(parts, state).await?;
 
         match query.is_empty() {
             true => Err(Error::NoContent),
