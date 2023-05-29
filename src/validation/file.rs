@@ -9,7 +9,7 @@ pub fn check_filename(filename: &str) -> Result<(), ValidationError> {
     // This can also match hello_world or hello-world
     check_with(
         filename,
-        r#"^[a-zA-Z0-9-_]{3,}$"#,
+        r#"^[a-zA-Z0-9-_]{3,20}$"#,
         "The name can only contain a-z A-Z 0-9 and within 3 to 20 characters in length",
     )
 }
@@ -24,7 +24,7 @@ pub fn check_dir(position: &str) -> Result<(), ValidationError> {
     // Basically it requires a slash must exists at the end
     check_with(
         position,
-        r#"^([a-zA-Z0-9-_]{3,}[/])*$"#,
+        r#"^([a-zA-Z0-9-_]{3,50}[/])*$"#,
         "The dir input is in wrong format",
     )
 }
@@ -34,7 +34,7 @@ pub fn check_fullpath(fullpath: &str) -> Result<(), ValidationError> {
     // This will reject cases like hello/.txt, hello/world, or even hello/
     check_with(
         fullpath,
-        r#"^(([a-zA-Z0-9-_]{3,}[/])*)[a-zA-Z0-9-_]{3,}\.(png|txt|jpg|jpeg|mp3)$"#,
+        r#"^(([a-zA-Z0-9-_]{3,50}[/])*)[a-zA-Z0-9-_]{3,50}\.(png|txt|jpg|jpeg|mp3)$"#,
         "The fullpath is incorrect",
     )
 }
