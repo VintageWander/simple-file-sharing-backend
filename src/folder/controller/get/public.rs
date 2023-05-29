@@ -1,15 +1,7 @@
-use axum::{
-    extract::{Query, State},
-    routing::get,
-    Router,
-};
-use serde::Deserialize;
+use axum::{extract::State, routing::get, Router};
 
 use crate::{
-    folder::{request::query::FolderQuery, response::folder_response},
-    prisma::folder,
-    web::Web,
-    GlobalState, WebResult,
+    folder::request::query::FolderQuery, prisma::folder, web::Web, GlobalState, WebResult,
 };
 
 // This route will discard visibility search in the query string
@@ -62,7 +54,19 @@ pub fn get_public_folders() -> Router<GlobalState> {
         let folders: Vec<_> = db
             .folder()
             .find_many(vec![starting_point])
-            .select(folder::select!({ child_folders(filters) }))
+            .select(folder::select!({
+                child_folders(filters): select {
+                    id
+                    owner: select {
+                        id username email created_at updated_at
+                    }
+                    parent_folder_id
+                    folder_name
+                    visibility
+                    created_at
+                    updated_at
+                }
+            }))
             .exec()
             .await?
             .into_iter()
