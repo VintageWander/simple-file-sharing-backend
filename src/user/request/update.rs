@@ -1,4 +1,5 @@
 use axum::{async_trait, body::Body, extract::FromRequest, http::Request, Json};
+use is_empty::IsEmpty;
 use serde::Deserialize;
 use validator::Validate;
 
@@ -8,7 +9,7 @@ use crate::{
     GlobalState,
 };
 
-#[derive(Deserialize, Validate)]
+#[derive(Deserialize, Validate, IsEmpty)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateUserRequest {
     #[validate(custom = "check_username")]
@@ -18,6 +19,7 @@ pub struct UpdateUserRequest {
     pub email: Option<String>,
 
     #[validate(custom = "check_password")]
+    #[is_empty(if = "String::is_empty")]
     pub password: String,
 
     #[validate(custom = "check_password")]
@@ -35,11 +37,21 @@ impl FromRequest<GlobalState, Body> for UpdateUserRequest {
         state: &GlobalState,
     ) -> Result<Self, Self::Rejection> {
         let Json(body) = Json::<UpdateUserRequest>::from_request(req, state).await?;
+
+        // Just return no content if the body is empty
+        if body.is_empty() {
+            return Err(Error::NoContent);
+        }
+
         let UpdateUserRequest {
+            username,
+            email,
             new_password,
             confirm_new_password,
             ..
         } = &body;
+
+        // Ensure that both new password and confirm new password fields are equal
         if (new_password.is_some() && confirm_new_password.is_none())
             || (new_password.is_none() && confirm_new_password.is_some())
         {
@@ -52,6 +64,7 @@ impl FromRequest<GlobalState, Body> for UpdateUserRequest {
                 return Err(validation_message("Both passwords are not the same").into());
             }
         }
+
         Ok(body)
     }
 }
