@@ -148,7 +148,7 @@ impl IntoResponse for Error {
             }
             Error::Unauthorized => Web::unauthorized("Unauthorized", "You have to be logged in"),
             Error::Forbidden => {
-                Web::forbidden("Forbidden", "You cannot perform actions the root folder")
+                Web::forbidden("Forbidden", "You do not have permissions to perform this action")
             }
             Error::Decode => Web::bad_request(
                 "Decode token failed",
