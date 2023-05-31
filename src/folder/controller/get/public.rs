@@ -17,7 +17,7 @@ pub fn get_public_folders() -> Router<GlobalState> {
     // This function does not list all folders that exists in the database
     // But rather lists all folders in the root directory
     async fn get_public_folders_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+        State(GlobalState { folder_service, .. }): State<GlobalState>,
         FolderQuery {
             owner_id,
             parent: parent_folder_id,
@@ -39,27 +39,9 @@ pub fn get_public_folders() -> Router<GlobalState> {
             None => folder::parent_folder_id::equals(None),
         };
 
-        let folders: Vec<_> = db
-            .folder()
-            .find_many(vec![starting_point])
-            .select(folder::select!({
-                child_folders(filters): select {
-                    id
-                    owner: select {
-                        id username email created_at updated_at
-                    }
-                    parent_folder_id
-                    folder_name
-                    visibility
-                    created_at
-                    updated_at
-                }
-            }))
-            .exec()
-            .await?
-            .into_iter()
-            .flat_map(|root_folder| root_folder.child_folders)
-            .collect();
+        let folders = folder_service
+            .get_child_folders_from_folders(starting_point, filters)
+            .await?;
 
         Ok(Web::ok("Get all public folders successfully", folders))
     }

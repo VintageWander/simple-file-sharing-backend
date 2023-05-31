@@ -19,7 +19,9 @@ use crate::{
 
 pub fn get_my_folders() -> Router<GlobalState> {
     async fn my_folders_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+        State(GlobalState {
+            db, folder_service, ..
+        }): State<GlobalState>,
         LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
         FolderQuery {
             parent: parent_folder_id,
@@ -39,27 +41,9 @@ pub fn get_my_folders() -> Router<GlobalState> {
             None => folder::parent_folder_id::equals(None),
         };
 
-        let my_folders: Vec<_> = db
-            .folder()
-            .find_many(vec![starting_point])
-            .select(folder::select!({
-                child_folders(filters): select {
-                    id
-                    owner: select {
-                        id username email created_at updated_at
-                    }
-                    parent_folder_id
-                    folder_name
-                    visibility
-                    created_at
-                    updated_at
-                }
-            }))
-            .exec()
-            .await?
-            .into_iter()
-            .flat_map(|root_folder| root_folder.child_folders)
-            .collect();
+        let my_folders = folder_service
+            .get_child_folders_from_folders(starting_point, filters)
+            .await?;
 
         Ok(Web::ok("Get all personal folders successfully", my_folders))
     }

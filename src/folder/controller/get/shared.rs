@@ -1,8 +1,7 @@
 use axum::{extract::State, routing::get, Router};
 
 use crate::{
-    folder::{request::query::FolderQuery, response::folder_response},
-    prisma::{folder, user, Visibility},
+    folder::request::query::FolderQuery,
     user::{request::loggedin::LoggedInUser, response::user_response::Data},
     web::Web,
     GlobalState, WebResult,
@@ -16,24 +15,18 @@ use crate::{
 
 pub fn get_shared_folders() -> Router<GlobalState> {
     async fn get_shared_folders_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+        State(GlobalState {
+            db, folder_service, ..
+        }): State<GlobalState>,
         LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
         FolderQuery {
             parent: parent_folder_id,
-            mut filters,
+            filters,
             ..
         }: FolderQuery,
     ) -> WebResult {
-        filters.extend(vec![
-            folder::visibility::equals(Visibility::Shared),
-            folder::collaborators::some(vec![user::id::equals(user_id)]),
-        ]);
-
-        let shared_folders = db
-            .folder()
-            .find_many(filters)
-            .select(folder_response::select())
-            .exec()
+        let shared_folders = folder_service
+            .get_folders_shared_to_user_id(user_id, filters)
             .await?;
 
         Ok(Web::ok(
