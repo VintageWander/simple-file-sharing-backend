@@ -6,14 +6,15 @@ use crate::{
         cookie::make_access_cookie, decode::decode_refresh_token, encode::encode_access_token,
     },
     error::Error,
-    prisma::user,
     web::Web,
     GlobalState, WebResult,
 };
 
 pub fn refresh() -> Router<GlobalState> {
     async fn refresh_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+        State(GlobalState {
+            db, user_service, ..
+        }): State<GlobalState>,
         cookies: CookieJar,
     ) -> WebResult {
         let refresh_token = cookies
@@ -24,12 +25,7 @@ pub fn refresh() -> Router<GlobalState> {
 
         let user_id = decode_refresh_token(refresh_token).map_err(|_| Error::Decode)?;
 
-        let user = db
-            .user()
-            .find_unique(user::id::equals(user_id))
-            .exec()
-            .await?
-            .ok_or_else(|| Error::NotFound)?;
+        let user = user_service.get_user_by_id(user_id).await?;
 
         let access_token = encode_access_token(&user)?;
 

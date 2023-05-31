@@ -9,7 +9,6 @@ use crate::{
             encode::{encode_access_token, encode_refresh_token},
         },
     },
-    error::Error,
     prisma::user,
     web::Web,
     GlobalState, WebResult,
@@ -17,19 +16,13 @@ use crate::{
 
 pub fn login() -> Router<GlobalState> {
     async fn login_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+        State(GlobalState { user_service, .. }): State<GlobalState>,
         cookies: CookieJar,
         LoginRequest { username, password }: LoginRequest,
     ) -> WebResult {
-        let user = db
-            .user()
-            .find_first(vec![
-                user::username::equals(username),
-                user::password::equals(password),
-            ])
-            .exec()
-            .await?
-            .ok_or_else(|| Error::NotFound)?;
+        let user = user_service
+            .get_user_by_login_info(username, password)
+            .await?;
 
         let (access_token, refresh_token) =
             (encode_access_token(&user)?, encode_refresh_token(&user)?);
@@ -39,16 +32,8 @@ pub fn login() -> Router<GlobalState> {
             make_refresh_cookie(refresh_token.clone()),
         );
 
-        let updated_user = db
-            .user()
-            .update(
-                user::id::equals(user.id),
-                vec![user::refresh_token::set(refresh_token)],
-            )
-            .select(user::select!({
-                id username email created_at updated_at
-            }))
-            .exec()
+        let updated_user = user_service
+            .update_user(user.id, vec![user::refresh_token::set(refresh_token)])
             .await?;
 
         let response = (

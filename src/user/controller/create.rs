@@ -3,14 +3,16 @@ use axum::{extract::State, routing::post, Router};
 use crate::{
     folder::response::folder_response,
     prisma::{folder, Visibility},
-    user::{request::create::CreateUserRequest, response::user_response},
+    user::request::create::CreateUserRequest,
     web::Web,
     GlobalState, WebResult,
 };
 
 pub fn create_user() -> Router<GlobalState> {
     async fn create_user_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+        State(GlobalState {
+            db, user_service, ..
+        }): State<GlobalState>,
         CreateUserRequest {
             username,
             email,
@@ -18,12 +20,7 @@ pub fn create_user() -> Router<GlobalState> {
             ..
         }: CreateUserRequest,
     ) -> WebResult {
-        let new_user = db
-            .user()
-            .create(username, email, password, vec![])
-            .select(user_response::select())
-            .exec()
-            .await?;
+        let new_user = user_service.create_user(username, email, password).await?;
 
         db.folder()
             .create_unchecked(

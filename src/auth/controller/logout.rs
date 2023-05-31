@@ -14,7 +14,7 @@ use crate::{
 
 pub fn logout() -> Router<GlobalState> {
     async fn logout_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+        State(GlobalState { user_service, .. }): State<GlobalState>,
         cookies: CookieJar,
         LoggedInUser(user): LoggedInUser,
     ) -> WebResult {
@@ -26,12 +26,8 @@ pub fn logout() -> Router<GlobalState> {
             make_refresh_cookie(refresh_token),
         );
 
-        db.user()
-            .update(
-                user::id::equals(user.id),
-                vec![user::refresh_token::set("".into())],
-            )
-            .exec()
+        user_service
+            .update_user(user.id, vec![user::refresh_token::set("".into())])
             .await?;
 
         let response = (
