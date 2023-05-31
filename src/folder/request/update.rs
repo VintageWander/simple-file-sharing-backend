@@ -42,15 +42,11 @@ impl FromRequest<GlobalState, Body> for UpdateFolderRequest {
         body.validate()?;
 
         let UpdateFolderRequest {
-            parent,
             folder_name,
             visibility,
             ref mut actions,
+            ..
         } = &mut body;
-
-        if let Some(parent) = parent.clone() {
-            actions.push(folder::parent_folder_id::set(Some(parent)))
-        }
 
         if let Some(folder_name) = folder_name.clone() {
             actions.push(folder::folder_name::set(folder_name))
