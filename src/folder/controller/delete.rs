@@ -3,8 +3,8 @@ use axum::{extract::State, routing::delete, Router};
 use crate::{
     error::Error,
     extractors::param::ParamId,
-    prisma::{folder, user::Data},
-    user::request::loggedin::LoggedInUser,
+    prisma::folder,
+    user::{request::loggedin::LoggedInUser, response::user_response::Data},
     web::Web,
     GlobalState, WebResult,
 };
@@ -17,7 +17,10 @@ pub fn delete_folder() -> Router<GlobalState> {
     ) -> WebResult {
         let target = db
             .folder()
-            .find_unique(folder::id::equals(param_folder_id))
+            .find_first(vec![
+                folder::id::equals(param_folder_id),
+                folder::owner_id::equals(user_id),
+            ])
             .select(folder::select!({ id parent_folder_id }))
             .exec()
             .await?

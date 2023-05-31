@@ -2,8 +2,8 @@ use axum::{extract::State, routing::get, Router};
 
 use crate::{
     file::request::query::FileQuery,
-    prisma::{file, folder, user},
-    user::request::loggedin::LoggedInUser,
+    prisma::{file, folder},
+    user::{request::loggedin::LoggedInUser, response::user_response::Data},
     web::Web,
     GlobalState, WebResult,
 };
@@ -13,8 +13,8 @@ use crate::{
 
 pub fn get_my_files() -> Router<GlobalState> {
     async fn get_my_files_handler(
-        State(GlobalState { storage, db }): State<GlobalState>,
-        LoggedInUser(user::Data { id: user_id, .. }): LoggedInUser,
+        State(GlobalState { storage, db, .. }): State<GlobalState>,
+        LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
         FileQuery {
             parent,
             visibility,

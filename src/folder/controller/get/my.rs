@@ -2,8 +2,8 @@ use axum::{extract::State, routing::get, Router};
 
 use crate::{
     folder::request::query::FolderQuery,
-    prisma::{folder, user},
-    user::request::loggedin::LoggedInUser,
+    prisma::folder,
+    user::{request::loggedin::LoggedInUser, response::user_response::Data},
     web::Web,
     GlobalState, WebResult,
 };
@@ -20,7 +20,7 @@ use crate::{
 pub fn get_my_folders() -> Router<GlobalState> {
     async fn my_folders_handler(
         State(GlobalState { db, .. }): State<GlobalState>,
-        LoggedInUser(user::Data { id: user_id, .. }): LoggedInUser,
+        LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
         FolderQuery {
             parent: parent_folder_id,
             visibility,

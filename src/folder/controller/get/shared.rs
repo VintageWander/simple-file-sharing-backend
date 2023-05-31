@@ -3,7 +3,7 @@ use axum::{extract::State, routing::get, Router};
 use crate::{
     folder::{request::query::FolderQuery, response::folder_response},
     prisma::{folder, user, Visibility},
-    user::request::loggedin::LoggedInUser,
+    user::{request::loggedin::LoggedInUser, response::user_response::Data},
     web::Web,
     GlobalState, WebResult,
 };
@@ -17,7 +17,7 @@ use crate::{
 pub fn get_shared_folders() -> Router<GlobalState> {
     async fn get_shared_folders_handler(
         State(GlobalState { db, .. }): State<GlobalState>,
-        LoggedInUser(user::Data { id: user_id, .. }): LoggedInUser,
+        LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
         FolderQuery {
             parent: parent_folder_id,
             mut filters,

@@ -1,11 +1,8 @@
 use axum::{extract::State, routing::put, Router};
 
 use crate::{
-    prisma::user::{self, Data},
-    user::{
-        request::{loggedin::LoggedInUser, update::UpdateUserRequest},
-        response::user_response,
-    },
+    prisma::user,
+    user::request::{loggedin::LoggedInUserWithPassword, update::UpdateUserRequest},
     validation::validation_message,
     web::Web,
     GlobalState, WebResult,
@@ -13,12 +10,12 @@ use crate::{
 
 pub fn update_user() -> Router<GlobalState> {
     async fn update_user_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
-        LoggedInUser(Data {
-            id,
+        State(GlobalState { user_service, .. }): State<GlobalState>,
+        LoggedInUserWithPassword(user::Data {
+            id: user_id,
             password: user_password,
             ..
-        }): LoggedInUser,
+        }): LoggedInUserWithPassword,
         UpdateUserRequest {
             username,
             email,
@@ -27,14 +24,18 @@ pub fn update_user() -> Router<GlobalState> {
             ..
         }: UpdateUserRequest,
     ) -> WebResult {
-        let mut actions = vec![];
-
         if user_password != password {
             return Err(
                 validation_message("Provided password does not match current password").into(),
             );
         }
 
+        let mut actions = vec![];
+
+        // If all passed, set the queries
+
+        // This part of code does not embedded inside the request logic
+        // Because I don't want any of this gets executed unless the passwords are valid
         if let Some(username) = username {
             actions.push(user::username::set(username))
         }
@@ -45,12 +46,7 @@ pub fn update_user() -> Router<GlobalState> {
             actions.push(user::password::set(new_password))
         }
 
-        let updated_user = db
-            .user()
-            .update(user::id::equals(id), actions)
-            .select(user_response::select())
-            .exec()
-            .await?;
+        let updated_user = user_service.update_user(user_id, actions).await?;
         Ok(Web::ok("Update user successfully", updated_user))
     }
     Router::new().route("/update", put(update_user_handler))

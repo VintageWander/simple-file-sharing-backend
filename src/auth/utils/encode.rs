@@ -1,7 +1,7 @@
 use chrono::{Duration, Utc};
 use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 
-use crate::{config::Config, error::Error, prisma::user::Data};
+use crate::{config::Config, error::Error, user::response::user_response::Data};
 
 use super::{Claims, TokenType};
 
