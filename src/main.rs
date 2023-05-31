@@ -9,6 +9,7 @@ use error::Error;
 use prisma::PrismaClient;
 
 use routes::routes;
+use user::service::UserService;
 
 mod auth;
 mod aws;
@@ -21,7 +22,7 @@ mod file;
 mod impls;
 #[allow(warnings)]
 mod prisma;
-pub mod routes;
+mod routes;
 mod user;
 mod validation;
 mod web;
@@ -30,6 +31,7 @@ mod web;
 pub struct GlobalState {
     pub storage: S3,
     pub db: Arc<PrismaClient>,
+    pub user_service: UserService,
 }
 
 type WebResult = std::result::Result<Response, Error>;
@@ -43,9 +45,12 @@ async fn main() {
         .await
         .expect("Cannot connect to Postgres");
 
+    let client = Arc::new(client);
+
     let state = GlobalState {
         storage: S3::init(),
-        db: Arc::new(client),
+        db: client.clone(),
+        user_service: UserService::init(&client),
     };
 
     let Config { port, origin, .. } = Config::from_env();
