@@ -66,6 +66,8 @@ model Folder {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([ownerId, parentFolderId, folderName])
 }
 
 model File {
@@ -87,6 +89,8 @@ model File {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([ownerId, parentFolderId, filename, extension])
 }
 
 model FileVersion {
