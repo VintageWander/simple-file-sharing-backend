@@ -6,6 +6,7 @@ use aws::S3;
 use axum::response::Response;
 use config::Config;
 use error::Error;
+use folder::service::FolderService;
 use prisma::PrismaClient;
 
 use routes::routes;
@@ -32,6 +33,7 @@ pub struct GlobalState {
     pub storage: S3,
     pub db: Arc<PrismaClient>,
     pub user_service: UserService,
+    pub folder_service: FolderService,
 }
 
 type WebResult = std::result::Result<Response, Error>;
@@ -51,6 +53,7 @@ async fn main() {
         storage: S3::init(),
         db: client.clone(),
         user_service: UserService::init(&client),
+        folder_service: FolderService::init(&client),
     };
 
     let Config { port, origin, .. } = Config::from_env();
