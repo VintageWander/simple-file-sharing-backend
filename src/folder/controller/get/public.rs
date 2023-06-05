@@ -34,13 +34,9 @@ pub fn get_public_folders() -> Router<GlobalState> {
         // If the parent folder id is provided, then that should be a starting point folder
         // to search forward
         // Else just picks all root folders from the system
-        let starting_point = match parent_folder_id {
-            Some(parent_id) => folder::id::equals(parent_id),
-            None => folder::parent_folder_id::equals(None),
-        };
 
         let folders = folder_service
-            .get_child_folders_from_folders(starting_point, filters)
+            .get_child_folders_from_folders(parent_folder_id, filters)
             .await?;
 
         Ok(Web::ok("Get all public folders successfully", folders))

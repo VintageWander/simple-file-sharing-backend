@@ -10,18 +10,29 @@ use crate::{
 use super::FolderService;
 
 impl FolderService {
-    // This function returns child folders from a list of folders
-    // param folders_filter to find which folders should be the parent
+    // This function returns child folders from a list of root folders (or one folder, based on the first param)
+
+    // param parent_folder_id to find specify which folder should be the parent
+    // If Some -> the id will be used to get that folder
+    // If None -> get all root folders
+
     // param child_folder_filter to filter the child folders from the folders_filter
     pub async fn get_child_folders_from_folders(
         &self,
-        folders_filter: WhereParam, // Filter for the list of folders (parent level)
+        parent_folder_id: Option<String>, // Parent folder filter
+        // The string here is for the parent folder id
         child_folders_filter: Vec<WhereParam>, // Filter for the child folders of the above (child level)
     ) -> Result<Vec<child_folders_response::child_folders::Data>, Error> {
+        //
+        let starting_point = match parent_folder_id {
+            Some(parent_id) => folder::id::equals(parent_id),
+            None => folder::parent_folder_id::equals(None),
+        };
+
         let child_folders = self
             .db
             .folder()
-            .find_many(vec![folders_filter])
+            .find_many(vec![starting_point])
             .select(child_folders_response::select(child_folders_filter))
             .exec()
             .await?
@@ -31,6 +42,7 @@ impl FolderService {
         Ok(child_folders)
     }
 
+    // Get all "Shared to me" folders, by user_id
     pub async fn get_folders_shared_to_user_id(
         &self,
         user_id: String,

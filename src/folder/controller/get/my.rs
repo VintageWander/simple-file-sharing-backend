@@ -36,13 +36,8 @@ pub fn get_my_folders() -> Router<GlobalState> {
             filters.push(folder::visibility::equals(visibility))
         }
 
-        let starting_point = match parent_folder_id {
-            Some(parent_id) => folder::id::equals(parent_id),
-            None => folder::parent_folder_id::equals(None),
-        };
-
         let my_folders = folder_service
-            .get_child_folders_from_folders(starting_point, filters)
+            .get_child_folders_from_folders(parent_folder_id, filters)
             .await?;
 
         Ok(Web::ok("Get all personal folders successfully", my_folders))
