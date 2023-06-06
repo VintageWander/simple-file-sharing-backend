@@ -11,35 +11,44 @@ use crate::{
 
 pub fn delete_folder() -> Router<GlobalState> {
     async fn delete_folder_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+        State(GlobalState {
+            db,
+            folder_service,
+            storage,
+            ..
+        }): State<GlobalState>,
         LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
         ParamId(param_folder_id): ParamId,
     ) -> WebResult {
-        let target = db
-            .folder()
-            .find_first(vec![
-                folder::id::equals(param_folder_id),
-                folder::owner_id::equals(user_id),
-            ])
-            .select(folder::select!({ id parent_folder_id }))
-            .exec()
-            .await?
-            .ok_or_else(|| Error::NotFound)?;
+        /*
+            We use the get_folder_by_user_id to get the folder that the user owns / accessible to
+            This function will fail if the param_folder_id points to a folder that
+            the user does not own or accessible to
+        */
+        let target = folder_service
+            .get_folder_by_user_id(vec![folder::id::equals(param_folder_id)], user_id)
+            .await?;
 
-        // Match the status of the target folder
-        match target.parent_folder_id.is_none() {
-            // If it is None -> Root Folder
-            true => Err(Error::Forbidden),
-            // Else -> Delete
-            false => {
-                db.folder()
-                    .delete(folder::id::equals(target.id))
-                    .exec()
-                    .await?;
-
-                Ok(Web::ok("Deleted folder successfully", ()))
-            }
+        /*
+            Check the status of the target folder
+            If the parent of the target folder is None
+            means that the target folder is a root folder of ours or some other user
+        */
+        if target.parent_folder_id.is_none() {
+            return Err(Error::Forbidden);
         }
+
+        let deleted_folder = folder_service.delete_folder(target.id).await?;
+
+        for id in folder_service
+            .get_nested_files_from_folder(deleted_folder.id)
+            .await?
+        {
+            storage.delete_file(&id).await?;
+            storage.delete_folder(&format!("{id}/")).await?;
+        }
+
+        Ok(Web::ok("Folder deleted successfully", ()))
     }
     Router::new().route("/delete/:folder_id", delete(delete_folder_handler))
 }

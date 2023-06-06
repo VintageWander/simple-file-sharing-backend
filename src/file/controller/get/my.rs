@@ -16,7 +16,7 @@ use crate::{
 
 pub fn get_my_files() -> Router<GlobalState> {
     async fn get_my_files_handler(
-        State(GlobalState { storage, db, .. }): State<GlobalState>,
+        State(GlobalState { db, .. }): State<GlobalState>,
         LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
         FileQuery {
             parent,

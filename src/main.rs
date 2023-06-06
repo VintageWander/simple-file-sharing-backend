@@ -30,10 +30,10 @@ mod web;
 
 #[derive(Clone)]
 pub struct GlobalState {
-    pub storage: S3,
     pub db: Arc<PrismaClient>,
     pub user_service: UserService,
     pub folder_service: FolderService,
+    pub storage: S3,
 }
 
 type WebResult = std::result::Result<Response, Error>;
@@ -49,16 +49,20 @@ async fn main() {
 
     let client = Arc::new(client);
 
+    let config = Config::from_env();
+
     let state = GlobalState {
-        storage: S3::init(),
         db: client.clone(),
         user_service: UserService::init(&client),
         folder_service: FolderService::init(&client),
+        storage: S3::init(&config),
     };
 
-    let Config { port, origin, .. } = Config::from_env();
+    let Config { port, origin, .. } = config;
 
-    let routes = routes().with_state(state).layer(Config::setup_cors(origin));
+    let routes = routes()
+        .with_state(state)
+        .layer(Config::setup_cors(origin.to_string()));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
 
