@@ -77,7 +77,7 @@ Here's the [__link__](https://docs.localstack.cloud/getting-started/installation
 
 <br>
 
-TLDR: You can install their [__CLI tool__](https://docs.localstack.cloud/getting-started/installation/#how-to-install-localstack), and use it to run the AWS emulator in a Docker container, or just use their [__Docker image__](https://docs.localstack.cloud/getting-started/installation/#how-to-install-localstack) <br> 
+TLDR: You can install their [__CLI tool__](https://docs.localstack.cloud/getting-started/installation/#localstack-cli), and use it to run the AWS emulator in a Docker container, or just use their [__Docker image__](https://docs.localstack.cloud/getting-started/installation/#docker) <br> 
 <br>
 
 Setup your profile with: <br>
