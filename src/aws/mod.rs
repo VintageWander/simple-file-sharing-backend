@@ -19,7 +19,7 @@ pub struct S3 {
 }
 
 impl S3 {
-    pub fn init() -> Self {
+    pub fn init(config: &Config) -> Self {
         // Get the id secret from env
         let Config {
             s3_key_id,
@@ -27,13 +27,13 @@ impl S3 {
             region,
             bucket_name,
             ..
-        } = Config::from_env();
+        } = config;
 
         // Build the aws cred
         let cred = Credentials::new(s3_key_id, s3_key_secret, None, None, "get-from-env");
 
         // Build the aws config
-        let region = Region::new(region);
+        let region = Region::new(region.clone());
 
         let conf_builder = config::Builder::new()
             .region(region)
@@ -43,7 +43,7 @@ impl S3 {
 
         Self {
             client: Client::from_conf(conf),
-            bucket_name,
+            bucket_name: bucket_name.clone(),
         }
     }
 }
