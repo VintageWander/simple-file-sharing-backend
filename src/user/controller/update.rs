@@ -37,19 +37,19 @@ pub fn update_user() -> Router<GlobalState> {
         Because I don't want any of this gets executed unless the passwords are valid
         */
 
-        let mut actions = vec![];
+        let mut changes = vec![];
 
         if let Some(username) = username {
-            actions.push(user::username::set(username))
+            changes.push(user::username::set(username))
         }
         if let Some(email) = email {
-            actions.push(user::email::set(email))
+            changes.push(user::email::set(email))
         }
         if let Some(new_password) = new_password {
-            actions.push(user::password::set(new_password))
+            changes.push(user::password::set(new_password))
         }
 
-        let updated_user = user_service.update_user(user_id, actions).await?;
+        let updated_user = user_service.update_user(user_id, changes).await?;
         Ok(Web::ok("Update user successfully", updated_user))
     }
     Router::new().route("/update", put(update_user_handler))

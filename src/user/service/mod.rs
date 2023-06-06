@@ -93,11 +93,11 @@ impl UserService {
     pub async fn update_user(
         &self,
         user_id: String,
-        actions: Vec<SetParam>,
+        changes: Vec<SetParam>,
     ) -> Result<user_response::Data, Error> {
         self.db
             .user()
-            .update(user::id::equals(user_id), actions)
+            .update(user::id::equals(user_id), changes)
             .select(user_response::select())
             .exec()
             .await

@@ -23,7 +23,7 @@ pub struct UpdateFolderRequest {
 
     #[serde(skip)]
     #[is_empty(if = "Vec::is_empty")]
-    pub actions: Vec<folder::UncheckedSetParam>,
+    pub changes: Vec<folder::UncheckedSetParam>,
 }
 
 #[async_trait]
@@ -44,16 +44,16 @@ impl FromRequest<GlobalState, Body> for UpdateFolderRequest {
         let UpdateFolderRequest {
             folder_name,
             visibility,
-            ref mut actions,
+            ref mut changes,
             ..
         } = &mut body;
 
         if let Some(folder_name) = folder_name.clone() {
-            actions.push(folder::folder_name::set(folder_name))
+            changes.push(folder::folder_name::set(folder_name))
         }
 
         if let Some(visibility) = visibility {
-            actions.push(folder::visibility::set(*visibility))
+            changes.push(folder::visibility::set(*visibility))
         }
 
         Ok(body)
