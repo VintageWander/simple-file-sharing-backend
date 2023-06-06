@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::{
     error::Error,
     folder::response::{child_folders_response, folder_response},
@@ -69,11 +71,85 @@ impl FolderService {
         &self,
         folder_filter: Vec<WhereParam>,
         user_id: String,
-    ) -> Result<folder_response::Data, Error> {
+    ) -> Result<folder::Data, Error> {
         /*
             There are 2 things that we have to deal with, that is
             We'll use the folder_filter to get the folder
+            Then prepare 2 queries,
+            1. Search the folder by owner_id
+            2. Search the folder's collaborators list to see if there's one user_id equals to us
+
+            We'll execute the first one, if it returns true, then return the folder
+            If it returns false, try the second one, if that is true, then return the folder
+            Finally, if both fails, we return a NotFound error
+
+            The operation will cost at most 2 queries, and each query returns only one folder
         */
-        todo!()
+
+        let user_id_filter = folder_filter
+            .clone()
+            .into_iter()
+            .chain(vec![folder::owner_id::equals(user_id.clone())])
+            .collect();
+
+        let collaborator_filter = folder_filter
+            .into_iter()
+            .chain(vec![folder::collaborators::some(vec![user::id::equals(
+                user_id,
+            )])])
+            .collect();
+
+        let search_by_user_id = self.db.folder().find_first(user_id_filter).exec();
+
+        let search_from_collaborators = self.db.folder().find_first(collaborator_filter).exec();
+
+        match search_by_user_id.await? {
+            Some(owned_folder) => Ok(owned_folder),
+            None => match search_from_collaborators.await? {
+                Some(shared_to_user_folder) => Ok(shared_to_user_folder),
+                None => Err(Error::NotFound),
+            },
+        }
+    }
+
+    /*
+        What this function does is that it gets all files that lives under the folder_id
+        Even child files, grandchild files, grandgrandchild files, all of them
+    */
+    pub async fn get_nested_files_from_folder(
+        &self,
+        folder_id: String,
+    ) -> Result<VecDeque<String>, Error> {
+        let mut folders_queue = VecDeque::new();
+        let mut files_queue = VecDeque::new();
+
+        folders_queue.push_back(folder_id);
+
+        while !folders_queue.is_empty() {
+            let first_folder = folders_queue[0].clone();
+
+            let first_folder = self
+                .db
+                .folder()
+                .find_unique(folder::id::equals(first_folder))
+                .select(folder::select!({
+                    child_files: select {
+                        id
+                    }
+                    child_folders: select {
+                        id
+                    }
+                }))
+                .exec()
+                .await?
+                .ok_or_else(|| Error::NotFound)?;
+
+            folders_queue.extend(first_folder.child_folders.into_iter().map(|f| f.id));
+            files_queue.extend(first_folder.child_files.into_iter().map(|f| f.id));
+
+            folders_queue.pop_front();
+        }
+
+        Ok(files_queue)
     }
 }
