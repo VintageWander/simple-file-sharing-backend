@@ -30,21 +30,20 @@
 - [x] See list of public folders
 - [x] See list of personal folders
 - [x] See list of "shared to me folders" folders
-- [ ] Get accessible folder (single)
-- [ ] Create new folders
-- [ ] Update folder
-- [ ] Delete folder
+- [x] Get accessible folder (single)
+- [x] Create new folders
+- [x] Update folder
+- [x] Delete folder ( Cascade delete all S3 files as well)
 - [ ] Manage folder's collaborators
 - [ ] Manage folders' tags
 
 ## Controller
-( Some tasks are waiting for the service to be completely implemented, to cleanup code before adding swagger docs )
 - [x] See list of public folders
 - [x] See list of personal folders
 - [x] See list of "shared to me" folders
 - [x] Create new folders
 - [x] Update folder
-- [x] Delete folder
+- [x] Delete folder ( Cascade delete all S3 files as well)
 - [ ] Manage folder's collaborators
 - [ ] Manage folders' tags
 
