@@ -127,19 +127,19 @@ Fill in the fields in the `.env.sample` file
 DATABASE_URL = "postgresql://local:password@localhost:8001/local"
 
 # Jwt secrets
-JWT_ACCESS = some-jwt-access-secret
-JWT_REFRESH = some-jwt-refresh-secret
+JWT_ACCESS = 
+JWT_REFRESH = 
 
 # AWS S3 tokens
-S3_KEY_ID = your-s3-access-key
-S3_KEY_SECRET = your-s3-secret-key
-BUCKET_NAME = bucket-region
-REGION = bucket-name
+S3_KEY_ID = 
+S3_KEY_SECRET = 
+BUCKET_NAME = 
+REGION = 
 
 # Backend environment variables
 # Origin is the frontend's address, to use with CORS
 # Port is the backend's running port
-ORIGIN = http[s]://react-frontend:5000
+ORIGIN = 
 PORT = 8000  # Can be any number from 0 to 65535
 ```
 
