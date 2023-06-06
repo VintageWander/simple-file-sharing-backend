@@ -7,11 +7,13 @@ use crate::{
     GlobalState, WebResult,
 };
 
-// When it comes to getting all "shared to me folders"
-// owner_id and visibility are ignored
+/*
+    When it comes to getting all "shared to me folders"
+    owner_id and visibility are ignored
 
-// On the handlers side
-// We only have to deal with owner_id, parent, and visiblity
+    On the handlers side
+    We only have to deal with owner_id, parent, and visiblity
+*/
 
 pub fn get_shared_folders() -> Router<GlobalState> {
     async fn get_shared_folders_handler(

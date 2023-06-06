@@ -30,12 +30,15 @@ pub fn update_user() -> Router<GlobalState> {
             );
         }
 
+        /*
+        If all passed, set the queries
+
+        This part of code does not embedded inside the request (extractor) logic
+        Because I don't want any of this gets executed unless the passwords are valid
+        */
+
         let mut actions = vec![];
 
-        // If all passed, set the queries
-
-        // This part of code does not embedded inside the request logic
-        // Because I don't want any of this gets executed unless the passwords are valid
         if let Some(username) = username {
             actions.push(user::username::set(username))
         }

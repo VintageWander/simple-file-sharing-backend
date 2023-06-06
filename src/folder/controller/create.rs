@@ -19,9 +19,11 @@ pub fn create_folder() -> Router<GlobalState> {
             visibility,
         }: CreateFolderRequest,
     ) -> WebResult {
-        // Remember to use create_unchecked
+        /*
+            Remember to use create_unchecked
 
-        // First, set the query for starting folder
+            First, set the query for starting folder
+        */
 
         let starting_point = match &parent {
             Some(parent) => vec![folder::id::equals(parent.clone())],
@@ -60,8 +62,11 @@ pub fn create_folder() -> Router<GlobalState> {
             .select(folder_response::select())
             .exec();
 
-        // If the parent field wasn't provided in the request body
-        // Insert the folder in the root
+        /*
+            If the parent field wasn't provided in the request body
+
+            Insert the folder in the root
+        */
         if parent.is_none() {
             // Executes
             let new_folder = new_folder.await?;

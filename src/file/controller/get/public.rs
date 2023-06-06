@@ -7,10 +7,12 @@ use crate::{
     GlobalState, WebResult,
 };
 
-// PUBLIC route ignores visibility field
+/*
+    PUBLIC route ignores visibility field
 
-// On the handlers side
-// We only have to deal with owner_id, parent, and visiblity
+    On the handlers side
+    We only have to deal with owner_id, parent, and visiblity
+*/
 
 pub fn get_public_files() -> Router<GlobalState> {
     async fn get_public_files_handler(

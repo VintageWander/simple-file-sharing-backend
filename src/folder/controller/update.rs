@@ -21,12 +21,15 @@ pub fn update_folder() -> Router<GlobalState> {
             ..
         }: UpdateFolderRequest,
     ) -> WebResult {
-        // Remember to use update_unchecked
+        /*
+            Remember to use update_unchecked
 
-        // There are two important tasks when it comes to updating a folder
-        // If the parent field is provided,
-        // we have to make sure that the parent id
-        // points to a folder that is ours, OR shared to us
+            There are two important tasks when it comes to updating a folder
+            If the parent field is provided,
+            we have to make sure that the parent id
+            points to a folder that is ours, OR shared to us
+
+        */
 
         // Find the folder
         let found_folder = db
@@ -56,8 +59,10 @@ pub fn update_folder() -> Router<GlobalState> {
 
         // Let's move on to processing the parent field in the request
         let Some(parent) = parent else {
-            // If the parent field isn't present 
-            // Then we don't have to do anything much just update
+            /*
+                If the parent field isn't present 
+                Then we don't have to do anything much just update
+            */
             let updated_folder = db
                 .folder()
                 .update_unchecked(folder::id::equals(found_folder.id), actions)

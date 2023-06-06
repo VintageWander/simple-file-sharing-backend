@@ -56,6 +56,8 @@ impl FromRequestParts<GlobalState> for FileQuery {
             return Err(Error::NoContent);
         }
 
+        // The ignored comments indicate what fields will be processed in this extractor
+
         let FileQuery {
             id,
             owner_id, // ignored

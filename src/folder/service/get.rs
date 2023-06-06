@@ -10,17 +10,19 @@ use crate::{
 use super::FolderService;
 
 impl FolderService {
-    // This function returns child folders from a list of root folders (or one folder, based on the first param)
+    /*
+        This function returns child folders from a list of root folders (or one folder, based on the first param)
 
-    // param parent_folder_id to find specify which folder should be the parent
-    // If Some -> the id will be used to get that folder
-    // If None -> get all root folders
+        param parent_folder_id to find specify which folder should be the parent
+        If Some -> the id will be used to get that folder
+        If None -> get all root folders
 
-    // param child_folder_filter to filter the child folders from the folders_filter
+        param child_folder_filter to filter the child folders from the folders_filter
+    */
+
     pub async fn get_child_folders_from_folders(
         &self,
         parent_folder_id: Option<String>, // Parent folder filter
-        // The string here is for the parent folder id
         child_folders_filter: Vec<WhereParam>, // Filter for the child folders of the above (child level)
     ) -> Result<Vec<child_folders_response::child_folders::Data>, Error> {
         //
@@ -61,5 +63,17 @@ impl FolderService {
             .exec()
             .await?;
         Ok(shared_folders)
+    }
+
+    pub async fn get_folder_by_user_id(
+        &self,
+        folder_filter: Vec<WhereParam>,
+        user_id: String,
+    ) -> Result<folder_response::Data, Error> {
+        /*
+            There are 2 things that we have to deal with, that is
+            We'll use the folder_filter to get the folder
+        */
+        todo!()
     }
 }

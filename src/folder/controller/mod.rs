@@ -19,7 +19,9 @@ pub fn folder_routes() -> Router<GlobalState> {
             .merge(get_public_folders())
             // /folder/create
             .merge(create_folder())
+            // /folder/update
             .merge(update_folder())
+            // /folder/delete
             .merge(delete_folder()),
     )
 }

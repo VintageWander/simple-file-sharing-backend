@@ -65,8 +65,10 @@ impl FromRequestParts<GlobalState> for FolderQuery {
             ref mut filters,
         } = &mut query;
 
-        // Process common values
-        // The owner_id, parent, and visibility are left for the handler to process
+        /*
+            Process common values
+            The owner_id, parent, and visibility are left for the handler to process
+        */
         if let Some(folder_id) = id.clone() {
             filters.push(folder::id::equals(folder_id))
         };

@@ -8,8 +8,11 @@ use crate::{
     GlobalState, WebResult,
 };
 
-// On the handlers side
-// We only have to deal with owner_id, parent, and visiblity
+/*
+    On the handlers side
+
+    We only have to deal with owner_id, parent, and visiblity
+*/
 
 pub fn get_shared_files() -> Router<GlobalState> {
     async fn get_shared_files_handler(
