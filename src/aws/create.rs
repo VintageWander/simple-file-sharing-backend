@@ -4,7 +4,7 @@ use aws_smithy_http::body::SdkBody;
 use super::S3;
 use crate::{
     error::Error,
-    validation::file::{check_dir, check_fullpath},
+    file::model::validation::{check_dir, check_fullpath},
 };
 
 impl S3 {

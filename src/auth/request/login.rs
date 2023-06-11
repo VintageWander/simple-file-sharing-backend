@@ -2,7 +2,11 @@ use axum::{async_trait, body::Body, extract::FromRequest, http::Request, Json};
 use serde::Deserialize;
 use validator::Validate;
 
-use crate::{error::Error, validation::user::*, GlobalState};
+use crate::{
+    error::Error,
+    user::model::validation::{check_password, check_username},
+    GlobalState,
+};
 
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]

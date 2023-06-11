@@ -7,7 +7,7 @@ use crate::{
         encode::{encode_access_token, encode_refresh_token},
     },
     prisma::user,
-    user::request::loggedin::LoggedInUser,
+    user::model::loggedin::LoggedInUser,
     web::Web,
     GlobalState, WebResult,
 };

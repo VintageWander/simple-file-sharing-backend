@@ -2,7 +2,7 @@ use axum::{extract::State, routing::put, Router};
 
 use crate::{
     prisma::user,
-    user::request::{loggedin::LoggedInUserWithPassword, update::UpdateUserRequest},
+    user::model::{loggedin::LoggedInUserWithPassword, update::UpdateUserRequest},
     validation::validation_message,
     web::Web,
     GlobalState, WebResult,

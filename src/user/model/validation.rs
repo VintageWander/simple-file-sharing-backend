@@ -1,6 +1,6 @@
 use validator::ValidationError;
 
-use super::check_with;
+use crate::validation::check_with;
 
 pub fn check_username(username: &str) -> Result<(), ValidationError> {
     check_with(

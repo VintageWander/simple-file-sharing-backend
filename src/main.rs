@@ -4,7 +4,8 @@ use std::{net::SocketAddr, sync::Arc};
 
 use aws::S3;
 use axum::response::Response;
-use config::Config;
+
+use config::{check_env, setup_cors, PORT};
 use error::Error;
 use folder::service::FolderService;
 use prisma::PrismaClient;
@@ -40,7 +41,7 @@ type WebResult = std::result::Result<Response, Error>;
 
 #[tokio::main]
 async fn main() {
-    // unsafe { backtrace_on_stack_overflow::enable() }
+    check_env();
 
     let client = PrismaClient::_builder()
         .build()
@@ -49,22 +50,16 @@ async fn main() {
 
     let client = Arc::new(client);
 
-    let config = Config::from_env();
-
     let state = GlobalState {
         db: client.clone(),
         user_service: UserService::init(&client),
         folder_service: FolderService::init(&client),
-        storage: S3::init(&config),
+        storage: S3::init(),
     };
 
-    let Config { port, origin, .. } = config;
+    let routes = routes().with_state(state).layer(setup_cors());
 
-    let routes = routes()
-        .with_state(state)
-        .layer(Config::setup_cors(origin.to_string()));
-
-    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    let addr = SocketAddr::from(([127, 0, 0, 1], PORT));
 
     axum::Server::bind(&addr)
         .serve(routes.into_make_service())

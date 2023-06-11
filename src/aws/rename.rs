@@ -1,10 +1,8 @@
 use super::S3;
 use crate::{
     error::Error,
-    validation::{
-        file::{check_dir, check_fullpath},
-        validation_message,
-    },
+    file::model::validation::{check_dir, check_fullpath},
+    validation::validation_message,
 };
 
 pub fn get_folder_position(str: &str) -> Result<String, Error> {

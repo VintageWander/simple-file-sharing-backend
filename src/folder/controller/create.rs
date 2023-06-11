@@ -1,9 +1,9 @@
 use axum::{extract::State, routing::post, Router};
 
 use crate::{
-    folder::request::create::CreateFolderRequest,
+    folder::model::create::CreateFolderRequest,
     prisma::folder,
-    user::{request::loggedin::LoggedInUser, response::user_response::Data},
+    user::model::{loggedin::LoggedInUser, select::UserSelect},
     web::Web,
     GlobalState, WebResult,
 };
@@ -11,7 +11,7 @@ use crate::{
 pub fn create_folder() -> Router<GlobalState> {
     async fn create_folder_handler(
         State(GlobalState { folder_service, .. }): State<GlobalState>,
-        LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
+        LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         CreateFolderRequest {
             parent,
             folder_name,
@@ -40,7 +40,7 @@ pub fn create_folder() -> Router<GlobalState> {
 
         // Create the new folder
         let new_folder = folder_service
-            .create_folder(user_id, folder_name, visibility, parent_folder.id)
+            .create_folder(user_id, folder_name, visibility, Some(parent_folder.id))
             .await?;
 
         // Return

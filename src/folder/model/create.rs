@@ -2,12 +2,9 @@ use axum::{async_trait, body::Body, extract::FromRequest, http::Request, Json};
 use serde::Deserialize;
 use validator::Validate;
 
-use crate::{
-    error::Error,
-    prisma::Visibility,
-    validation::{file::check_folder_name, uuid::check_uuid},
-    GlobalState,
-};
+use crate::{error::Error, prisma::Visibility, validation::uuid::check_uuid, GlobalState};
+
+use super::validation::check_folder_name;
 
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]

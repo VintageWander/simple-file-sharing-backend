@@ -1,19 +1,16 @@
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 
-use crate::{config::Config, error::Error};
+use crate::{
+    config::{ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET},
+    error::Error,
+};
 
 use super::{Claims, TokenType};
 
 fn decode_token(token: String, token_type: TokenType) -> Result<String, Error> {
-    let Config {
-        jwt_access,
-        jwt_refresh,
-        ..
-    } = Config::from_env();
-
     let token_secret = match token_type {
-        TokenType::Access => jwt_access,
-        TokenType::Refresh => jwt_refresh,
+        TokenType::Access => ACCESS_TOKEN_SECRET,
+        TokenType::Refresh => REFRESH_TOKEN_SECRET,
     };
 
     let key = DecodingKey::from_secret(token_secret.as_bytes());

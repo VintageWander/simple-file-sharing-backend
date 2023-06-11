@@ -6,9 +6,11 @@ use validator::Validate;
 use crate::{
     error::Error,
     prisma::{folder, Visibility},
-    validation::{file::check_folder_name, uuid::check_uuid},
+    validation::uuid::check_uuid,
     GlobalState,
 };
+
+use super::validation::check_folder_name;
 
 #[derive(Deserialize, Validate, IsEmpty)]
 #[serde(rename_all = "camelCase")]

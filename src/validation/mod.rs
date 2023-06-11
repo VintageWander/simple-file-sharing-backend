@@ -1,9 +1,6 @@
 use fancy_regex::Regex;
 use validator::ValidationError;
 
-pub mod aws;
-pub mod file;
-pub mod user;
 pub mod uuid;
 
 pub fn validation_message(msg: &'static str) -> ValidationError {

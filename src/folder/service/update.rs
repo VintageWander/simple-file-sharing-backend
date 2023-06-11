@@ -1,6 +1,6 @@
 use crate::{
     error::Error,
-    folder::response::folder_response,
+    folder::model::select::{folder_select, FolderSelect},
     prisma::folder::{self, UncheckedSetParam},
 };
 
@@ -11,12 +11,12 @@ impl FolderService {
         &self,
         folder_id: String,
         changes: Vec<UncheckedSetParam>,
-    ) -> Result<folder_response::Data, Error> {
+    ) -> Result<FolderSelect, Error> {
         let updated_folder = self
             .db
             .folder()
             .update_unchecked(folder::id::equals(folder_id), changes)
-            .select(folder_response::select())
+            .select(folder_select::select())
             .exec()
             .await?;
         Ok(updated_folder)

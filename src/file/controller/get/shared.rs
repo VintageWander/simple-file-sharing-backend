@@ -1,9 +1,9 @@
 use axum::{extract::State, routing::get, Router};
 
 use crate::{
-    file::{request::query::FileQuery, response::file_response},
+    file::model::{query::FileQuery, select::file_select},
     prisma::{file, user, Visibility},
-    user::{request::loggedin::LoggedInUser, response::user_response::Data},
+    user::model::{loggedin::LoggedInUser, select::UserSelect},
     web::Web,
     GlobalState, WebResult,
 };
@@ -17,7 +17,7 @@ use crate::{
 pub fn get_shared_files() -> Router<GlobalState> {
     async fn get_shared_files_handler(
         State(GlobalState { db, .. }): State<GlobalState>,
-        LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
+        LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         FileQuery {
             parent,
             mut filters,
@@ -32,7 +32,7 @@ pub fn get_shared_files() -> Router<GlobalState> {
         let shared_files = db
             .file()
             .find_many(filters)
-            .select(file_response::select())
+            .select(file_select::select())
             .exec()
             .await?;
 

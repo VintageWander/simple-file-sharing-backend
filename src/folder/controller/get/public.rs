@@ -1,7 +1,7 @@
 use axum::{extract::State, routing::get, Router};
 
 use crate::{
-    folder::request::query::FolderQuery,
+    folder::model::query::FolderQuery,
     prisma::{folder, Visibility},
     web::Web,
     GlobalState, WebResult,

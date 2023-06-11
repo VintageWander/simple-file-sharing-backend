@@ -8,7 +8,7 @@ use crate::{
     },
 };
 
-use super::response::user_response;
+use super::model::select::{user_select, User, UserSelect};
 
 #[derive(Clone)]
 pub struct UserService {
@@ -20,15 +20,12 @@ impl UserService {
         Self { db: db.clone() }
     }
 
-    pub async fn get_users(
-        &self,
-        filters: Vec<WhereParam>,
-    ) -> Result<Vec<user_response::Data>, Error> {
+    pub async fn get_users(&self, filters: Vec<WhereParam>) -> Result<Vec<UserSelect>, Error> {
         let users = self
             .db
             .user()
             .find_many(filters)
-            .select(user_response::select())
+            .select(user_select::select())
             .exec()
             .await?;
         Ok(users)
@@ -38,32 +35,32 @@ impl UserService {
         &self,
         username: String,
         password: String,
-    ) -> Result<user_response::Data, Error> {
+    ) -> Result<UserSelect, Error> {
         self.db
             .user()
             .find_first(vec![
                 user::username::equals(username),
                 user::password::equals(password),
             ])
-            .select(user_response::select())
+            .select(user_select::select())
             .exec()
             .await?
             .ok_or_else(|| Error::NotFound)
     }
 
-    pub async fn get_user_by_id(&self, user_id: String) -> Result<user_response::Data, Error> {
+    pub async fn get_user_by_id(&self, user_id: String) -> Result<UserSelect, Error> {
         let user = self
             .db
             .user()
             .find_unique(user::id::equals(user_id))
-            .select(user_response::select())
+            .select(user_select::select())
             .exec()
             .await?
             .ok_or_else(|| Error::NotFound)?;
         Ok(user)
     }
 
-    pub async fn get_user_by_id_with_password(&self, user_id: String) -> Result<user::Data, Error> {
+    pub async fn get_user_by_id_with_password(&self, user_id: String) -> Result<User, Error> {
         let user = self
             .db
             .user()
@@ -80,11 +77,11 @@ impl UserService {
         username: String,
         email: String,
         password: String,
-    ) -> Result<user_response::Data, Error> {
+    ) -> Result<UserSelect, Error> {
         self.db
             .user()
             .create(username, email, password, vec![])
-            .select(user_response::select())
+            .select(user_select::select())
             .exec()
             .await
             .map_err(Into::into)
@@ -94,23 +91,24 @@ impl UserService {
         &self,
         user_id: String,
         changes: Vec<SetParam>,
-    ) -> Result<user_response::Data, Error> {
+    ) -> Result<UserSelect, Error> {
         self.db
             .user()
             .update(user::id::equals(user_id), changes)
-            .select(user_response::select())
+            .select(user_select::select())
             .exec()
             .await
             .map_err(Into::into)
     }
 
-    pub async fn delete_user(&self, user_id: String) -> Result<(), Error> {
-        self.db
+    pub async fn delete_user(&self, user_id: String) -> Result<UserSelect, Error> {
+        let deleted_user = self
+            .db
             .user()
             .delete(user::id::equals(user_id))
-            .select(user_response::select())
+            .select(user_select::select())
             .exec()
             .await?;
-        Ok(())
+        Ok(deleted_user)
     }
 }

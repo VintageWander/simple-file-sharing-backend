@@ -10,7 +10,7 @@ use aws_sdk_s3::{
     Client,
 };
 
-use crate::config::Config;
+use crate::config::{ACCESS_KEY_ID, BUCKET_NAME, REGION, SECRET_ACCESS_KEY};
 
 #[derive(Debug, Clone)]
 pub struct S3 {
@@ -19,21 +19,12 @@ pub struct S3 {
 }
 
 impl S3 {
-    pub fn init(config: &Config) -> Self {
-        // Get the id secret from env
-        let Config {
-            s3_key_id,
-            s3_key_secret,
-            region,
-            bucket_name,
-            ..
-        } = config;
-
+    pub fn init() -> Self {
         // Build the aws cred
-        let cred = Credentials::new(s3_key_id, s3_key_secret, None, None, "get-from-env");
+        let cred = Credentials::new(ACCESS_KEY_ID, SECRET_ACCESS_KEY, None, None, "get-from-env");
 
         // Build the aws config
-        let region = Region::new(region.clone());
+        let region = Region::new(REGION);
 
         let conf_builder = config::Builder::new()
             .region(region)
@@ -43,7 +34,7 @@ impl S3 {
 
         Self {
             client: Client::from_conf(conf),
-            bucket_name: bucket_name.clone(),
+            bucket_name: BUCKET_NAME.to_string(),
         }
     }
 }

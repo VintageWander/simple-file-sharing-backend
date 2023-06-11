@@ -1,7 +1,7 @@
 use axum::{extract::State, routing::get, Router};
 
 use crate::{
-    file::request::query::FileQuery,
+    file::model::{query::FileQuery, select::child_files_select},
     prisma::{file, folder, Visibility},
     web::Web,
     GlobalState, WebResult,
@@ -38,20 +38,7 @@ pub fn get_public_files() -> Router<GlobalState> {
         let public_files: Vec<_> = db
             .folder()
             .find_many(vec![starting_point])
-            .select(folder::select!({
-                child_files(filters): select {
-                    id
-                    owner: select {
-                        id username email created_at updated_at
-                    }
-                    parent_folder_id
-                    filename
-                    extension
-                    visibility
-                    created_at
-                    updated_at
-                }
-            }))
+            .select(child_files_select::select(filters))
             .exec()
             .await?
             .into_iter()

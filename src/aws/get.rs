@@ -1,7 +1,7 @@
 use aws_sdk_s3::primitives::ByteStream;
 
 use super::S3;
-use crate::{error::Error, validation::file::check_fullpath};
+use crate::{error::Error, file::model::validation::check_fullpath};
 
 impl S3 {
     pub async fn get_all(&self, prefix: &str) -> Result<Vec<String>, Error> {

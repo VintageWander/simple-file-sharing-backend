@@ -20,13 +20,14 @@ axum = { version = "0.6.18", features = [
     "query",
     "multipart",
 ] }
-axum_typed_multipart = "0.3.4"
+axum_typed_multipart = "0.4.0"
 axum-extra = { version = "0.7.4", features = ["cookie"] }
 tower-http = { version = "0.4.0", features = ["cors"] }
 cookie = "0.17.0"
 
 # Secrets
 envy = "0.4.2"
+const_env = "0.1.2"
 
 # Time
 chrono = { version = "0.4.24", features = ["serde"] }

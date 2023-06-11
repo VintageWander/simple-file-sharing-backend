@@ -1,6 +1,6 @@
 use crate::{
     error::Error,
-    folder::response::folder_response,
+    folder::model::select::{folder_select, FolderSelect},
     prisma::{folder, Visibility},
 };
 
@@ -12,8 +12,8 @@ impl FolderService {
         owner_id: String,
         folder_name: String,
         visibility: Option<Visibility>,
-        parent_folder_id: String,
-    ) -> Result<folder_response::Data, Error> {
+        parent: Option<String>,
+    ) -> Result<FolderSelect, Error> {
         let new_folder = self
             .db
             .folder()
@@ -21,11 +21,18 @@ impl FolderService {
                 owner_id,
                 folder_name,
                 visibility.unwrap_or(Visibility::Public),
-                vec![folder::parent_folder_id::set(Some(parent_folder_id))],
+                vec![folder::parent_folder_id::set(parent)],
             )
-            .select(folder_response::select())
+            .select(folder_select::select())
             .exec()
             .await?;
         Ok(new_folder)
+    }
+
+    pub async fn create_root_folder(&self, owner_id: String) -> Result<FolderSelect, Error> {
+        let root_folder = self
+            .create_folder(owner_id.clone(), owner_id, Some(Visibility::Private), None)
+            .await?;
+        Ok(root_folder)
     }
 }

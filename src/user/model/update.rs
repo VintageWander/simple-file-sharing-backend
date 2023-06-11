@@ -3,11 +3,9 @@ use is_empty::IsEmpty;
 use serde::Deserialize;
 use validator::Validate;
 
-use crate::{
-    error::Error,
-    validation::{user::*, validation_message},
-    GlobalState,
-};
+use crate::{error::Error, validation::validation_message, GlobalState};
+
+use super::validation::{check_password, check_username};
 
 #[derive(Deserialize, Validate, IsEmpty)]
 #[serde(rename_all = "camelCase")]

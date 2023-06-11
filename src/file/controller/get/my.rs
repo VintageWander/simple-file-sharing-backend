@@ -1,9 +1,9 @@
 use axum::{extract::State, routing::get, Router};
 
 use crate::{
-    file::request::query::FileQuery,
+    file::model::{query::FileQuery, select::child_files_select},
     prisma::{file, folder},
-    user::{request::loggedin::LoggedInUser, response::user_response::Data},
+    user::model::{loggedin::LoggedInUser, select::UserSelect},
     web::Web,
     GlobalState, WebResult,
 };
@@ -17,7 +17,7 @@ use crate::{
 pub fn get_my_files() -> Router<GlobalState> {
     async fn get_my_files_handler(
         State(GlobalState { db, .. }): State<GlobalState>,
-        LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
+        LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         FileQuery {
             parent,
             visibility,
@@ -39,20 +39,7 @@ pub fn get_my_files() -> Router<GlobalState> {
         let my_files: Vec<_> = db
             .folder()
             .find_many(vec![starting_point])
-            .select(folder::select!({
-                child_files(filters): select {
-                    id
-                    owner: select {
-                        id username email created_at updated_at
-                    }
-                    parent_folder_id
-                    filename
-                    extension
-                    visibility
-                    created_at
-                    updated_at
-                }
-            }))
+            .select(child_files_select::select(filters))
             .exec()
             .await?
             .into_iter()

@@ -2,7 +2,9 @@ use std::collections::VecDeque;
 
 use crate::{
     error::Error,
-    folder::response::{child_folders_response, folder_response},
+    folder::model::select::{
+        child_folders_select, folder_select, ChildFoldersSelect, Folder, FolderSelect,
+    },
     prisma::{
         folder::{self, WhereParam},
         user, Visibility,
@@ -26,7 +28,7 @@ impl FolderService {
         &self,
         parent_folder_id: Option<String>, // Parent folder filter
         child_folders_filter: Vec<WhereParam>, // Filter for the child folders of the above (child level)
-    ) -> Result<Vec<child_folders_response::child_folders::Data>, Error> {
+    ) -> Result<Vec<ChildFoldersSelect>, Error> {
         //
         let starting_point = match parent_folder_id {
             Some(parent_id) => folder::id::equals(parent_id),
@@ -37,7 +39,7 @@ impl FolderService {
             .db
             .folder()
             .find_many(vec![starting_point])
-            .select(child_folders_response::select(child_folders_filter))
+            .select(child_folders_select::select(child_folders_filter))
             .exec()
             .await?
             .into_iter()
@@ -51,7 +53,7 @@ impl FolderService {
         &self,
         user_id: String,
         mut filters: Vec<WhereParam>,
-    ) -> Result<Vec<folder_response::Data>, Error> {
+    ) -> Result<Vec<FolderSelect>, Error> {
         filters.extend(vec![
             folder::visibility::equals(Visibility::Shared),
             folder::collaborators::some(vec![user::id::equals(user_id)]),
@@ -61,7 +63,7 @@ impl FolderService {
             .db
             .folder()
             .find_many(filters)
-            .select(folder_response::select())
+            .select(folder_select::select())
             .exec()
             .await?;
         Ok(shared_folders)
@@ -71,7 +73,7 @@ impl FolderService {
         &self,
         folder_filter: Vec<WhereParam>,
         user_id: String,
-    ) -> Result<folder::Data, Error> {
+    ) -> Result<Folder, Error> {
         /*
             There are 2 things that we have to deal with, that is
             We'll use the folder_filter to get the folder

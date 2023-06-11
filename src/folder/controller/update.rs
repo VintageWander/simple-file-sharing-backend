@@ -2,9 +2,9 @@ use axum::{extract::State, routing::put, Router};
 
 use crate::{
     extractors::param::ParamId,
-    folder::request::update::UpdateFolderRequest,
+    folder::model::update::UpdateFolderRequest,
     prisma::folder,
-    user::{request::loggedin::LoggedInUser, response::user_response::Data},
+    user::model::{loggedin::LoggedInUser, select::UserSelect},
     web::Web,
     GlobalState, WebResult,
 };
@@ -14,7 +14,7 @@ pub fn update_folder() -> Router<GlobalState> {
         State(GlobalState {
             db, folder_service, ..
         }): State<GlobalState>,
-        LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
+        LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         ParamId(param_folder_id): ParamId,
         UpdateFolderRequest {
             parent,

@@ -2,7 +2,7 @@ use aws_sdk_s3::types::{Delete, ObjectIdentifier};
 
 use crate::{
     error::Error,
-    validation::file::{check_dir, check_fullpath},
+    file::model::validation::{check_dir, check_fullpath},
 };
 
 use super::S3;

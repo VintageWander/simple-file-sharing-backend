@@ -5,64 +5,88 @@ use axum::http::{
     },
     HeaderValue, Method,
 };
-use envy::from_env;
-use serde::Deserialize;
+use const_env::from_env;
 use tower_http::cors::CorsLayer;
-use validator::Validate;
+use validator::{validate_url, ValidationError};
 
-use crate::{error::print::extract_validation_error, validation::aws::check_region};
+use crate::validation::check_with;
 
-#[derive(Deserialize, Clone, Validate)]
-pub struct Config {
-    pub port: u16,
+#[from_env]
+pub const DATABASE_URL: &str = "";
 
-    #[validate(url(message = "ORIGIN invalid"))]
-    pub origin: String,
+#[from_env]
+pub const PORT: u16 = 8000;
 
-    pub jwt_access: String,
-    pub jwt_refresh: String,
+#[from_env("ORIGIN")]
+pub const ENV_ORIGIN: &str = "";
 
-    pub s3_key_id: String,
-    pub s3_key_secret: String,
-    pub bucket_name: String,
-    #[validate(custom = "check_region")]
-    pub region: String,
+#[from_env]
+pub const ACCESS_TOKEN_SECRET: &str = "";
+
+#[from_env]
+pub const REFRESH_TOKEN_SECRET: &str = "";
+
+#[from_env]
+pub const ACCESS_KEY_ID: &str = "";
+
+#[from_env]
+pub const SECRET_ACCESS_KEY: &str = "";
+
+#[from_env]
+pub const BUCKET_NAME: &str = "";
+
+#[from_env]
+pub const REGION: &str = "";
+
+pub fn check_env() {
+    if !validate_url(ENV_ORIGIN) {
+        panic!("Invalid origin");
+    }
+    if check_region(REGION).is_err() {
+        panic!("Invalid region");
+    }
+    if check_db_connection(DATABASE_URL).is_err() {
+        panic!("Invalid database connection");
+    }
 }
 
-impl Config {
-    pub fn from_env() -> Config {
-        let config = match from_env::<Config>() {
-            Ok(config) => config,
-            Err(e) => panic!("{}", e.to_string()),
-        };
-        if let Err(e) = config.validate() {
-            panic!("{}", extract_validation_error(&e))
-        }
-        config
-    }
+fn check_region(region: &str) -> Result<(), ValidationError> {
+    check_with(
+        region,
+        r#"^([a-z]{2}-(central|(north|south)?(east|west)?)-\d)|((ap|ca|cn|eu|sa|us)-(central|(north|south)?(east|west)?)-\d)|((me|af|ap|eu|sa)-(south|north)?(east|west)?-\d)|((us-gov)-(east|west)-\d)$"#,
+        "Not a valid AWS Region",
+    )
+}
 
-    pub fn setup_cors(origin: String) -> CorsLayer {
-        CorsLayer::new()
-            .allow_credentials(true)
-            .allow_origin(
-                origin
-                    .parse::<HeaderValue>()
-                    .expect("Failed to parse origin as HeaderValue"),
-            )
-            .allow_headers([
-                ORIGIN,
-                CONTENT_TYPE,
-                ACCEPT,
-                ACCESS_CONTROL_ALLOW_ORIGIN,
-                ACCESS_CONTROL_ALLOW_METHODS,
-                ACCESS_CONTROL_ALLOW_HEADERS,
-            ])
-            .allow_methods([
-                Method::GET,
-                Method::POST,
-                Method::PUT,
-                Method::DELETE,
-                Method::OPTIONS,
-            ])
-    }
+fn check_db_connection(connection_string: &str) -> Result<(), ValidationError> {
+    check_with(
+        connection_string,
+        r#"^postgres:\/\/[a-zA-Z0-9]+(:[a-zA-Z0-9]+)?@[a-zA-Z0-9]+(:[0-9]+)?\/[a-zA-Z0-9]+$"#,
+        "The database connection string is incorrect",
+    )
+}
+
+pub fn setup_cors() -> CorsLayer {
+    CorsLayer::new()
+        .allow_credentials(true)
+        .allow_origin(
+            ENV_ORIGIN
+                .parse::<HeaderValue>()
+                .expect("Failed to parse origin as HeaderValue"),
+        )
+        .allow_headers([
+            ORIGIN,
+            CONTENT_TYPE,
+            ACCEPT,
+            ACCESS_CONTROL_ALLOW_ORIGIN,
+            ACCESS_CONTROL_ALLOW_METHODS,
+            ACCESS_CONTROL_ALLOW_HEADERS,
+        ])
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
 }

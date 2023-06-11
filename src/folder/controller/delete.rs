@@ -4,7 +4,7 @@ use crate::{
     error::Error,
     extractors::param::ParamId,
     prisma::folder,
-    user::{request::loggedin::LoggedInUser, response::user_response::Data},
+    user::model::{loggedin::LoggedInUser, select::UserSelect},
     web::Web,
     GlobalState, WebResult,
 };
@@ -17,7 +17,7 @@ pub fn delete_folder() -> Router<GlobalState> {
             storage,
             ..
         }): State<GlobalState>,
-        LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
+        LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         ParamId(param_folder_id): ParamId,
     ) -> WebResult {
         /*

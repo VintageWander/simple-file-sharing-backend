@@ -1,8 +1,8 @@
 use axum::{extract::State, routing::get, Router};
 
 use crate::{
-    folder::request::query::FolderQuery,
-    user::{request::loggedin::LoggedInUser, response::user_response::Data},
+    folder::model::query::FolderQuery,
+    user::model::{loggedin::LoggedInUser, select::UserSelect},
     web::Web,
     GlobalState, WebResult,
 };
@@ -20,7 +20,7 @@ pub fn get_shared_folders() -> Router<GlobalState> {
         State(GlobalState {
             db, folder_service, ..
         }): State<GlobalState>,
-        LoggedInUser(Data { id: user_id, .. }): LoggedInUser,
+        LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         FolderQuery {
             parent: parent_folder_id,
             filters,

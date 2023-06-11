@@ -10,14 +10,16 @@ use validator::Validate;
 
 use crate::{
     error::Error,
-    prisma::{file, Extension, Visibility},
-    validation::{file::check_filename, uuid::check_uuid},
+    prisma::{folder, Visibility},
+    validation::uuid::check_uuid,
     GlobalState,
 };
 
+use super::validation::check_folder_name;
+
 #[derive(Deserialize, Validate, IsEmpty)]
 #[serde(rename_all = "camelCase")]
-pub struct FileQuery {
+pub struct FolderQuery {
     #[validate(custom = "check_uuid")]
     pub id: Option<String>,
 
@@ -27,10 +29,8 @@ pub struct FileQuery {
     #[validate(custom = "check_uuid")]
     pub parent: Option<String>,
 
-    #[validate(custom = "check_filename")]
-    pub filename: Option<String>,
-
-    pub extension: Option<Extension>,
+    #[validate(custom = "check_folder_name")]
+    pub folder_name: Option<String>,
 
     pub visibility: Option<Visibility>,
 
@@ -40,54 +40,51 @@ pub struct FileQuery {
 
     #[serde(skip)]
     #[is_empty(if = "Vec::is_empty")]
-    pub filters: Vec<file::WhereParam>,
+    pub filters: Vec<folder::WhereParam>,
 }
 
 #[async_trait]
-impl FromRequestParts<GlobalState> for FileQuery {
+impl FromRequestParts<GlobalState> for FolderQuery {
     type Rejection = Error;
     async fn from_request_parts(
         parts: &mut Parts,
         state: &GlobalState,
     ) -> Result<Self, Self::Rejection> {
-        let Query(mut query) = Query::<FileQuery>::from_request_parts(parts, state).await?;
+        let Query(mut query) = Query::<FolderQuery>::from_request_parts(parts, state).await?;
 
         if query.is_empty() {
             return Err(Error::NoContent);
         }
 
-        // The ignored comments indicate what fields will be processed in this extractor
-
-        let FileQuery {
+        let FolderQuery {
             id,
             owner_id, // ignored
             parent,   // ignored
-            filename,
-            extension,
+            folder_name,
             visibility, // ignored
             created_at,
             updated_at,
             ref mut filters,
         } = &mut query;
 
-        if let Some(id) = id.clone() {
-            filters.push(file::id::equals(id))
-        }
+        /*
+            Process common values
+            The owner_id, parent, and visibility are left for the handler to process
+        */
+        if let Some(folder_id) = id.clone() {
+            filters.push(folder::id::equals(folder_id))
+        };
 
-        if let Some(filename) = filename.clone() {
-            filters.push(file::filename::equals(filename))
-        }
-
-        if let Some(extension) = extension {
-            filters.push(file::extension::equals(*extension))
+        if let Some(folder_name) = folder_name.clone() {
+            filters.push(folder::folder_name::equals(folder_name))
         }
 
         if let Some(created_at) = created_at {
-            filters.push(file::created_at::equals(*created_at))
+            filters.push(folder::created_at::equals(*created_at))
         }
 
         if let Some(updated_at) = updated_at {
-            filters.push(file::updated_at::equals(*updated_at))
+            filters.push(folder::updated_at::equals(*updated_at))
         }
 
         Ok(query)
