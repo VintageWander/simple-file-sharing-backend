@@ -126,21 +126,23 @@ Fill in the fields in the `.env.sample` file
 # Database
 DATABASE_URL = "postgresql://local:password@localhost:8001/local"
 
+# Backend environment variables
+
+# Port is the backend's running port
+PORT = 8000
+# Origin is the frontend's address, to use with CORS
+ORIGIN = 
+
 # Jwt secrets
-JWT_ACCESS = 
-JWT_REFRESH = 
+ACCESS_TOKEN_SECRET = 
+REFRESH_TOKEN_SECRET = 
 
 # AWS S3 tokens
-S3_KEY_ID = 
-S3_KEY_SECRET = 
+ACCESS_KEY_ID = 
+SECRET_ACCESS_KEY = 
 BUCKET_NAME = 
 REGION = 
 
-# Backend environment variables
-# Origin is the frontend's address, to use with CORS
-# Port is the backend's running port
-ORIGIN = 
-PORT = 8000  # Can be any number from 0 to 65535
 ```
 
 Rename the file to `.env` and you're done with setting up the environment
