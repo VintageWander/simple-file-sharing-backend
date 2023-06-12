@@ -1,8 +1,8 @@
 use axum::{extract::State, routing::get, Router};
 
 use crate::{
-    file::model::{query::FileQuery, select::child_files_select},
-    prisma::{file, folder},
+    file::model::query::FileQuery,
+    prisma::file,
     user::model::{loggedin::LoggedInUser, select::UserSelect},
     web::Web,
     GlobalState, WebResult,
@@ -16,10 +16,12 @@ use crate::{
 
 pub fn get_my_files() -> Router<GlobalState> {
     async fn get_my_files_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+        State(GlobalState {
+            db, file_service, ..
+        }): State<GlobalState>,
         LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         FileQuery {
-            parent,
+            parent_folder_id,
             visibility,
             mut filters,
             ..
@@ -31,20 +33,9 @@ pub fn get_my_files() -> Router<GlobalState> {
             filters.push(file::visibility::equals(visibility))
         }
 
-        let starting_point = match parent {
-            Some(parent) => folder::id::equals(parent),
-            None => folder::parent_folder_id::equals(None),
-        };
-
-        let my_files: Vec<_> = db
-            .folder()
-            .find_many(vec![starting_point])
-            .select(child_files_select::select(filters))
-            .exec()
-            .await?
-            .into_iter()
-            .flat_map(|root_folder| root_folder.child_files)
-            .collect();
+        let my_files = file_service
+            .get_child_files_from_folders(parent_folder_id, filters)
+            .await?;
 
         Ok(Web::ok("Get all personal files successfully", my_files))
     }

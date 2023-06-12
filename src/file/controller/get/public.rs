@@ -1,8 +1,8 @@
 use axum::{extract::State, routing::get, Router};
 
 use crate::{
-    file::model::{query::FileQuery, select::child_files_select},
-    prisma::{file, folder, Visibility},
+    file::model::query::FileQuery,
+    prisma::{file, Visibility},
     web::Web,
     GlobalState, WebResult,
 };
@@ -16,10 +16,12 @@ use crate::{
 
 pub fn get_public_files() -> Router<GlobalState> {
     async fn get_public_files_handler(
-        State(GlobalState { db, .. }): State<GlobalState>,
+        State(GlobalState {
+            db, file_service, ..
+        }): State<GlobalState>,
         FileQuery {
             owner_id,
-            parent,
+            parent_folder_id,
             mut filters,
             ..
         }: FileQuery,
@@ -30,21 +32,9 @@ pub fn get_public_files() -> Router<GlobalState> {
             filters.push(file::owner_id::equals(owner_id))
         }
 
-        let starting_point = match parent {
-            Some(parent) => folder::id::equals(parent),
-            None => folder::parent_folder_id::equals(None),
-        };
-
-        let public_files: Vec<_> = db
-            .folder()
-            .find_many(vec![starting_point])
-            .select(child_files_select::select(filters))
-            .exec()
-            .await?
-            .into_iter()
-            .flat_map(|root_folder| root_folder.child_files)
-            .collect();
-
+        let public_files = file_service
+            .get_child_files_from_folders(parent_folder_id, filters)
+            .await?;
         Ok(Web::ok("Get all public files success", public_files))
     }
     Router::new().route("/public", get(get_public_files_handler))
