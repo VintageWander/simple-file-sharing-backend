@@ -7,6 +7,7 @@ use axum::response::Response;
 
 use config::{check_env, setup_cors, PORT};
 use error::Error;
+use file::service::FileService;
 use folder::service::FolderService;
 use prisma::PrismaClient;
 
@@ -34,6 +35,7 @@ pub struct GlobalState {
     pub db: Arc<PrismaClient>,
     pub user_service: UserService,
     pub folder_service: FolderService,
+    pub file_service: FileService,
     pub storage: S3,
 }
 
@@ -54,6 +56,7 @@ async fn main() {
         db: client.clone(),
         user_service: UserService::init(&client),
         folder_service: FolderService::init(&client),
+        file_service: FileService::init(&client),
         storage: S3::init(),
     };
 
