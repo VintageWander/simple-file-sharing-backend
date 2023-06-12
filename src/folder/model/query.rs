@@ -27,7 +27,7 @@ pub struct FolderQuery {
     pub owner_id: Option<String>,
 
     #[validate(custom = "check_uuid")]
-    pub parent: Option<String>,
+    pub parent_folder_id: Option<String>,
 
     #[validate(custom = "check_folder_name")]
     pub folder_name: Option<String>,
@@ -58,8 +58,8 @@ impl FromRequestParts<GlobalState> for FolderQuery {
 
         let FolderQuery {
             id,
-            owner_id, // ignored
-            parent,   // ignored
+            owner_id,         // ignored
+            parent_folder_id, // ignored
             folder_name,
             visibility, // ignored
             created_at,

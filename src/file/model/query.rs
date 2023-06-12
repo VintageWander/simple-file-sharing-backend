@@ -27,7 +27,7 @@ pub struct FileQuery {
     pub owner_id: Option<String>, // ignored
 
     #[validate(custom = "check_uuid")]
-    pub parent: Option<String>, // ignored
+    pub parent_folder_id: Option<String>, // ignored
 
     #[validate(custom = "check_filename")]
     pub filename: Option<String>,
@@ -62,8 +62,8 @@ impl FromRequestParts<GlobalState> for FileQuery {
 
         let FileQuery {
             id,
-            owner_id, // ignored
-            parent,   // ignored
+            owner_id,         // ignored
+            parent_folder_id, // ignored
             filename,
             extension,
             visibility, // ignored

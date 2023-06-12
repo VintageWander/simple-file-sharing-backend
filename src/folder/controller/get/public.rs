@@ -27,7 +27,7 @@ pub fn get_public_folders() -> Router<GlobalState> {
         State(GlobalState { folder_service, .. }): State<GlobalState>,
         FolderQuery {
             owner_id,
-            parent: parent_folder_id,
+            parent_folder_id,
             mut filters,
             ..
         }: FolderQuery,

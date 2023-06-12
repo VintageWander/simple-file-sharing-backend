@@ -22,7 +22,7 @@ pub fn get_shared_folders() -> Router<GlobalState> {
         }): State<GlobalState>,
         LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         FolderQuery {
-            parent: parent_folder_id,
+            parent_folder_id,
             filters,
             ..
         }: FolderQuery,

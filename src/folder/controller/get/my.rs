@@ -13,10 +13,8 @@ use crate::{
     EVEN IF the user provides user_id in the query, the code will still work
     but the filter will not be applied
 
-    Personal route ignores owner_id
-*/
+    Personal route IGNORES owner_id
 
-/*
     On the handlers side
     We only have to deal with owner_id, parent, and visiblity
 */
@@ -28,7 +26,7 @@ pub fn get_my_folders() -> Router<GlobalState> {
         }): State<GlobalState>,
         LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         FolderQuery {
-            parent: parent_folder_id,
+            parent_folder_id,
             visibility,
             mut filters,
             ..
