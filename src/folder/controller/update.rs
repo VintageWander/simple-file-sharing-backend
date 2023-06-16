@@ -19,8 +19,8 @@ pub fn update_folder() -> Router<GlobalState> {
         ParamId(param_folder_id): ParamId,
         UpdateFolderRequest {
             parent,
-            mut changes,
-            ..
+            folder_name,
+            visibility,
         }: UpdateFolderRequest,
     ) -> WebResult {
         /*
@@ -43,7 +43,7 @@ pub fn update_folder() -> Router<GlobalState> {
                 If the parent field isn't present 
                 Then we don't have to do anything much just update
             */
-            let updated_folder = folder_service.update_folder(target_folder.id, changes).await?;
+            let updated_folder = folder_service.update_folder(target_folder.id, None, folder_name, visibility).await?;
 
             return Ok(Web::ok("Update folder success", updated_folder));
         };
@@ -56,10 +56,13 @@ pub fn update_folder() -> Router<GlobalState> {
             return Err(Error::Forbidden);
         }
 
-        changes.push(folder::parent_folder_id::set(Some(parent_folder.id)));
-
         let updated_folder = folder_service
-            .update_folder(target_folder.id, changes)
+            .update_folder(
+                target_folder.id,
+                Some(parent_folder.id),
+                folder_name,
+                visibility,
+            )
             .await?;
 
         Ok(Web::ok("Update folder success", updated_folder))
