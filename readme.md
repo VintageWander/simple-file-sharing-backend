@@ -66,7 +66,7 @@ I'm currently finish implementing the main features first, and then I'll write a
 ### 1. Running the database
 If you have a Postgres database already running in the background then great! <br>
 However, if you want to run Postgres in a Docker container like I do, run the command below: <br>
-```zsh
+```yaml
 docker-compose -f postgres.yml up -d 
 ```
 
@@ -81,7 +81,7 @@ TLDR: You can install their [__CLI tool__](https://docs.localstack.cloud/getting
 <br>
 
 Setup your profile with: <br>
-```zsh
+```yaml
 aws configure --profile default
 ```
 There you will define your self-made `access-key` and `secret-key`, as well as `region`. <br>
@@ -91,7 +91,7 @@ Though since the AWS emulator is offline, you can provide any arbitrary `region`
 
 After you're done, you can access your local AWS S3 through:
 
-```zsh
+```yaml
 aws --endpoint-url=http://localhost:4566
 ```
 
@@ -101,28 +101,28 @@ Of course in order to not type everything everytime I use the AWS CLI, I `alias`
 
 <br>
 
-```zsh
+```yaml
 alias local-s3="aws --endpoint-url=http://localhost:4566 s3"
 ```
 
 <br>
 
 Everytime that I want to see my resources, I can just use it like this: <br>
-```zsh
+```yaml
 local-s3 ls
 ```
 
 <br>
 
 Create your new bucket like this
-```zsh
+```yaml
 local-s3 mb s3://<bucket-name>
 ```
 
 <br>
 
 Fill in the fields in the `.env.sample` file
-```toml
+```yaml
 # Database
 DATABASE_URL = "postgresql://local:password@localhost:8001/local"
 
@@ -133,7 +133,7 @@ PORT = 8000
 # Origin is the frontend's address, to use with CORS
 ORIGIN = 
 
-# Jwt secrets
+# Token secrets
 ACCESS_TOKEN_SECRET = 
 REFRESH_TOKEN_SECRET = 
 
@@ -150,7 +150,7 @@ Rename the file to `.env` and you're done with setting up the environment
 <br>
 
 Final command to run: <br>
-```zsh
+```yaml
 cargo prisma migrate deploy && cargo run --release
 ```
 
