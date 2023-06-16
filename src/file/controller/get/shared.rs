@@ -15,18 +15,29 @@ use crate::{
 
 pub fn get_shared_files() -> Router<GlobalState> {
     async fn get_shared_files_handler(
-        State(GlobalState {
-            db, file_service, ..
-        }): State<GlobalState>,
+        State(GlobalState { file_service, .. }): State<GlobalState>,
         LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         FileQuery {
-            parent_folder_id: parent,
-            filters,
+            id,
+            owner_id,
+            parent_folder_id,
+            filename,
+            extension,
+            created_at,
+            updated_at,
             ..
         }: FileQuery,
     ) -> WebResult {
         let shared_files = file_service
-            .get_files_shared_to_user_id(user_id, filters)
+            .get_files_shared_to_user_id(
+                user_id,
+                id,
+                parent_folder_id,
+                filename,
+                extension,
+                created_at,
+                updated_at,
+            )
             .await?;
 
         Ok(Web::ok(

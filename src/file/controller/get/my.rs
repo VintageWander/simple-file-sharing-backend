@@ -2,7 +2,6 @@ use axum::{extract::State, routing::get, Router};
 
 use crate::{
     file::model::query::FileQuery,
-    prisma::file,
     user::model::{loggedin::LoggedInUser, select::UserSelect},
     web::Web,
     GlobalState, WebResult,
@@ -16,25 +15,30 @@ use crate::{
 
 pub fn get_my_files() -> Router<GlobalState> {
     async fn get_my_files_handler(
-        State(GlobalState {
-            db, file_service, ..
-        }): State<GlobalState>,
+        State(GlobalState { file_service, .. }): State<GlobalState>,
         LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         FileQuery {
+            id,
             parent_folder_id,
+            filename,
+            extension,
             visibility,
-            mut filters,
+            created_at,
+            updated_at,
             ..
         }: FileQuery,
     ) -> WebResult {
-        filters.push(file::owner_id::equals(user_id));
-
-        if let Some(visibility) = visibility {
-            filters.push(file::visibility::equals(visibility))
-        }
-
         let my_files = file_service
-            .get_child_files_from_folders(parent_folder_id, filters)
+            .get_child_files_from_folders(
+                id,
+                Some(user_id),
+                parent_folder_id,
+                filename,
+                extension,
+                visibility,
+                created_at,
+                updated_at,
+            )
             .await?;
 
         Ok(Web::ok("Get all personal files successfully", my_files))

@@ -1,11 +1,6 @@
 use axum::{extract::State, routing::get, Router};
 
-use crate::{
-    file::model::query::FileQuery,
-    prisma::{file, Visibility},
-    web::Web,
-    GlobalState, WebResult,
-};
+use crate::{file::model::query::FileQuery, prisma::Visibility, web::Web, GlobalState, WebResult};
 
 /*
     PUBLIC route ignores visibility field
@@ -16,24 +11,29 @@ use crate::{
 
 pub fn get_public_files() -> Router<GlobalState> {
     async fn get_public_files_handler(
-        State(GlobalState {
-            db, file_service, ..
-        }): State<GlobalState>,
+        State(GlobalState { file_service, .. }): State<GlobalState>,
         FileQuery {
+            id,
             owner_id,
             parent_folder_id,
-            mut filters,
+            filename,
+            extension,
+            created_at,
+            updated_at,
             ..
         }: FileQuery,
     ) -> WebResult {
-        filters.push(file::visibility::equals(Visibility::Public));
-
-        if let Some(owner_id) = owner_id {
-            filters.push(file::owner_id::equals(owner_id))
-        }
-
         let public_files = file_service
-            .get_child_files_from_folders(parent_folder_id, filters)
+            .get_child_files_from_folders(
+                id,
+                owner_id,
+                parent_folder_id,
+                filename,
+                extension,
+                Some(Visibility::Public),
+                created_at,
+                updated_at,
+            )
             .await?;
         Ok(Web::ok("Get all public files success", public_files))
     }
