@@ -1,9 +1,11 @@
 use std::collections::VecDeque;
 
+use chrono::{DateTime, FixedOffset};
+
 use crate::{
     error::Error,
     folder::model::select::{
-        child_folders_select, folder_select, ChildFoldersSelect, Folder, FolderSelect,
+        child_folders_select, folder_select, ChildFoldersSelect, FolderSelect,
     },
     prisma::{
         folder::{self, WhereParam},
@@ -21,19 +23,50 @@ impl FolderService {
         If Some -> the id will be used to get that folder
         If None -> get all root folders
 
-        param child_folder_filter to filter the child folders from the folders_filter
+        The rest of the fields are used as filters for the child folders
     */
-
+    #[allow(clippy::too_many_arguments)]
     pub async fn get_child_folders_from_folders(
         &self,
-        parent_folder_id: Option<String>, // Parent folder filter
-        child_folders_filter: Vec<WhereParam>, // Filter for the child folders of the above (child level)
+        id: Option<String>,
+        owner_id: Option<String>,
+        parent_folder_id: Option<String>,
+        folder_name: Option<String>,
+        visibility: Option<Visibility>,
+        created_at: Option<DateTime<FixedOffset>>,
+        updated_at: Option<DateTime<FixedOffset>>,
     ) -> Result<Vec<ChildFoldersSelect>, Error> {
         //
         let starting_point = match parent_folder_id {
             Some(parent_id) => folder::id::equals(parent_id),
             None => folder::parent_folder_id::equals(None),
         };
+
+        let mut child_folders_filter = vec![];
+
+        if let Some(id) = id {
+            child_folders_filter.push(folder::id::equals(id))
+        };
+
+        if let Some(owner_id) = owner_id {
+            child_folders_filter.push(folder::owner_id::equals(owner_id))
+        };
+
+        if let Some(folder_name) = folder_name {
+            child_folders_filter.push(folder::folder_name::equals(folder_name))
+        };
+
+        if let Some(visibility) = visibility {
+            child_folders_filter.push(folder::visibility::equals(visibility))
+        };
+
+        if let Some(created_at) = created_at {
+            child_folders_filter.push(folder::created_at::equals(created_at))
+        }
+
+        if let Some(updated_at) = updated_at {
+            child_folders_filter.push(folder::updated_at::equals(updated_at))
+        }
 
         let child_folders = self
             .db
@@ -52,8 +85,34 @@ impl FolderService {
     pub async fn get_folders_shared_to_user_id(
         &self,
         user_id: String,
-        mut filters: Vec<WhereParam>,
+        id: Option<String>,
+        parent_folder_id: Option<String>,
+        folder_name: Option<String>,
+        created_at: Option<DateTime<FixedOffset>>,
+        updated_at: Option<DateTime<FixedOffset>>,
     ) -> Result<Vec<FolderSelect>, Error> {
+        let mut filters = vec![];
+
+        if let Some(id) = id {
+            filters.push(folder::id::equals(id))
+        }
+
+        if let Some(parent_folder_id) = parent_folder_id {
+            filters.push(folder::parent_folder_id::equals(Some(parent_folder_id)))
+        }
+
+        if let Some(folder_name) = folder_name {
+            filters.push(folder::folder_name::equals(folder_name))
+        }
+
+        if let Some(created_at) = created_at {
+            filters.push(folder::created_at::equals(created_at))
+        }
+
+        if let Some(updated_at) = updated_at {
+            filters.push(folder::updated_at::equals(updated_at))
+        }
+
         filters.extend(vec![
             folder::visibility::equals(Visibility::Shared),
             folder::collaborators::some(vec![user::id::equals(user_id)]),
@@ -73,7 +132,7 @@ impl FolderService {
         &self,
         folder_filter: Vec<WhereParam>,
         user_id: String,
-    ) -> Result<Folder, Error> {
+    ) -> Result<FolderSelect, Error> {
         /*
             There are 2 things that we have to deal with, that is
             We'll use the folder_filter to get the folder
@@ -101,9 +160,19 @@ impl FolderService {
             )])])
             .collect();
 
-        let search_by_user_id = self.db.folder().find_first(user_id_filter).exec();
+        let search_by_user_id = self
+            .db
+            .folder()
+            .find_first(user_id_filter)
+            .select(folder_select::select())
+            .exec();
 
-        let search_from_collaborators = self.db.folder().find_first(collaborator_filter).exec();
+        let search_from_collaborators = self
+            .db
+            .folder()
+            .find_first(collaborator_filter)
+            .select(folder_select::select())
+            .exec();
 
         match search_by_user_id.await? {
             Some(owned_folder) => Ok(owned_folder),

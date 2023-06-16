@@ -1,6 +1,7 @@
 use axum::{extract::State, routing::put, Router};
 
 use crate::{
+    error::Error,
     extractors::param::ParamId,
     folder::model::update::UpdateFolderRequest,
     prisma::folder,
@@ -50,6 +51,10 @@ pub fn update_folder() -> Router<GlobalState> {
         let parent_folder = folder_service
             .get_folder_by_user_id(vec![folder::id::equals(parent)], user_id)
             .await?;
+
+        if parent_folder.id == target_folder.id {
+            return Err(Error::Forbidden);
+        }
 
         changes.push(folder::parent_folder_id::set(Some(parent_folder.id)));
 

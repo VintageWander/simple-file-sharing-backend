@@ -2,7 +2,6 @@ use axum::{extract::State, routing::get, Router};
 
 use crate::{
     folder::model::query::FolderQuery,
-    prisma::folder,
     user::model::{loggedin::LoggedInUser, select::UserSelect},
     web::Web,
     GlobalState, WebResult,
@@ -21,25 +20,28 @@ use crate::{
 
 pub fn get_my_folders() -> Router<GlobalState> {
     async fn my_folders_handler(
-        State(GlobalState {
-            db, folder_service, ..
-        }): State<GlobalState>,
+        State(GlobalState { folder_service, .. }): State<GlobalState>,
         LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         FolderQuery {
+            id,
             parent_folder_id,
+            folder_name,
             visibility,
-            mut filters,
+            created_at,
+            updated_at,
             ..
         }: FolderQuery,
     ) -> WebResult {
-        filters.push(folder::owner_id::equals(user_id));
-
-        if let Some(visibility) = visibility {
-            filters.push(folder::visibility::equals(visibility))
-        }
-
         let my_folders = folder_service
-            .get_child_folders_from_folders(parent_folder_id, filters)
+            .get_child_folders_from_folders(
+                id,
+                Some(user_id),
+                parent_folder_id,
+                folder_name,
+                visibility,
+                created_at,
+                updated_at,
+            )
             .await?;
 
         Ok(Web::ok("Get all personal folders successfully", my_folders))

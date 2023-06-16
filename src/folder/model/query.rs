@@ -8,12 +8,7 @@ use is_empty::IsEmpty;
 use serde::Deserialize;
 use validator::Validate;
 
-use crate::{
-    error::Error,
-    prisma::{folder, Visibility},
-    validation::uuid::check_uuid,
-    GlobalState,
-};
+use crate::{error::Error, prisma::Visibility, validation::uuid::check_uuid, GlobalState};
 
 use super::validation::check_folder_name;
 
@@ -37,10 +32,6 @@ pub struct FolderQuery {
     pub created_at: Option<DateTime<FixedOffset>>,
 
     pub updated_at: Option<DateTime<FixedOffset>>,
-
-    #[serde(skip)]
-    #[is_empty(if = "Vec::is_empty")]
-    pub filters: Vec<folder::WhereParam>,
 }
 
 #[async_trait]
@@ -50,41 +41,10 @@ impl FromRequestParts<GlobalState> for FolderQuery {
         parts: &mut Parts,
         state: &GlobalState,
     ) -> Result<Self, Self::Rejection> {
-        let Query(mut query) = Query::<FolderQuery>::from_request_parts(parts, state).await?;
+        let Query(query) = Query::<FolderQuery>::from_request_parts(parts, state).await?;
 
         if query.is_empty() {
             return Err(Error::NoContent);
-        }
-
-        let FolderQuery {
-            id,
-            owner_id,         // ignored
-            parent_folder_id, // ignored
-            folder_name,
-            visibility, // ignored
-            created_at,
-            updated_at,
-            ref mut filters,
-        } = &mut query;
-
-        /*
-            Process common values
-            The owner_id, parent, and visibility are left for the handler to process
-        */
-        if let Some(folder_id) = id.clone() {
-            filters.push(folder::id::equals(folder_id))
-        };
-
-        if let Some(folder_name) = folder_name.clone() {
-            filters.push(folder::folder_name::equals(folder_name))
-        }
-
-        if let Some(created_at) = created_at {
-            filters.push(folder::created_at::equals(*created_at))
-        }
-
-        if let Some(updated_at) = updated_at {
-            filters.push(folder::updated_at::equals(*updated_at))
         }
 
         Ok(query)

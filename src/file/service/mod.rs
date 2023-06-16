@@ -2,7 +2,9 @@ use std::sync::Arc;
 
 use crate::prisma::PrismaClient;
 
+pub mod create;
 pub mod get;
+pub mod update;
 
 #[derive(Clone)]
 pub struct FileService {
