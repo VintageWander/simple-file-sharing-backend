@@ -1,5 +1,6 @@
 use aws_sdk_s3::primitives::ByteStream;
 use aws_smithy_http::body::SdkBody;
+use bytes::Bytes;
 
 use super::S3;
 use crate::{
@@ -8,7 +9,7 @@ use crate::{
 };
 
 impl S3 {
-    pub async fn create_file(&self, fullpath: &str, data: Vec<u8>) -> Result<(), Error> {
+    pub async fn create_file(&self, fullpath: &str, data: Bytes) -> Result<(), Error> {
         check_fullpath(fullpath)?;
 
         let mime = mime_guess::from_path(fullpath)
