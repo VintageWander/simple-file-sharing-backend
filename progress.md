@@ -33,7 +33,7 @@
 - [x] Get accessible folder (by id)
 - [x] Create new folders
 - [x] Update folder
-- [x] Delete folder ( Cascade delete all S3 files as well)
+- [x] Delete folder ( Cascade delete all S3 files as well )
 - [ ] Manage folder's collaborators
 - [ ] Manage folders' tags
 
@@ -43,7 +43,8 @@
 - [x] See list of "shared to me" folders
 - [x] Create new folders
 - [x] Update folder
-- [x] Delete folder ( Cascade delete all S3 files as well)
+- [x] Delete folder ( Cascade delete all S3 files as well )
+- [ ] Download folder
 - [ ] Manage folder's collaborators
 - [ ] Manage folders' tags
 
@@ -54,10 +55,10 @@
 - [x] See list of public files
 - [x] See list of personal files
 - [x] See list of "shared to me" files
-- [ ] Get accessible file (by id)
-- [ ] Create new files
-- [ ] Update file
-- [ ] Delete file
+- [x] Get accessible file (by id)
+- [x] Create new files
+- [x] Update file
+- [x] Delete file
 - [ ] Manage file's collaborators
 - [ ] Manage files' tags
 
@@ -65,9 +66,9 @@
 - [x] See list of public files
 - [x] See list of personal files
 - [x] See list of "shared to me" files
-- [ ] Create new files
-- [ ] Update file
-- [ ] Delete file
+- [x] Create new files
+- [x] Update file
+- [x] Delete file
 - [ ] Manage file's collaborators
 - [ ] Manage files' tags
 - [ ] Download file
