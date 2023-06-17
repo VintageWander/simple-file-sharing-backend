@@ -36,8 +36,8 @@ This is the backend for my simple file sharing service that I made for my final 
 - [x] See all personal files
 - [x] See all "shared to me" files
 - [x] Create new files
-- [ ] Update files
-- [ ] Delete files
+- [x] Update files
+- [x] Delete files
 - [ ] Manage file versions
 - [ ] Manage file's collaborators
 - [ ] Download file
