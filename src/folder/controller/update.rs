@@ -37,32 +37,23 @@ pub fn update_folder() -> Router<GlobalState> {
             .get_folder_by_user_id(vec![folder::id::equals(param_folder_id)], user_id.clone())
             .await?;
 
-        // Let's move on to processing the parent field in the request
-        let Some(parent) = parent else {
-            /*
-                If the parent field isn't present 
-                Then we don't have to do anything much just update
-            */
-            let updated_folder = folder_service.update_folder(target_folder.id, None, folder_name, visibility).await?;
+        let parent_folder_id = match parent {
+            Some(parent) => {
+                let parent_folder = folder_service
+                    .get_folder_by_user_id(vec![folder::id::equals(parent)], user_id)
+                    .await?;
 
-            return Ok(Web::ok("Update folder success", updated_folder));
+                if parent_folder.id == target_folder.id {
+                    return Err(Error::Forbidden);
+                }
+
+                Some(parent_folder.id)
+            }
+            None => None,
         };
 
-        let parent_folder = folder_service
-            .get_folder_by_user_id(vec![folder::id::equals(parent)], user_id)
-            .await?;
-
-        if parent_folder.id == target_folder.id {
-            return Err(Error::Forbidden);
-        }
-
         let updated_folder = folder_service
-            .update_folder(
-                target_folder.id,
-                Some(parent_folder.id),
-                folder_name,
-                visibility,
-            )
+            .update_folder(target_folder.id, parent_folder_id, folder_name, visibility)
             .await?;
 
         Ok(Web::ok("Update folder success", updated_folder))

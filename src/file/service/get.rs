@@ -3,7 +3,10 @@ use chrono::{DateTime, FixedOffset};
 use crate::{
     error::Error,
     file::model::select::{child_files_select, file_select, ChildFilesSelect, FileSelect},
-    prisma::{file, folder, user, Extension, Visibility},
+    prisma::{
+        file::{self, WhereParam},
+        folder, user, Extension, Visibility,
+    },
 };
 
 use super::FileService;
@@ -68,6 +71,60 @@ impl FileService {
             .collect();
 
         Ok(child_files)
+    }
+
+    pub async fn get_file_by_user_id(
+        &self,
+        file_filter: Vec<WhereParam>,
+        user_id: String,
+    ) -> Result<FileSelect, Error> {
+        /*
+            There are 2 things that we have to deal with, that is
+            We'll use the file_filter to get the file
+            Then prepare 2 queries,
+            1. Search the file by owner_id
+            2. Search the file's collaborators list to see if there's one user_id equals to us
+
+            We'll execute the first one, if it returns true, then return the file
+            If it returns false, try the second one, if that is true, then return the file
+            Finally, if both fails, we return a NotFound error
+
+            The operation will cost at most 2 queries, and each query returns only one file
+        */
+        let user_id_filter = file_filter
+            .clone()
+            .into_iter()
+            .chain(vec![file::owner_id::equals(user_id.clone())])
+            .collect();
+
+        let collaborator_filter = file_filter
+            .into_iter()
+            .chain(vec![file::collaborators::some(vec![user::id::equals(
+                user_id,
+            )])])
+            .collect();
+
+        let search_by_user_id = self
+            .db
+            .file()
+            .find_first(user_id_filter)
+            .select(file_select::select())
+            .exec();
+
+        let search_from_collaborators = self
+            .db
+            .file()
+            .find_first(collaborator_filter)
+            .select(file_select::select())
+            .exec();
+
+        match search_by_user_id.await? {
+            Some(owned_file) => Ok(owned_file),
+            None => match search_from_collaborators.await? {
+                Some(shared_to_user_file) => Ok(shared_to_user_file),
+                None => Err(Error::NotFound),
+            },
+        }
     }
 
     #[allow(clippy::too_many_arguments)]
