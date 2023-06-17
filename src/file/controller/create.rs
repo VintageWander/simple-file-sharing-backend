@@ -20,7 +20,7 @@ pub fn create_file() -> Router<GlobalState> {
         }): State<GlobalState>,
         LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         CreateFileRequest {
-            parent: parent_folder_id,
+            parent,
             visibility,
             file:
                 FieldData {
@@ -38,7 +38,7 @@ pub fn create_file() -> Router<GlobalState> {
             return Err(validation_message("The uploaded file should have a name and an extension").into())
         };
 
-        let starting_point = match parent_folder_id {
+        let starting_point = match parent {
             Some(parent) => vec![folder::id::equals(parent)],
             None => vec![
                 folder::parent_folder_id::equals(None),

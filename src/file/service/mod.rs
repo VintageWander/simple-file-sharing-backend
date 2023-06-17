@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::prisma::PrismaClient;
 
 pub mod create;
+pub mod delete;
 pub mod get;
 pub mod update;
 
