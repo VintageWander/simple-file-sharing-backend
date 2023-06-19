@@ -9,6 +9,7 @@ use config::{check_env, port, setup_cors};
 use dotenvy::dotenv;
 use error::Error;
 use file::service::FileService;
+use file_version::service::FileVersionService;
 use folder::service::FolderService;
 use prisma::PrismaClient;
 
@@ -23,6 +24,7 @@ mod folder;
 mod aws;
 mod config;
 mod file;
+pub mod file_version;
 mod impls;
 #[allow(warnings)]
 mod prisma;
@@ -37,6 +39,7 @@ pub struct GlobalState {
     pub user_service: UserService,
     pub folder_service: FolderService,
     pub file_service: FileService,
+    pub file_version_service: FileVersionService,
     pub storage: S3,
 }
 
@@ -59,6 +62,7 @@ async fn main() {
         user_service: UserService::init(&client),
         folder_service: FolderService::init(&client),
         file_service: FileService::init(&client),
+        file_version_service: FileVersionService::init(&client),
         storage: S3::init(),
     };
 
