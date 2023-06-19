@@ -1,9 +1,9 @@
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts};
 use axum_extra::extract::CookieJar;
 
-use crate::{auth::utils::decode::decode_access_token, error::Error, prisma::user, GlobalState};
+use crate::{auth::utils::decode::decode_access_token, error::Error, GlobalState};
 
-use super::select::UserSelect;
+use super::select::{UserSelect, UserSelectWithPassword};
 
 pub struct LoggedInUser(pub UserSelect);
 
@@ -30,7 +30,7 @@ impl FromRequestParts<GlobalState> for LoggedInUser {
     }
 }
 
-pub struct LoggedInUserWithPassword(pub user::Data);
+pub struct LoggedInUserWithPassword(pub UserSelectWithPassword);
 
 #[async_trait]
 impl FromRequestParts<GlobalState> for LoggedInUserWithPassword {

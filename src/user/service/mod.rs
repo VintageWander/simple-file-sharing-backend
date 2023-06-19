@@ -8,7 +8,9 @@ use crate::{
     },
 };
 
-use super::model::select::{user_select, User, UserSelect};
+use super::model::select::{
+    user_select, user_select_with_password, UserSelect, UserSelectWithPassword,
+};
 
 #[derive(Clone)]
 pub struct UserService {
@@ -60,11 +62,15 @@ impl UserService {
         Ok(user)
     }
 
-    pub async fn get_user_by_id_with_password(&self, user_id: String) -> Result<User, Error> {
+    pub async fn get_user_by_id_with_password(
+        &self,
+        user_id: String,
+    ) -> Result<UserSelectWithPassword, Error> {
         let user = self
             .db
             .user()
             .find_unique(user::id::equals(user_id))
+            .select(user_select_with_password::select())
             .exec()
             .await?
             .ok_or_else(|| Error::NotFound)?;

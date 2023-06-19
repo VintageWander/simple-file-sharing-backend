@@ -4,7 +4,7 @@ use crate::{
     user::model::{
         delete::DeleteUserRequest,
         loggedin::LoggedInUserWithPassword,
-        select::{User, UserSelect},
+        select::{UserSelect, UserSelectWithPassword},
     },
     validation::validation_message,
     web::Web,
@@ -18,10 +18,9 @@ pub fn delete_user() -> Router<GlobalState> {
             folder_service,
             ..
         }): State<GlobalState>,
-        LoggedInUserWithPassword(User {
+        LoggedInUserWithPassword(UserSelectWithPassword {
             id: user_id,
             password: user_password,
-            ..
         }): LoggedInUserWithPassword,
         DeleteUserRequest { password, .. }: DeleteUserRequest,
     ) -> WebResult {

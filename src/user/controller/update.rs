@@ -2,7 +2,10 @@ use axum::{extract::State, routing::put, Router};
 
 use crate::{
     prisma::user,
-    user::model::{loggedin::LoggedInUserWithPassword, update::UpdateUserRequest},
+    user::model::{
+        loggedin::LoggedInUserWithPassword, select::UserSelectWithPassword,
+        update::UpdateUserRequest,
+    },
     validation::validation_message,
     web::Web,
     GlobalState, WebResult,
@@ -11,10 +14,9 @@ use crate::{
 pub fn update_user() -> Router<GlobalState> {
     async fn update_user_handler(
         State(GlobalState { user_service, .. }): State<GlobalState>,
-        LoggedInUserWithPassword(user::Data {
+        LoggedInUserWithPassword(UserSelectWithPassword {
             id: user_id,
             password: user_password,
-            ..
         }): LoggedInUserWithPassword,
         UpdateUserRequest {
             username,
