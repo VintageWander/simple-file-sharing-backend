@@ -1,5 +1,4 @@
-use aws_sdk_s3::primitives::ByteStream;
-use aws_smithy_http::body::SdkBody;
+use aws_sdk_s3::primitives::SdkBody;
 use bytes::Bytes;
 
 use super::S3;
@@ -15,13 +14,12 @@ impl S3 {
         let mime = mime_guess::from_path(fullpath)
             .first_or_octet_stream()
             .to_string();
-        let body = ByteStream::from(data);
 
         self.client
             .put_object()
             .bucket(&self.bucket_name)
             .key(fullpath)
-            .body(body)
+            .body(data.into())
             .content_type(&mime)
             .send()
             .await?;
@@ -36,7 +34,7 @@ impl S3 {
             .put_object()
             .bucket(&self.bucket_name)
             .key(fullpath)
-            .body(ByteStream::from(SdkBody::empty()))
+            .body(SdkBody::empty().into())
             .send()
             .await?;
         Ok(())
