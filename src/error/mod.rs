@@ -1,16 +1,21 @@
+pub mod multipart;
 pub mod print;
 pub mod query;
-pub mod multipart;
 
-use aws_sdk_s3::operation::{
-    copy_object::CopyObjectError, delete_object::DeleteObjectError,
-    delete_objects::DeleteObjectsError, get_object::GetObjectError,
-    list_objects_v2::ListObjectsV2Error, put_object::PutObjectError,
+use aws_sdk_s3::{
+    error::SdkError, 
+    operation::{
+        put_object::PutObjectError, 
+        get_object::GetObjectError, 
+        list_objects_v2::ListObjectsV2Error, 
+        copy_object::CopyObjectError, 
+        delete_object::DeleteObjectError, 
+        delete_objects::DeleteObjectsError
+    }
 };
-use aws_smithy_http::result::SdkError;
 use axum::{
     extract::rejection::{JsonRejection, PathRejection, QueryRejection},
-    response::{IntoResponse}, 
+    response::IntoResponse,
 };
 use axum_typed_multipart::TypedMultipartError;
 use prisma_client_rust::QueryError;
@@ -20,7 +25,9 @@ use validator::{ValidationError, ValidationErrors};
 
 use crate::web::Web;
 
-use self::{print::extract_validation_error, query::match_query_error, multipart::match_multipart_error};
+use self::{
+    multipart::match_multipart_error, print::extract_validation_error, query::match_query_error,
+};
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -139,17 +146,17 @@ impl IntoResponse for Error {
             /*
                 Authorization
             */
-            Error::Jwt(e) => Web::bad_request(
-                "Token error",
-                format!("The token is invalid, cannot use. Error: {}", e),
-            ),
+            Error::Jwt(e) => {
+                Web::bad_request("Token error", format!("Please login again. Error: {}", e))
+            }
             Error::MissingRefreshToken => {
                 Web::bad_request("Refresh token not found", "Please provide a refresh token")
             }
             Error::Unauthorized => Web::unauthorized("Unauthorized", "You have to be logged in"),
-            Error::Forbidden => {
-                Web::forbidden("Forbidden", "You do not have permissions to perform this action")
-            }
+            Error::Forbidden => Web::forbidden(
+                "Forbidden",
+                "You do not have permissions to perform this action",
+            ),
             Error::Decode => Web::bad_request(
                 "Decode token failed",
                 "This is due to your refresh token expired",
@@ -189,6 +196,7 @@ impl IntoResponse for Error {
                      "This is due to database error, which make some files couldn't be deleted"
                     ),
 
+
             /*
                 General errors
             */
@@ -196,7 +204,10 @@ impl IntoResponse for Error {
                 "Not found",
                 "The value provided for query could not be found",
             ),
-            Error::NoContent => Web::no_content("None updated", "Since no data was provided, nothing has changed")
+            Error::NoContent => Web::no_content(
+                "None updated",
+                "Since no data was provided, nothing has changed",
+            ),
         }
     }
 }
