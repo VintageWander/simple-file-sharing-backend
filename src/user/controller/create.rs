@@ -23,7 +23,7 @@ pub fn create_user() -> Router<GlobalState> {
             .create_root_folder(new_user.id.clone())
             .await?;
 
-        Ok(Web::ok("Created user successfully", new_user))
+        Ok(Web::created("Created user successfully", new_user))
     }
     Router::new().route("/create", post(create_user_handler))
 }
