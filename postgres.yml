@@ -8,9 +8,8 @@ services:
       POSTGRES_USER: local
       POSTGRES_PASSWORD: password
       POSTGRES_DB: local
-      PGDATA: '/var/lib/pg_data'
     ports:
-      - '8001:5432'
+      - '5432:5432'
     networks:
       - local
 networks:
