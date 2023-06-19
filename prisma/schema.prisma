@@ -99,7 +99,9 @@ model FileVersion {
   file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String
 
-  versionNumber Int
+  versionNumber BigInt
+  
+  @@unique([fileId, versionNumber])
 }
 
 model Tag {
