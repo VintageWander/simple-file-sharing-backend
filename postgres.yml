@@ -13,7 +13,5 @@ services:
       - '8001:5432'
     networks:
       - local
-    volumes:
-      - './.data:/var/lib/postgresql/data'
 networks:
   local:
