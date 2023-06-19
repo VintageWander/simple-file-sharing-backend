@@ -26,7 +26,7 @@ tower-http = { version = "0.4.0", features = ["cors"] }
 cookie = "0.17.0"
 
 # Secrets
-envy = "0.4.2"
+dotenvy = "0.15.7"
 const_env = "0.1.2"
 
 # Time
@@ -43,7 +43,6 @@ prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust
 
 # Storage
 aws-sdk-s3 = "0.28.0"
-aws-smithy-http = "0.55.3"
 mime_guess = "2.0.4"
 bytes = "1.4.0"
 

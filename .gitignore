@@ -1,5 +1,6 @@
 /target
 .env
 /src/prisma.rs
+/prisma/migrations
 **/.DS_Store
 /.vscode
