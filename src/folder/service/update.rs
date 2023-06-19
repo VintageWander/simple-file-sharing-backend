@@ -20,7 +20,7 @@ impl FolderService {
             changes.push(folder::parent_folder_id::set(Some(parent)))
         }
 
-        if let Some(folder_name) = folder_name.clone() {
+        if let Some(folder_name) = folder_name {
             changes.push(folder::folder_name::set(folder_name))
         }
 

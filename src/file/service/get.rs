@@ -31,7 +31,7 @@ impl FileService {
 
         let mut child_files_filter = vec![];
 
-        if let Some(id) = id.clone() {
+        if let Some(id) = id {
             child_files_filter.push(file::id::equals(id))
         }
 
@@ -39,7 +39,7 @@ impl FileService {
             child_files_filter.push(file::owner_id::equals(owner_id))
         }
 
-        if let Some(filename) = filename.clone() {
+        if let Some(filename) = filename {
             child_files_filter.push(file::filename::equals(filename))
         }
 
@@ -140,10 +140,10 @@ impl FileService {
     ) -> Result<Vec<FileSelect>, Error> {
         let mut filters = vec![];
 
-        if let Some(id) = id.clone() {
+        if let Some(id) = id {
             filters.push(file::id::equals(id))
         }
-        if let Some(filename) = filename.clone() {
+        if let Some(filename) = filename {
             filters.push(file::filename::equals(filename))
         }
 
