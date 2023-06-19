@@ -54,7 +54,7 @@ impl Storage {
     pub async fn put_object(
         &self,
         full_filename: impl AsRef<str>,
-        bytes: Vec<u8>,
+        bytes: Bytes,
     ) -> Result<(), Error> {
         let res = self.storage.put_object(full_filename, &bytes).await?;
         println!("{}", res.status_code());
