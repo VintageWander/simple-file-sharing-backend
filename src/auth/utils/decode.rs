@@ -1,7 +1,7 @@
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 
 use crate::{
-    config::{ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET},
+    config::{access_token_secret, refresh_token_secret},
     error::Error,
 };
 
@@ -9,8 +9,8 @@ use super::{Claims, TokenType};
 
 fn decode_token(token: String, token_type: TokenType) -> Result<String, Error> {
     let token_secret = match token_type {
-        TokenType::Access => ACCESS_TOKEN_SECRET,
-        TokenType::Refresh => REFRESH_TOKEN_SECRET,
+        TokenType::Access => access_token_secret(),
+        TokenType::Refresh => refresh_token_secret(),
     };
 
     let key = DecodingKey::from_secret(token_secret.as_bytes());

@@ -5,7 +5,8 @@ use std::{net::SocketAddr, sync::Arc};
 use aws::S3;
 use axum::response::Response;
 
-use config::{check_env, setup_cors, PORT};
+use config::{check_env, port, setup_cors};
+use dotenvy::dotenv;
 use error::Error;
 use file::service::FileService;
 use folder::service::FolderService;
@@ -15,11 +16,11 @@ use routes::routes;
 use user::service::UserService;
 
 mod auth;
-mod aws;
 mod error;
 mod extractors;
 mod folder;
 
+mod aws;
 mod config;
 mod file;
 mod impls;
@@ -43,6 +44,7 @@ type WebResult = std::result::Result<Response, Error>;
 
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
     check_env();
 
     let client = PrismaClient::_builder()
@@ -62,7 +64,7 @@ async fn main() {
 
     let routes = routes().with_state(state).layer(setup_cors());
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], PORT));
+    let addr = SocketAddr::from(([127, 0, 0, 1], port()));
 
     axum::Server::bind(&addr)
         .serve(routes.into_make_service())

@@ -5,54 +5,77 @@ use axum::http::{
     },
     HeaderValue, Method,
 };
-use const_env::from_env;
+use dotenvy::var;
 use tower_http::cors::CorsLayer;
 use validator::{validate_url, ValidationError};
 
 use crate::validation::check_with;
 
-#[from_env]
-pub const DATABASE_URL: &str = "";
+pub fn database_url() -> String {
+    var("DATABASE_URL").expect("DATABASE_URL is not set")
+}
 
-#[from_env]
-pub const PORT: u16 = 8000;
+pub fn port() -> u16 {
+    var("PORT")
+        .expect("PORT is not set")
+        .parse()
+        .expect("PORT is not a number")
+}
+pub fn origin() -> String {
+    var("ORIGIN").expect("ORIGIN is not set")
+}
 
-#[from_env("ORIGIN")]
-pub const ENV_ORIGIN: &str = "";
+pub fn access_token_secret() -> String {
+    var("ACCESS_TOKEN_SECRET").expect("ACCESS_TOKEN_SECRET is not set")
+}
 
-#[from_env]
-pub const ACCESS_TOKEN_SECRET: &str = "";
+pub fn refresh_token_secret() -> String {
+    var("REFRESH_TOKEN_SECRET").expect("REFRESH_TOKEN_SECRET is not set")
+}
 
-#[from_env]
-pub const REFRESH_TOKEN_SECRET: &str = "";
+pub fn aws_access_key_id() -> String {
+    var("AWS_ACCESS_KEY_ID").expect("AWS_ACCESS_KEY_ID is not set")
+}
 
-#[from_env]
-pub const ACCESS_KEY_ID: &str = "";
+pub fn aws_secret_access_key() -> String {
+    var("AWS_SECRET_ACCESS_KEY").expect("AWS_SECRET_ACCESS_KEY is not set")
+}
 
-#[from_env]
-pub const SECRET_ACCESS_KEY: &str = "";
+pub fn aws_bucket_name() -> String {
+    var("AWS_BUCKET_NAME").expect("AWS_BUCKET_NAME is not set")
+}
 
-#[from_env]
-pub const BUCKET_NAME: &str = "";
+pub fn aws_region() -> String {
+    var("AWS_REGION").expect("AWS_REGION is not set")
+}
 
-#[from_env]
-pub const REGION: &str = "";
+pub fn minio() -> bool {
+    var("MINIO").unwrap_or_default() == "true"
+}
+
+pub fn endpoint() -> String {
+    if minio() {
+        var("ENDPOINT").expect("ENDPOINT is not set")
+    } else {
+        "".into()
+    }
+}
 
 pub fn check_env() {
-    if !validate_url(ENV_ORIGIN) {
+    if !validate_url(origin()) {
         panic!("Invalid origin");
     }
-    if check_region(REGION).is_err() {
-        panic!("Invalid region");
+    if check_aws_region(&aws_region()).is_err() {
+        panic!("Invalid aws_region");
     }
-    if check_db_connection(DATABASE_URL).is_err() {
+    if check_db_connection(&database_url()).is_err() {
         panic!("Invalid database connection");
     }
 }
 
-fn check_region(region: &str) -> Result<(), ValidationError> {
+fn check_aws_region(aws_region: &str) -> Result<(), ValidationError> {
     check_with(
-        region,
+        aws_region,
         r#"^([a-z]{2}-(central|(north|south)?(east|west)?)-\d)|((ap|ca|cn|eu|sa|us)-(central|(north|south)?(east|west)?)-\d)|((me|af|ap|eu|sa)-(south|north)?(east|west)?-\d)|((us-gov)-(east|west)-\d)$"#,
         "Not a valid AWS Region",
     )
@@ -70,7 +93,7 @@ pub fn setup_cors() -> CorsLayer {
     CorsLayer::new()
         .allow_credentials(true)
         .allow_origin(
-            ENV_ORIGIN
+            origin()
                 .parse::<HeaderValue>()
                 .expect("Failed to parse origin as HeaderValue"),
         )
