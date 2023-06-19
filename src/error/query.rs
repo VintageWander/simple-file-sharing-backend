@@ -1,6 +1,8 @@
 use axum::response::Response;
 use prisma_client_rust::{
-    prisma_errors::query_engine::{ConstraintViolation, RecordNotFound, UniqueKeyViolation},
+    prisma_errors::query_engine::{
+        ConstraintViolation, RecordNotFound, TableDoesNotExist, UniqueKeyViolation,
+    },
     QueryError,
 };
 
@@ -21,6 +23,11 @@ pub fn match_query_error(error: QueryError) -> Response {
         Web::not_found(
             "Not found data",
             "The information provided could not be found in the database",
+        )
+    } else if error.is_prisma_error::<TableDoesNotExist>() {
+        Web::internal_error(
+            "Table does not exists",
+            "The database has not yet been initialized",
         )
     } else {
         Web::internal_error("Unknown error", error)
