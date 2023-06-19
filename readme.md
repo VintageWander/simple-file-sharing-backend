@@ -146,7 +146,7 @@ minio ls
 Fill in the fields in the `.env.sample` file
 ```yaml
 # Database
-DATABASE_URL = "postgresql://local:password@localhost:8001/local"
+DATABASE_URL = "postgresql://local:password@localhost:5432/local"
 
 # Backend environment variables
 
