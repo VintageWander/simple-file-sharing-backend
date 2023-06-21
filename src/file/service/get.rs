@@ -144,8 +144,13 @@ impl FileService {
         if let Some(id) = id {
             filters.push(file::id::equals(id))
         }
+
         if let Some(filename) = filename {
             filters.push(file::filename::equals(filename))
+        }
+
+        if let Some(parent) = parent_folder_id {
+            filters.push(file::parent_folder_id::equals(parent))
         }
 
         if let Some(extension) = extension {
