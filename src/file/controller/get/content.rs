@@ -7,6 +7,7 @@ use axum::{
     Router,
 };
 use mime_guess::from_path;
+use serde::Deserialize;
 use tokio_util::io::ReaderStream;
 
 use crate::{
@@ -18,6 +19,12 @@ use crate::{
 };
 
 pub fn get_content() -> Router<GlobalState> {
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct FileVersionQuery {
+        version_number: Option<i64>,
+    }
+
     async fn get_content_handler(
         State(GlobalState {
             db,
@@ -27,7 +34,7 @@ pub fn get_content() -> Router<GlobalState> {
         }): State<GlobalState>,
         user_or_guest: Option<LoggedInUser>,
         Path(file_id): Path<String>,
-        Query(version_number): Query<Option<i64>>,
+        Query(FileVersionQuery { version_number }): Query<FileVersionQuery>,
     ) -> WebResult {
         let found_file = match user_or_guest {
             Some(LoggedInUser(UserSelect { id: user_id, .. })) => {
@@ -85,5 +92,5 @@ pub fn get_content() -> Router<GlobalState> {
         )
             .into_response())
     }
-    Router::new().route("/content/:file_id", get(get_content_handler))
+    Router::new().route("/content/:file_id/", get(get_content_handler))
 }
