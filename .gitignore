@@ -3,6 +3,7 @@
 
 # Credentials
 .env
+docker-compose.yml
 
 # Generated Prisma types and logic
 /src/prisma.rs
