@@ -43,10 +43,6 @@ impl FromRequestParts<GlobalState> for FolderQuery {
     ) -> Result<Self, Self::Rejection> {
         let Query(query) = Query::<FolderQuery>::from_request_parts(parts, state).await?;
 
-        if query.is_empty() {
-            return Err(Error::NoContent);
-        }
-
         Ok(query)
     }
 }

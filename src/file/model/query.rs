@@ -50,10 +50,6 @@ impl FromRequestParts<GlobalState> for FileQuery {
     ) -> Result<Self, Self::Rejection> {
         let Query(query) = Query::<FileQuery>::from_request_parts(parts, state).await?;
 
-        if query.is_empty() {
-            return Err(Error::NoContent);
-        }
-
         Ok(query)
     }
 }
