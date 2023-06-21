@@ -29,7 +29,13 @@ pub fn delete_file() -> Router<GlobalState> {
 
         let deleted_file = file_service.delete_file(target_file.id).await?;
 
-        storage.delete_file(&deleted_file.id).await?;
+        storage
+            .delete_file(&format!(
+                "{}.{}",
+                deleted_file.id,
+                deleted_file.extension.to_string()
+            ))
+            .await?;
         storage
             .delete_folder(&format!("{}/", deleted_file.id))
             .await?;
