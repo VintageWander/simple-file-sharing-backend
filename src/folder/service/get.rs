@@ -9,7 +9,7 @@ use crate::{
     },
     prisma::{
         folder::{self, WhereParam},
-        user, Visibility,
+        user, Extension, Visibility,
     },
 };
 
@@ -191,7 +191,7 @@ impl FolderService {
     pub async fn get_nested_files_from_folder(
         &self,
         folder_id: String,
-    ) -> Result<VecDeque<String>, Error> {
+    ) -> Result<VecDeque<(String, Extension)>, Error> {
         let mut folders_queue = VecDeque::new();
         let mut files_queue = VecDeque::new();
 
@@ -207,17 +207,24 @@ impl FolderService {
                 .select(folder::select!({
                     child_files: select {
                         id
+                        extension
                     }
                     child_folders: select {
                         id
                     }
                 }))
                 .exec()
-                .await?
-                .ok_or_else(|| Error::NotFound)?;
+                .await?;
 
-            folders_queue.extend(first_folder.child_folders.into_iter().map(|f| f.id));
-            files_queue.extend(first_folder.child_files.into_iter().map(|f| f.id));
+            if let Some(first_folder) = first_folder {
+                folders_queue.extend(first_folder.child_folders.into_iter().map(|f| f.id));
+                files_queue.extend(
+                    first_folder
+                        .child_files
+                        .into_iter()
+                        .map(|f| (f.id, f.extension)),
+                );
+            }
 
             folders_queue.pop_front();
         }

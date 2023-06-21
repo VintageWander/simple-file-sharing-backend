@@ -2,9 +2,8 @@ use axum::{extract::State, routing::delete, Router};
 
 use crate::{
     user::model::{
-        delete::DeleteUserRequest,
-        loggedin::LoggedInUserWithPassword,
-        select::{UserSelect, UserSelectWithPassword},
+        delete::DeleteUserRequest, loggedin::LoggedInUserWithPassword,
+        select::UserSelectWithPassword,
     },
     validation::validation_message,
     web::Web,
@@ -16,6 +15,7 @@ pub fn delete_user() -> Router<GlobalState> {
         State(GlobalState {
             user_service,
             folder_service,
+            storage,
             ..
         }): State<GlobalState>,
         LoggedInUserWithPassword(UserSelectWithPassword {
@@ -30,8 +30,20 @@ pub fn delete_user() -> Router<GlobalState> {
             );
         }
 
-        let UserSelect { id: owner_id, .. } = user_service.delete_user(user_id).await?;
-        let deleted_folder = folder_service.delete_root_folder(owner_id).await?;
+        let deleted_folder = folder_service.delete_root_folder(user_id).await?;
+
+        for (id, extension) in folder_service
+            .get_nested_files_from_folder(deleted_folder.id)
+            .await?
+        {
+            dbg!(format!("{}/{}", id, extension.to_string()));
+            storage
+                .delete_file(&format!("{}.{}", id, extension.to_string()))
+                .await?;
+            storage.delete_folder(&format!("{}/", id)).await?;
+        }
+
+        user_service.delete_user(deleted_folder.owner.id).await?;
 
         Ok(Web::ok("Deleted user successfully", ()))
     }

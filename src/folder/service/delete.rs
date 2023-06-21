@@ -1,6 +1,6 @@
 use crate::{
     error::Error,
-    folder::model::select::Folder,
+    folder::model::select::{folder_owner_select, Folder, FolderOwnerSelect},
     prisma::{folder, Visibility},
 };
 
@@ -17,7 +17,7 @@ impl FolderService {
         Ok(deleted_folder)
     }
 
-    pub async fn delete_root_folder(&self, owner_id: String) -> Result<Folder, Error> {
+    pub async fn delete_root_folder(&self, owner_id: String) -> Result<FolderOwnerSelect, Error> {
         let deleted_folder = self
             .db
             .folder()
@@ -27,6 +27,7 @@ impl FolderService {
                 folder::visibility::equals(Visibility::Private),
                 folder::parent_folder_id::equals(None),
             ])
+            .select(folder_owner_select::select())
             .exec()
             .await?
             .ok_or_else(|| Error::NotFound)?;

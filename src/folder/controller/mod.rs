@@ -2,7 +2,7 @@ use axum::Router;
 
 use crate::GlobalState;
 
-use self::get::public::get_public_folders;
+use self::get::{my::get_my_folders, public::get_public_folders, shared::get_shared_folders};
 
 pub mod create;
 pub mod delete;
@@ -17,6 +17,10 @@ pub fn folder_routes() -> Router<GlobalState> {
         Router::new()
             // /folder/public
             .merge(get_public_folders())
+            // folder/my
+            .merge(get_my_folders())
+            // folder/shared
+            .merge(get_shared_folders())
             // /folder/create
             .merge(create_folder())
             // /folder/update

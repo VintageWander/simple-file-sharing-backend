@@ -14,7 +14,15 @@ folder::select!(folder_select {
     updated_at
 });
 
+folder::select!(folder_owner_select {
+    id
+    owner: select {
+        id
+    }
+});
+
 pub type Folder = folder::Data;
+pub type FolderOwnerSelect = folder_owner_select::Data;
 pub type FolderSelect = folder_select::Data;
 
 folder::select!((filters: Vec<WhereParam>) => child_folders_select {

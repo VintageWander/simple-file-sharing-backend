@@ -12,7 +12,6 @@ use crate::{
 pub fn delete_folder() -> Router<GlobalState> {
     async fn delete_folder_handler(
         State(GlobalState {
-            db,
             folder_service,
             storage,
             ..
@@ -40,12 +39,14 @@ pub fn delete_folder() -> Router<GlobalState> {
 
         let deleted_folder = folder_service.delete_folder(target.id).await?;
 
-        for id in folder_service
+        for (id, extension) in folder_service
             .get_nested_files_from_folder(deleted_folder.id)
             .await?
         {
-            storage.delete_file(&id).await?;
-            storage.delete_folder(&format!("{id}/")).await?;
+            storage
+                .delete_file(&format!("{}/{}", id, extension.to_string()))
+                .await?;
+            storage.delete_folder(&format!("{}/", id)).await?;
         }
 
         Ok(Web::ok("Folder deleted successfully", ()))
