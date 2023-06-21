@@ -2,21 +2,34 @@ version: '3.9'
 
 name: simple-file-storage-stack
 services:
+  simple-file-storage:
+    container_name: simple-file-storage
+    build: .
+    ports:
+      - 8000:8000
+    depends_on:
+      - minio
+      - postgres
+    networks:
+      - local
   minio:
-    image: quay.io/minio/minio
     container_name: minio
+    image: quay.io/minio/minio
     ports:
       - 9000:9000
       - 9090:9090
     volumes:
-      - ../data/minio:/data
+      - ./data/minio:/data
     environment:
       MINIO_ROOT_USER: local
       MINIO_ROOT_PASSWORD: password
     command: server /data --console-address ":9090"
     networks:
-      - local
+      local:
+        aliases:
+          - minio
   postgres:
+    container_name: postgres
     user: root
     image: postgres:latest
     environment:
@@ -26,8 +39,10 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - ../data/postgres:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
     networks:
-      - local
+      local: 
+        aliases:
+          - postgres
 networks:
   local:
