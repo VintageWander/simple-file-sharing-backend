@@ -38,10 +38,10 @@ This is the backend for my simple file sharing service that I made for my final 
 - [x] Create new files
 - [x] Update files
 - [x] Delete files
-- [ ] Manage file versions
+- [x] Manage file versions
 - [ ] Manage file's collaborators
-- [ ] Download file
-- [ ] File extensions unrestricted
+- [x] Download file
+- [x] File extensions unrestricted
 - [ ] Manage files' tags
 
 ## Tags
@@ -69,7 +69,7 @@ I'm currently finish implementing the main features first, and then I'll write a
 If you have a Postgres database already running in the background then great! <br>
 However, if you want to run Postgres in a Docker container like I do, run the command below: <br>
 ```yaml
-docker-compose -f postgres.yml up -d 
+docker-compose -f docker/postgres.yml up -d 
 ```
 
 <br>
@@ -113,7 +113,7 @@ Or you can use the `minio.zsh` file provided in the project directory to spin up
 <br>
 
 ```yaml
-zsh minio.zsh
+zsh scripts/minio.zsh
 ```
 
 From there, go to `http://localhost:9090` with and then create your new S3 bucket.
@@ -182,7 +182,7 @@ Rename the file to `.env` and you're done with setting up the environment
 
 Final command to run: <br>
 ```yaml
-zsh build.zsh
+zsh scripts/build.zsh
 ```
 
 <br>

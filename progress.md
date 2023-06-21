@@ -69,8 +69,8 @@
 - [x] Create new files
 - [x] Update file
 - [x] Delete file
+- [x] Download file
 - [ ] Manage file's collaborators
 - [ ] Manage files' tags
-- [ ] Download file
 
 
