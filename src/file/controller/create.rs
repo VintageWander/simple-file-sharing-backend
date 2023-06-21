@@ -73,7 +73,7 @@ pub fn create_file() -> Router<GlobalState> {
             Also creates a new folder with the new file id
             Format: new-file-id/
         */
-        storage.create_folder(&format!("{}/", new_file.id)).await?;
+        // storage.create_folder(&format!("{}/", new_file.id)).await?;
 
         Ok(Web::created("Created a new file", new_file))
     }
