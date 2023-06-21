@@ -99,9 +99,10 @@ impl FileService {
 
         let collaborator_filter = file_filter
             .into_iter()
-            .chain(vec![file::collaborators::some(vec![user::id::equals(
-                user_id,
-            )])])
+            .chain(vec![
+                file::visibility::equals(Visibility::Shared),
+                file::collaborators::some(vec![user::id::equals(user_id)]),
+            ])
             .collect();
 
         let search_by_user_id = self

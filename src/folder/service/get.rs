@@ -155,9 +155,10 @@ impl FolderService {
 
         let collaborator_filter = folder_filter
             .into_iter()
-            .chain(vec![folder::collaborators::some(vec![user::id::equals(
-                user_id,
-            )])])
+            .chain(vec![
+                folder::visibility::equals(Visibility::Shared),
+                folder::collaborators::some(vec![user::id::equals(user_id)]),
+            ])
             .collect();
 
         let search_by_user_id = self
