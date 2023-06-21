@@ -1,0 +1,20 @@
+# Build folder
+/target
+
+# Credentials
+.env
+
+# Generated Prisma types and logic
+/src/prisma.rs
+
+# Prisma migrations
+/prisma/migrations
+
+# OS format config files
+**/.DS_Store
+
+# IDE
+/.vscode
+
+# Minio and Postgres data
+/data
