@@ -15,7 +15,6 @@ use crate::{
 pub fn update_file() -> Router<GlobalState> {
     async fn update_file_handler(
         State(GlobalState {
-            db,
             folder_service,
             file_service,
             file_version_service,
@@ -30,12 +29,7 @@ pub fn update_file() -> Router<GlobalState> {
             file,
         }: UpdateFileRequest,
     ) -> WebResult {
-        let FileSelect {
-            id: target_id,
-            parent_folder_id: target_parent,
-            filename: target_filename,
-            ..
-        } = file_service
+        let FileSelect { id: target_id, .. } = file_service
             .get_file_by_user_id(vec![file::id::equals(file_id)], user_id.clone())
             .await?;
 
@@ -68,10 +62,10 @@ pub fn update_file() -> Router<GlobalState> {
 
         if let Some(data) = data {
             let FileVersionSelect {
-                file: updated_file,
+                file,
                 version_number,
             } = file_version_service
-                .create_version_for_file(updated_file.id)
+                .create_version_for_file(updated_file.id.clone())
                 .await?;
 
             /*
@@ -82,12 +76,12 @@ pub fn update_file() -> Router<GlobalState> {
             */
             storage
                 .move_file(
-                    &format!("{}.{}", updated_file.id, updated_file.extension.to_string()),
+                    &format!("{}.{}", file.id, file.extension.to_string()),
                     &format!(
                         "{}/{}.{}",
-                        updated_file.id,
+                        file.id,
                         version_number,
-                        updated_file.extension.to_string()
+                        file.extension.to_string()
                     ),
                 )
                 .await?;
@@ -97,10 +91,7 @@ pub fn update_file() -> Router<GlobalState> {
                 Replacing that previous file
             */
             storage
-                .create_file(
-                    &format!("{}.{}", updated_file.id, updated_file.extension.to_string()),
-                    data,
-                )
+                .create_file(&format!("{}.{}", file.id, file.extension.to_string()), data)
                 .await?;
 
             return Ok(Web::ok("Updated file successfully", updated_file));
