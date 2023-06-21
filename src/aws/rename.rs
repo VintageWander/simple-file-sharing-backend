@@ -18,14 +18,14 @@ pub fn get_folder_position(str: &str) -> Result<String, Error> {
     Ok(result)
 }
 
-pub fn get_file_position(str: &str) -> Result<String, Error> {
-    check_fullpath(str)?;
-    let mut result = str.split('/').collect::<Vec<_>>();
-    result.pop();
-    let mut result = result.join("/");
-    result += "/";
-    Ok(result)
-}
+// pub fn get_file_position(str: &str) -> Result<String, Error> {
+//     check_fullpath(str)?;
+//     let mut result = str.split('/').collect::<Vec<_>>();
+//     result.pop();
+//     let mut result = result.join("/");
+//     result += "/";
+//     Ok(result)
+// }
 
 impl S3 {
     pub async fn rename_file(&self, fullpath: &str, rename_path: &str) -> Result<(), Error> {

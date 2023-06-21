@@ -8,9 +8,7 @@ use crate::{
 
 pub fn profile() -> Router<GlobalState> {
     async fn profile_handler(
-        State(GlobalState {
-            db, user_service, ..
-        }): State<GlobalState>,
+        State(GlobalState { user_service, .. }): State<GlobalState>,
         LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
     ) -> WebResult {
         let filtered_user = user_service.get_user_by_id(user_id).await?;

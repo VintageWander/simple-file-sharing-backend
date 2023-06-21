@@ -14,7 +14,9 @@ file::select!(file_select {
     filename
     extension
     visibility
-    versions
+    versions: select {
+        version_number
+    }
 
     created_at
     updated_at
@@ -35,6 +37,10 @@ folder::select!((filters: Vec<WhereParam>) => child_files_select {
         filename
         extension
         visibility
+
+        versions: select {
+            version_number
+        }
 
         created_at
         updated_at

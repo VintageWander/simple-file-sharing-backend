@@ -5,7 +5,6 @@ use crate::{user::model::create::CreateUserRequest, web::Web, GlobalState, WebRe
 pub fn create_user() -> Router<GlobalState> {
     async fn create_user_handler(
         State(GlobalState {
-            db,
             user_service,
             folder_service,
             ..

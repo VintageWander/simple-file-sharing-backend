@@ -59,6 +59,7 @@ impl UserService {
             .exec()
             .await?
             .ok_or_else(|| Error::NotFound)?;
+
         Ok(user)
     }
 
@@ -115,6 +116,7 @@ impl UserService {
             .select(user_select::select())
             .exec()
             .await?;
+
         Ok(deleted_user)
     }
 }

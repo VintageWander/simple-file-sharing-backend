@@ -24,12 +24,7 @@ pub fn create_file() -> Router<GlobalState> {
             visibility,
             file:
                 FieldData {
-                    metadata:
-                        FieldMetadata {
-                            file_name,
-                            content_type,
-                            ..
-                        },
+                    metadata: FieldMetadata { file_name, .. },
                     contents,
                 },
         }: CreateFileRequest,

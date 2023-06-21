@@ -19,7 +19,6 @@ pub fn get_shared_files() -> Router<GlobalState> {
         LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         FileQuery {
             id,
-            owner_id,
             parent_folder_id,
             filename,
             extension,

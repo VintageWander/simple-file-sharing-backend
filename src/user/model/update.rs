@@ -42,8 +42,6 @@ impl FromRequest<GlobalState, Body> for UpdateUserRequest {
         }
 
         let UpdateUserRequest {
-            username,
-            email,
             new_password,
             confirm_new_password,
             ..

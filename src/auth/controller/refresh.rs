@@ -12,9 +12,7 @@ use crate::{
 
 pub fn refresh() -> Router<GlobalState> {
     async fn refresh_handler(
-        State(GlobalState {
-            db, user_service, ..
-        }): State<GlobalState>,
+        State(GlobalState { user_service, .. }): State<GlobalState>,
         cookies: CookieJar,
     ) -> WebResult {
         let refresh_token = cookies

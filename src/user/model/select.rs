@@ -13,6 +13,6 @@ user::select!(user_select_with_password {
     password
 });
 
-pub type User = user::Data;
+// pub type User = user::Data;
 pub type UserSelect = user_select::Data;
 pub type UserSelectWithPassword = user_select_with_password::Data;

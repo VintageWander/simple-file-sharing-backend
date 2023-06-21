@@ -12,9 +12,7 @@ use crate::{
 
 pub fn update_folder() -> Router<GlobalState> {
     async fn update_folder_handler(
-        State(GlobalState {
-            db, folder_service, ..
-        }): State<GlobalState>,
+        State(GlobalState { folder_service, .. }): State<GlobalState>,
         LoggedInUser(UserSelect { id: user_id, .. }): LoggedInUser,
         ParamId(param_folder_id): ParamId,
         UpdateFolderRequest {
