@@ -11,10 +11,6 @@ use validator::{validate_url, ValidationError};
 
 use crate::validation::check_with;
 
-pub fn database_url() -> String {
-    var("DATABASE_URL").expect("DATABASE_URL is not set")
-}
-
 pub fn port() -> u16 {
     var("PORT")
         .expect("PORT is not set")
@@ -68,9 +64,6 @@ pub fn check_env() {
     if check_aws_region(&aws_region()).is_err() {
         panic!("Invalid aws_region");
     }
-    if check_db_connection(&database_url()).is_err() {
-        panic!("Invalid database connection");
-    }
 }
 
 fn check_aws_region(aws_region: &str) -> Result<(), ValidationError> {
@@ -78,14 +71,6 @@ fn check_aws_region(aws_region: &str) -> Result<(), ValidationError> {
         aws_region,
         r#"^([a-z]{2}-(central|(north|south)?(east|west)?)-\d)|((ap|ca|cn|eu|sa|us)-(central|(north|south)?(east|west)?)-\d)|((me|af|ap|eu|sa)-(south|north)?(east|west)?-\d)|((us-gov)-(east|west)-\d)$"#,
         "Not a valid AWS Region",
-    )
-}
-
-fn check_db_connection(connection_string: &str) -> Result<(), ValidationError> {
-    check_with(
-        connection_string,
-        r#"^postgres:\/\/[a-zA-Z0-9]+(:[a-zA-Z0-9]+)?@[a-zA-Z0-9]+(:[0-9]+)?\/[a-zA-Z0-9]+$"#,
-        "The database connection string is incorrect",
     )
 }
 
