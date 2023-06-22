@@ -68,8 +68,11 @@ async fn main() {
 
     let routes = routes().with_state(state).layer(setup_cors());
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], port()));
+    let port = port();
 
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+
+    println!("Server is running at {port}");
     axum::Server::bind(&addr)
         .serve(routes.into_make_service())
         .await
