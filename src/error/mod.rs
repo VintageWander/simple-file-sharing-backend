@@ -3,15 +3,12 @@ pub mod print;
 pub mod query;
 
 use aws_sdk_s3::{
-    error::SdkError, 
+    error::SdkError,
     operation::{
-        put_object::PutObjectError, 
-        get_object::GetObjectError, 
-        list_objects_v2::ListObjectsV2Error, 
-        copy_object::CopyObjectError, 
-        delete_object::DeleteObjectError, 
-        delete_objects::DeleteObjectsError
-    }
+        copy_object::CopyObjectError, delete_object::DeleteObjectError,
+        delete_objects::DeleteObjectsError, get_object::GetObjectError,
+        list_objects_v2::ListObjectsV2Error, put_object::PutObjectError,
+    },
 };
 use axum::{
     extract::rejection::{JsonRejection, PathRejection, QueryRejection},
@@ -185,16 +182,14 @@ impl IntoResponse for Error {
                 "Probably database error, please try again later",
             ),
 
-            Error::DeleteObject(_) => 
-                Web::internal_error(
-                    "Cannot delete file", 
-                    "This is due to the database have problems that prevent the file from being deleted"
-                ),
-            Error::DeleteObjects(_) => 
-                Web::internal_error(
-                    "Cannot delete multiple files",
-                     "This is due to database error, which make some files couldn't be deleted"
-                    ),
+            Error::DeleteObject(_) => Web::internal_error(
+                "Cannot delete file", 
+                "This is due to the database have problems that prevent the file from being deleted"
+            ),
+            Error::DeleteObjects(_) => Web::internal_error(
+                "Cannot delete multiple files",
+                "This is due to database error, which make some files couldn't be deleted"
+            ),
 
 
             /*
