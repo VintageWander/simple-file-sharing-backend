@@ -22,7 +22,6 @@ folder::select!(folder_owner_select {
 });
 
 pub type Folder = folder::Data;
-pub type FolderOwnerSelect = folder_owner_select::Data;
 pub type FolderSelect = folder_select::Data;
 
 folder::select!((filters: Vec<WhereParam>) => child_folders_select {

@@ -13,6 +13,16 @@ use crate::{
     },
 };
 
+folder::select!(child_files_folders {
+    child_files: select {
+        id
+        extension
+    }
+    child_folders: select {
+        id
+    }
+});
+
 use super::FolderService;
 
 impl FolderService {
@@ -188,6 +198,21 @@ impl FolderService {
         What this function does is that it gets all files that lives under the folder_id
         Even child files, grandchild files, grandgrandchild files, all of them
     */
+
+    async fn get_folder_by_id(
+        &self,
+        folder_id: String,
+    ) -> Result<Option<child_files_folders::Data>, Error> {
+        let folder = self
+            .db
+            .folder()
+            .find_unique(folder::id::equals(folder_id))
+            .select(child_files_folders::select())
+            .exec()
+            .await?;
+        Ok(folder)
+    }
+
     pub async fn get_nested_files_from_folder(
         &self,
         folder_id: String,
@@ -198,23 +223,11 @@ impl FolderService {
         folders_queue.push_back(folder_id);
 
         while !folders_queue.is_empty() {
-            let first_folder = folders_queue[0].clone();
+            let first_folder_id = folders_queue[0].clone();
+            dbg!(&first_folder_id);
 
-            let first_folder = self
-                .db
-                .folder()
-                .find_unique(folder::id::equals(first_folder))
-                .select(folder::select!({
-                    child_files: select {
-                        id
-                        extension
-                    }
-                    child_folders: select {
-                        id
-                    }
-                }))
-                .exec()
-                .await?;
+            let first_folder = self.get_folder_by_id(first_folder_id).await?;
+            dbg!(&first_folder);
 
             if let Some(first_folder) = first_folder {
                 folders_queue.extend(first_folder.child_folders.into_iter().map(|f| f.id));
@@ -230,5 +243,24 @@ impl FolderService {
         }
 
         Ok(files_queue)
+    }
+
+    pub async fn get_root_folder(&self, owner_id: String) -> Result<String, Error> {
+        let root_folder = self
+            .db
+            .folder()
+            .find_first(vec![
+                folder::owner_id::equals(owner_id.clone()),
+                folder::folder_name::equals(owner_id),
+                folder::visibility::equals(Visibility::Private),
+                folder::parent_folder_id::equals(None),
+            ])
+            .select(folder::select!({ id }))
+            .exec()
+            .await?
+            .ok_or_else(|| Error::NotFound)?
+            .id;
+
+        Ok(root_folder)
     }
 }

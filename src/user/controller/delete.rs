@@ -30,20 +30,19 @@ pub fn delete_user() -> Router<GlobalState> {
             );
         }
 
-        let deleted_folder = folder_service.delete_root_folder(user_id).await?;
+        let root_folder = folder_service.get_root_folder(user_id.clone()).await?;
 
         for (id, extension) in folder_service
-            .get_nested_files_from_folder(deleted_folder.id)
+            .get_nested_files_from_folder(root_folder)
             .await?
         {
-            dbg!(format!("{}/{}", id, extension.to_string()));
             storage
                 .delete_file(&format!("{}.{}", id, extension.to_string()))
                 .await?;
             storage.delete_folder(&format!("{}/", id)).await?;
         }
 
-        user_service.delete_user(deleted_folder.owner.id).await?;
+        user_service.delete_user(user_id).await?;
 
         Ok(Web::ok("Deleted user successfully", ()))
     }
