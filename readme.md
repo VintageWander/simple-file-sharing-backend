@@ -60,8 +60,19 @@ This is the backend for my simple file sharing service that I made for my final 
 # How to deploy locally
 
 ## Option 1: Docker-compose stack
-I'm currently finish implementing the main features first, and then I'll write a `docker-compose.yml` file to help users' who wants to deploy this app locally
-<br> TODO
+
+1. Adjust the [`sample.docker-compose.yml`](./sample.docker-compose.yml) file
+
+2. Rename it from `sample.docker-compose.yml` to `docker-compose.yml`
+
+3. Run this command:
+```zsh
+docker-compose up -d
+```
+
+4. Open `localhost:9090` and login to Minio
+
+5. Create a bucket and add an access and secret key to it, make sure it matches the variables that you've just defined in the `docker-compose.yml` file
 
 ## Option 2: Running on host machine
 
