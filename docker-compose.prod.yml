@@ -1,6 +1,6 @@
 version: '3.8'
 
-name: simple-file-storage-stack
+name: simple-file-sharing
 
 networks:
   local:
@@ -8,16 +8,19 @@ networks:
 services:
 
 # Main service definition
-  simple-file-storage:
-    container_name: simple-file-storage
+  backend:
+    container_name: backend
     build: .
     command: >
       sh -c
-      "cargo prisma generate        && \
-       cargo prisma migrate deploy  && \
-       cargo build  --release       && \
-       cargo run    --release"
-    restart: on-failure:5
+      "curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+       apt-get install -y nodejs;
+       cargo prisma generate                      && \
+       cargo prisma migrate dev --name production && \
+       cargo prisma migrate deploy                && \
+       cargo build  --release                     && \
+       cargo run    --release                      & \
+       npx -y prisma studio"
     environment:
       DATABASE_URL:           "postgres://local:password@postgres:5432/local"
       PORT:                   8000
@@ -48,20 +51,20 @@ services:
       POSTGRES_DB: local
     ports:
       - 5432:5432
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+    # volumes:
+    #   - ./data/postgres:/var/lib/postgresql/data
     networks:
       - local
 
 # Minio service definition
   minio:
     container_name: minio
-    image: quay.io/minio/minio
+    image: minio/minio:latest
     ports:
       - 9000:9000
       - 9090:9090
-    volumes:
-      - ./data/minio:/data
+    # volumes:
+    #   - ./data/minio:/data
     environment:
       MINIO_ROOT_USER: minio-admin
       MINIO_ROOT_PASSWORD: minio-password
