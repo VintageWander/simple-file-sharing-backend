@@ -63,8 +63,8 @@ services:
     volumes:
       - ./data/minio:/data
     environment:
-      MINIO_ROOT_USER: local
-      MINIO_ROOT_PASSWORD: password
+      MINIO_ROOT_USER: minio-admin
+      MINIO_ROOT_PASSWORD: minio-password
     command: server /data --console-address ":9090"
     networks:
       - local
