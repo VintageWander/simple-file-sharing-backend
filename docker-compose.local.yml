@@ -1,0 +1,57 @@
+version: '3.8'
+
+name: simple-file-storage-environment
+
+networks:
+  local:
+
+services:
+# Database service definition
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: local
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: local
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - local
+
+# Minio service definition
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    ports:
+      - 9000:9000
+      - 9090:9090
+    volumes:
+      - ./data/minio:/data
+    environment:
+      MINIO_ROOT_USER: minio-admin
+      MINIO_ROOT_PASSWORD: minio-password
+    command: server /data --console-address ":9090"
+    networks:
+      - local
+# Create default bucket on Minio startup
+  createbucket:
+    container_name: create_bucket_task
+    image: minio/mc:latest
+    networks:
+      - local
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set minio http://minio:9000 minio-admin minio-password;
+      /usr/bin/mc mb minio/local-bucket;
+      /usr/bin/mc anonymous set public minio/local-bucket;
+      /usr/bin/mc admin user svcacct add \
+      --access-key local-access-key      \
+      --secret-key local-secret-key      \
+      minio                              \
+      minio-admin;
+      "
