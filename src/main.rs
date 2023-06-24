@@ -24,7 +24,7 @@ mod folder;
 mod aws;
 mod config;
 mod file;
-pub mod file_version;
+mod file_version;
 mod impls;
 #[allow(warnings)]
 mod prisma;

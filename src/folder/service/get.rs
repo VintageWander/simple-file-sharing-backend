@@ -224,10 +224,8 @@ impl FolderService {
 
         while !folders_queue.is_empty() {
             let first_folder_id = folders_queue[0].clone();
-            dbg!(&first_folder_id);
 
             let first_folder = self.get_folder_by_id(first_folder_id).await?;
-            dbg!(&first_folder);
 
             if let Some(first_folder) = first_folder {
                 folders_queue.extend(first_folder.child_folders.into_iter().map(|f| f.id));
