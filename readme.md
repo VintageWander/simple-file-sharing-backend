@@ -58,10 +58,13 @@ This is the backend for my simple file sharing service that I made for my final 
 <br>
 
 # How to deploy locally
+1. Adjust some variables in the [`docker-compose.prod.yml`](./docker-compose.prod.yml) based on your likings 
 
-### 1. Adjust some variables in the [`docker-compose.prod.yml`](./docker-compose.prod.yml) based on your likings 
-### 2. Run this command:
-```zsh
-docker-compose -f docker-compose.prod.yml up -d
-```
-### 3. Wait for the `simple-file-sharing` container to finish building
+2. Wait for the `simple-file-sharing` container to finish building
+
+3. After the stack finished building and running successfully. These are the endpoints for checking the storage and database
+- Database: <br>
+  Access [`http://localhost:5555`](http://localhost:5555) to see the database rows
+
+- By default, the `docker-compose` stack exposes Minio console to manage the files underneath. <br>
+  Access [`http://localhost:9090`](http://localhost:9090) to see the console, login to see the buckets and data
