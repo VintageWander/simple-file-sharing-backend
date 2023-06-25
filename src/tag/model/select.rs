@@ -30,3 +30,6 @@ tag::select!(tag_select {
         updated_at
     }
 });
+
+pub type Tag = tag::Data;
+pub type TagSelect = tag_select::Data;
