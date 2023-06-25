@@ -9,7 +9,7 @@ use crate::prisma::PrismaClient;
 
 #[derive(Clone)]
 pub struct FolderService {
-    db: Arc<PrismaClient>,
+    pub db: Arc<PrismaClient>,
 }
 
 impl FolderService {

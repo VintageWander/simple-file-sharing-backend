@@ -14,7 +14,7 @@ use super::model::select::{
 
 #[derive(Clone)]
 pub struct UserService {
-    db: Arc<PrismaClient>,
+    pub db: Arc<PrismaClient>,
 }
 
 impl UserService {

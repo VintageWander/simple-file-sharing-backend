@@ -9,7 +9,7 @@ pub mod update;
 
 #[derive(Clone)]
 pub struct FileService {
-    db: Arc<PrismaClient>,
+    pub db: Arc<PrismaClient>,
 }
 
 impl FileService {
