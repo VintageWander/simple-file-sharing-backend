@@ -29,7 +29,7 @@ This is the backend for my simple file sharing service that I made for my final 
 - [x] Delete folders
 - [ ] Manage folder's collaborators
 - [ ] Download folder
-- [ ] Manage folders' tags
+- [x] Manage folders' tags
 
 ## Files:
 - [x] See all public files
@@ -42,12 +42,12 @@ This is the backend for my simple file sharing service that I made for my final 
 - [ ] Manage file's collaborators
 - [x] Download file
 - [x] File extensions unrestricted
-- [ ] Manage files' tags
+- [x] Manage files' tags
 
 ## Tags
-- [ ] Create new tags
-- [ ] Delete tags
-- [ ] Manage tags of files or folders
+- [x] Create new tags
+- [x] Delete tags
+- [x] Manage tags of files or folders
 
 ## Collaboration
 - [ ] Add collaborator to files

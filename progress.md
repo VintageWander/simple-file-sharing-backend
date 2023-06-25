@@ -35,7 +35,7 @@
 - [x] Update folder
 - [x] Delete folder ( Cascade delete all S3 files as well )
 - [ ] Manage folder's collaborators
-- [ ] Manage folders' tags
+- [x] Manage folders' tags
 
 ## Controller
 - [x] See list of public folders
@@ -46,7 +46,7 @@
 - [x] Delete folder ( Cascade delete all S3 files as well )
 - [ ] Download folder
 - [ ] Manage folder's collaborators
-- [ ] Manage folders' tags
+- [x] Manage folders' tags
 
 # Files
 
@@ -60,7 +60,7 @@
 - [x] Update file
 - [x] Delete file
 - [ ] Manage file's collaborators
-- [ ] Manage files' tags
+- [x] Manage files' tags
 
 ## Controller
 - [x] See list of public files
@@ -71,6 +71,6 @@
 - [x] Delete file
 - [x] Download file
 - [ ] Manage file's collaborators
-- [ ] Manage files' tags
+- [x] Manage files' tags
 
 
