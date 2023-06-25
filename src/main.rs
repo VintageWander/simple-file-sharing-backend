@@ -29,6 +29,7 @@ mod impls;
 #[allow(warnings)]
 mod prisma;
 mod routes;
+pub mod tag;
 mod user;
 mod validation;
 mod web;

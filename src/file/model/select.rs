@@ -8,14 +8,20 @@ file::select!(file_select {
     owner: select {
         id username email created_at updated_at
     }
-    collaborators
+
     parent_folder_id
 
+    collaborators
     filename
     extension
     visibility
+
     versions: select {
         version_number
+    }
+
+    tags: select {
+        id tag_name
     }
 
     created_at
@@ -31,7 +37,7 @@ folder::select!((filters: Vec<WhereParam>) => child_files_select {
         owner: select {
             id username email created_at updated_at
         }
-        collaborators
+
         parent_folder_id
 
         filename
@@ -40,6 +46,10 @@ folder::select!((filters: Vec<WhereParam>) => child_files_select {
 
         versions: select {
             version_number
+        }
+
+        tags: select {
+            id tag_name
         }
 
         created_at
