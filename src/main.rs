@@ -14,6 +14,7 @@ use folder::service::FolderService;
 use prisma::PrismaClient;
 
 use routes::routes;
+use tag::service::TagService;
 use user::service::UserService;
 
 mod auth;
@@ -41,6 +42,7 @@ pub struct GlobalState {
     pub folder_service: FolderService,
     pub file_service: FileService,
     pub file_version_service: FileVersionService,
+    pub tag_service: TagService,
     pub storage: S3,
 }
 
@@ -64,6 +66,7 @@ async fn main() {
         folder_service: FolderService::init(&client),
         file_service: FileService::init(&client),
         file_version_service: FileVersionService::init(&client),
+        tag_service: TagService::init(&client),
         storage: S3::init(),
     };
 
