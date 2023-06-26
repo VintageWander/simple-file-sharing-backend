@@ -1,7 +1,9 @@
 use crate::{
     error::Error,
     file::model::select::{file_select, FileSelect},
-    prisma::{file, Visibility},
+    prisma::{file, tag, user, Visibility},
+    tag::model::select::Tag,
+    user::model::select::UserSelect,
 };
 
 use super::FileService;
@@ -39,5 +41,41 @@ impl FileService {
             .exec()
             .await?;
         Ok(updated_file)
+    }
+
+    pub async fn set_collaborators_to_file(
+        &self,
+        file_id: String,
+        collaborators: Vec<UserSelect>,
+    ) -> Result<(), Error> {
+        let collaborators = collaborators
+            .into_iter()
+            .map(|collaborator| user::id::equals(collaborator.id))
+            .collect();
+
+        self.db
+            .file()
+            .update(
+                file::id::equals(file_id),
+                vec![file::collaborators::set(collaborators)],
+            )
+            .exec()
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn set_tags_to_file(&self, tags: Vec<Tag>, file_id: String) -> Result<(), Error> {
+        let tags = tags
+            .into_iter()
+            .map(|tag| tag::id::equals(tag.id))
+            .collect();
+
+        self.db
+            .file()
+            .update(file::id::equals(file_id), vec![file::tags::set(tags)])
+            .exec()
+            .await?;
+        Ok(())
     }
 }

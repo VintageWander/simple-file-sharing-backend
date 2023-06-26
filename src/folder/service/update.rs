@@ -1,7 +1,9 @@
 use crate::{
     error::Error,
     folder::model::select::{folder_select, FolderSelect},
-    prisma::{folder, Visibility},
+    prisma::{folder, tag, user, Visibility},
+    tag::model::select::Tag,
+    user::model::select::UserSelect,
 };
 
 use super::FolderService;
@@ -36,5 +38,40 @@ impl FolderService {
             .exec()
             .await?;
         Ok(updated_folder)
+    }
+
+    pub async fn set_collaborators_to_folder(
+        &self,
+        folder_id: String,
+        collaborators: Vec<UserSelect>,
+    ) -> Result<(), Error> {
+        let collaborators = collaborators
+            .into_iter()
+            .map(|collaborator| user::id::equals(collaborator.id))
+            .collect();
+
+        self.db
+            .folder()
+            .update(
+                folder::id::equals(folder_id),
+                vec![folder::collaborators::set(collaborators)],
+            )
+            .exec()
+            .await?;
+        Ok(())
+    }
+
+    pub async fn set_tags_to_folder(&self, tags: Vec<Tag>, folder_id: String) -> Result<(), Error> {
+        let tags = tags
+            .into_iter()
+            .map(|tag| tag::id::equals(tag.id))
+            .collect();
+
+        self.db
+            .folder()
+            .update(folder::id::equals(folder_id), vec![folder::tags::set(tags)])
+            .exec()
+            .await?;
+        Ok(())
     }
 }
