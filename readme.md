@@ -27,7 +27,7 @@ This is the backend for my simple file sharing service that I made for my final 
 - [x] Create new folders
 - [x] Update folders
 - [x] Delete folders
-- [ ] Manage folder's collaborators
+- [x] Manage folder's collaborators
 - [ ] Download folder
 - [x] Manage folders' tags
 
@@ -39,7 +39,7 @@ This is the backend for my simple file sharing service that I made for my final 
 - [x] Update files
 - [x] Delete files
 - [x] Manage file versions
-- [ ] Manage file's collaborators
+- [x] Manage file's collaborators
 - [x] Download file
 - [x] File extensions unrestricted
 - [x] Manage files' tags
@@ -50,10 +50,10 @@ This is the backend for my simple file sharing service that I made for my final 
 - [x] Manage tags of files or folders
 
 ## Collaboration
-- [ ] Add collaborator to files
-- [ ] Add collaborator to folders
-- [ ] Delete collaborators from files
-- [ ] Delete collaborators from folders
+- [x] Add collaborator to files
+- [x] Add collaborator to folders
+- [x] Delete collaborators from files
+- [x] Delete collaborators from folders
 
 <br>
 
