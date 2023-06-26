@@ -14,6 +14,7 @@ use crate::{
 };
 
 folder::select!(child_files_folders {
+    id
     child_files: select {
         id
         extension
@@ -199,7 +200,7 @@ impl FolderService {
         Even child files, grandchild files, grandgrandchild files, all of them
     */
 
-    async fn get_folder_by_id(
+    pub async fn get_folder_by_id(
         &self,
         folder_id: String,
     ) -> Result<Option<child_files_folders::Data>, Error> {
@@ -217,30 +218,30 @@ impl FolderService {
         &self,
         folder_id: String,
     ) -> Result<VecDeque<(String, Extension)>, Error> {
-        let mut folders_queue = VecDeque::new();
-        let mut files_queue = VecDeque::new();
+        let mut folder_id_queue = VecDeque::new();
+        let mut file_id_queue = VecDeque::new();
 
-        folders_queue.push_back(folder_id);
+        folder_id_queue.push_back(folder_id);
 
-        while !folders_queue.is_empty() {
-            let first_folder_id = folders_queue[0].clone();
+        while !folder_id_queue.is_empty() {
+            let first_folder_id = folder_id_queue.pop_front().expect("This should not error");
 
-            let first_folder = self.get_folder_by_id(first_folder_id).await?;
+            let first_folder = self
+                .get_folder_by_id(first_folder_id)
+                .await?
+                .ok_or_else(|| Error::NotFound)?;
 
-            if let Some(first_folder) = first_folder {
-                folders_queue.extend(first_folder.child_folders.into_iter().map(|f| f.id));
-                files_queue.extend(
-                    first_folder
-                        .child_files
-                        .into_iter()
-                        .map(|f| (f.id, f.extension)),
-                );
-            }
+            folder_id_queue.extend(first_folder.child_folders.into_iter().map(|f| f.id));
 
-            folders_queue.pop_front();
+            file_id_queue.extend(
+                first_folder
+                    .child_files
+                    .into_iter()
+                    .map(|f| (f.id, f.extension)),
+            );
         }
 
-        Ok(files_queue)
+        Ok(file_id_queue)
     }
 
     pub async fn get_root_folder(&self, owner_id: String) -> Result<String, Error> {

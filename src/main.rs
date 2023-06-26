@@ -1,5 +1,3 @@
-// #![allow(dead_code, unused_variables)]
-
 use std::{net::SocketAddr, sync::Arc};
 
 use aws::S3;
@@ -30,7 +28,7 @@ mod impls;
 #[allow(warnings)]
 mod prisma;
 mod routes;
-pub mod tag;
+mod tag;
 mod user;
 mod validation;
 mod web;

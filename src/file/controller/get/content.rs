@@ -92,5 +92,5 @@ pub fn get_content() -> Router<GlobalState> {
         )
             .into_response())
     }
-    Router::new().route("/content/:file_id/", get(get_content_handler))
+    Router::new().route("/content/:file_id", get(get_content_handler))
 }
