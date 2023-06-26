@@ -2,8 +2,12 @@ use axum::Router;
 
 use crate::GlobalState;
 
-use self::get::{my::get_my_folders, public::get_public_folders, shared::get_shared_folders};
+use self::{
+    collab::set_folder_collaborators,
+    get::{my::get_my_folders, public::get_public_folders, shared::get_shared_folders},
+};
 
+pub mod collab;
 pub mod create;
 pub mod delete;
 pub mod get;
@@ -26,6 +30,8 @@ pub fn folder_routes() -> Router<GlobalState> {
             // /folder/update
             .merge(update_folder())
             // /folder/delete
-            .merge(delete_folder()),
+            .merge(delete_folder())
+            // /folder/collaborators
+            .merge(set_folder_collaborators()),
     )
 }
