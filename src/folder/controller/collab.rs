@@ -3,7 +3,6 @@ use std::collections::VecDeque;
 use axum::{extract::State, routing::put, Router};
 
 use crate::{
-    error::Error,
     folder::model::collab::SetFolderCollabRequest,
     prisma::folder,
     user::model::{loggedin::LoggedInUser, select::UserSelect},
@@ -45,10 +44,7 @@ pub fn set_folder_collaborators() -> Router<GlobalState> {
                 .get_folder_by_user_id(vec![folder::id::equals(folder_id)], user_id.clone())
                 .await?;
 
-            let folder = folder_service
-                .get_folder_by_id(folder.id)
-                .await?
-                .ok_or_else(|| Error::NotFound)?;
+            let folder = folder_service.get_folder_by_id(folder.id).await?;
 
             folder_service
                 .set_collaborators_to_folder(folder.id, collaborators.clone())
