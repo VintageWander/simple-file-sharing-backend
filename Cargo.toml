@@ -46,6 +46,7 @@ prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust
 aws-sdk-s3 = { version = "0.28.0", features = ["rt-tokio"] }
 mime_guess = "2.0.4"
 bytes = "1.4.0"
+zip = "0.6.6"
 
 # Serialization
 serde = { version = "1.0.163", features = ["derive"] }
