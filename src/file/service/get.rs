@@ -179,4 +179,19 @@ impl FileService {
             .await?;
         Ok(shared_files)
     }
+
+    pub async fn get_public_file_by_id(&self, file_id: String) -> Result<FileSelect, Error> {
+        let public_file = self
+            .db
+            .file()
+            .find_first(vec![
+                file::id::equals(file_id),
+                file::visibility::equals(Visibility::Public),
+            ])
+            .select(file_select::select())
+            .exec()
+            .await?
+            .ok_or_else(|| Error::NotFound)?;
+        Ok(public_file)
+    }
 }

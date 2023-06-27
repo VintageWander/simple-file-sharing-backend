@@ -11,23 +11,20 @@ use serde::Deserialize;
 use tokio_util::io::ReaderStream;
 
 use crate::{
-    error::Error,
-    file::model::select::file_select,
-    prisma::{file, Visibility},
+    prisma::file,
     user::model::{loggedin::LoggedInUser, select::UserSelect},
     GlobalState, WebResult,
 };
 
-pub fn get_content() -> Router<GlobalState> {
+pub fn get_file_content() -> Router<GlobalState> {
     #[derive(Deserialize)]
     #[serde(rename_all = "camelCase")]
     struct FileVersionQuery {
         version_number: Option<i64>,
     }
 
-    async fn get_content_handler(
+    async fn get_file_content_handler(
         State(GlobalState {
-            db,
             file_service,
             storage,
             ..
@@ -42,16 +39,7 @@ pub fn get_content() -> Router<GlobalState> {
                     .get_file_by_user_id(vec![file::id::equals(file_id)], user_id)
                     .await?
             }
-            None => db
-                .file()
-                .find_first(vec![
-                    file::id::equals(file_id),
-                    file::visibility::equals(Visibility::Public),
-                ])
-                .select(file_select::select())
-                .exec()
-                .await?
-                .ok_or_else(|| Error::NotFound)?,
+            None => file_service.get_public_file_by_id(file_id).await?,
         };
 
         let file_path = match version_number {
@@ -92,5 +80,5 @@ pub fn get_content() -> Router<GlobalState> {
         )
             .into_response())
     }
-    Router::new().route("/content/:file_id", get(get_content_handler))
+    Router::new().route("/content/:file_id", get(get_file_content_handler))
 }
