@@ -20,17 +20,17 @@ pub fn user_routes() -> Router<GlobalState> {
     Router::new().nest(
         "/user",
         Router::new()
-            // /user
+            // GET /user
             .merge(get_users())
-            // /user
+            // GET /user
             .merge(get_user())
-            // /user/profile
+            // GET /user/profile
             .merge(profile())
-            // /user/create
+            // POST /user/create
             .merge(create_user())
-            // /user/update
+            // PUT /user/update
             .merge(update_user())
-            // /user/delete
+            // DELETE /user/delete
             .merge(delete_user()),
     )
 }

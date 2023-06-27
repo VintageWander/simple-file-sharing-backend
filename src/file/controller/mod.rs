@@ -25,25 +25,25 @@ pub fn file_routes() -> Router<GlobalState> {
     Router::new().nest(
         "/file",
         Router::new()
-            // /file/public
+            // GET /file/public?query
             .merge(get_public_files())
-            // /file/my
+            // GET /file/my?query
             .merge(get_my_files())
-            // /file/shared
+            // GET /file/shared?query
             .merge(get_shared_files())
-            // /file/content/:file_id
+            // GET /file/content/:file_id
             .merge(get_file_content())
-            // /file/create
+            // GET /file/create
             .merge(create_file())
-            // /file/update/:file_id
+            // POST /file/update/:file_id
             .merge(update_file())
-            // /file/delete/:file_id
+            // PUT /file/delete/:file_id
             .merge(delete_file())
-            // /file/delete/:file_id/:version_number
+            // DELETE /file/delete/:file_id/:version_number
             .merge(delete_file_version())
-            // /file/restore/:file_id/:version_number
+            // PUT /file/restore/:file_id/:version_number
             .merge(restore_file())
-            // /file/collaborators
+            // PUT /file/collaborators
             .merge(set_file_collaborators()),
     )
 }

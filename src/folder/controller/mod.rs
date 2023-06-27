@@ -22,21 +22,21 @@ pub fn folder_routes() -> Router<GlobalState> {
     Router::new().nest(
         "/folder",
         Router::new()
-            // /folder/public
+            // GET /folder/public?query
             .merge(get_public_folders())
-            // folder/my
+            // GET folder/my?query
             .merge(get_my_folders())
-            // folder/shared
+            // GET folder/shared?query
             .merge(get_shared_folders())
-            // /folder/create
+            // POST /folder/create
             .merge(create_folder())
-            // /folder/update
+            // PUT /folder/update/:folder_id
             .merge(update_folder())
-            // /folder/delete
+            // DELETE /folder/delete
             .merge(delete_folder())
-            // /folder/collaborators
+            // PUT /folder/collaborators
             .merge(set_folder_collaborators())
-            // /folder/content/:folder_id
+            // GET /folder/content/:folder_id
             .merge(get_folder_content()),
     )
 }
