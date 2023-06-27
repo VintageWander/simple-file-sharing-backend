@@ -4,7 +4,10 @@ use crate::GlobalState;
 
 use self::{
     collab::set_folder_collaborators,
-    get::{my::get_my_folders, public::get_public_folders, shared::get_shared_folders},
+    get::{
+        content::get_folder_content, my::get_my_folders, public::get_public_folders,
+        shared::get_shared_folders,
+    },
 };
 
 pub mod collab;
@@ -32,6 +35,8 @@ pub fn folder_routes() -> Router<GlobalState> {
             // /folder/delete
             .merge(delete_folder())
             // /folder/collaborators
-            .merge(set_folder_collaborators()),
+            .merge(set_folder_collaborators())
+            // /folder/content/:folder_id
+            .merge(get_folder_content()),
     )
 }
