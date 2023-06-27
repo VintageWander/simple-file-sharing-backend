@@ -15,8 +15,10 @@ use crate::{
 
 folder::select!(child_files_folders {
     id
+    folder_name
     child_files: select {
         id
+        filename
         extension
     }
     child_folders: select {
@@ -196,24 +198,33 @@ impl FolderService {
     }
 
     /*
-        What this function does is that it gets all files that lives under the folder_id
-        Even child files, grandchild files, grandgrandchild files, all of them
-    */
+        This function does get a folder based on its id
+        but what it returns is not the folder itself
+        It returns the folder's child folders and child files
 
+        If you want to get the folder by id, you can use get_folder_by_user_id
+        Performing a query for a dedicated folder MUST associate with a user_id
+        This is to ensure that no private or shared folder be leaked accidentally to the public controller
+    */
     pub async fn get_folder_by_id(
         &self,
         folder_id: String,
-    ) -> Result<Option<child_files_folders::Data>, Error> {
+    ) -> Result<child_files_folders::Data, Error> {
         let folder = self
             .db
             .folder()
             .find_unique(folder::id::equals(folder_id))
             .select(child_files_folders::select())
             .exec()
-            .await?;
+            .await?
+            .ok_or_else(|| Error::NotFound)?;
         Ok(folder)
     }
 
+    /*
+        What this function does is that it gets all files that lives under the folder_id
+        Even child files, grandchild files, grandgrandchild files, all of them
+    */
     pub async fn get_nested_files_from_folder(
         &self,
         folder_id: String,
@@ -226,10 +237,7 @@ impl FolderService {
         while !folder_id_queue.is_empty() {
             let first_folder_id = folder_id_queue.pop_front().expect("This should not error");
 
-            let first_folder = self
-                .get_folder_by_id(first_folder_id)
-                .await?
-                .ok_or_else(|| Error::NotFound)?;
+            let first_folder = self.get_folder_by_id(first_folder_id).await?;
 
             folder_id_queue.extend(first_folder.child_folders.into_iter().map(|f| f.id));
 
@@ -261,5 +269,20 @@ impl FolderService {
             .id;
 
         Ok(root_folder)
+    }
+
+    pub async fn get_public_folder_by_id(&self, folder_id: String) -> Result<FolderSelect, Error> {
+        let public_folder = self
+            .db
+            .folder()
+            .find_first(vec![
+                folder::visibility::equals(Visibility::Public),
+                folder::id::equals(folder_id),
+            ])
+            .select(folder_select::select())
+            .exec()
+            .await?
+            .ok_or_else(|| Error::NotFound)?;
+        Ok(public_folder)
     }
 }
