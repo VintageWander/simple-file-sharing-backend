@@ -14,7 +14,8 @@ use self::{
     create::create_file,
     delete::{delete_file, delete_file_version},
     get::{
-        content::get_content, my::get_my_files, public::get_public_files, shared::get_shared_files,
+        content::get_file_content, my::get_my_files, public::get_public_files,
+        shared::get_shared_files,
     },
     restore::restore_file,
     update::update_file,
@@ -31,7 +32,7 @@ pub fn file_routes() -> Router<GlobalState> {
             // /file/shared
             .merge(get_shared_files())
             // /file/content/:file_id
-            .merge(get_content())
+            .merge(get_file_content())
             // /file/create
             .merge(create_file())
             // /file/update/:file_id
