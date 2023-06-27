@@ -107,11 +107,13 @@ model FileVersion {
 model Tag {
   id String @id @default(uuid())
 
-  tagName String @unique
+  tagName String 
 
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String
 
   files   File[]
   folders Folder[]
+
+  @@unique([tagName, ownerId])
 }
