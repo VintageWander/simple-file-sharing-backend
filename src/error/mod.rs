@@ -105,6 +105,15 @@ pub enum Error {
 
     #[error("No content for response")]
     NoContent,
+
+    /*
+        Download error
+    */
+    #[error("Download error")]
+    Download(#[from] std::io::Error),
+
+    #[error("Zip error")]
+    Zip(#[from] zip::result::ZipError),
 }
 
 impl IntoResponse for Error {
@@ -203,6 +212,12 @@ impl IntoResponse for Error {
                 "None updated",
                 "Since no data was provided, nothing has changed",
             ),
+
+            /*
+                Download errors
+            */
+            Error::Download(e) => Web::internal_error("The download process failed", e),
+            Error::Zip(e) => Web::internal_error("The zip process failed", e)
         }
     }
 }
