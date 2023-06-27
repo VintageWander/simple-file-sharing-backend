@@ -44,7 +44,7 @@
 - [x] Create new folders
 - [x] Update folder
 - [x] Delete folder ( Cascade delete all S3 files as well )
-- [ ] Download folder
+- [x] Download folder
 - [x] Manage folder's collaborators
 - [x] Manage folders' tags
 

@@ -1,6 +1,8 @@
 # Simple file sharing backend
 This is the backend for my simple file sharing service that I made for my final project, in order to graduate from my university. <br>
 
+### I'm happy to report that all of the main functionalities are completed
+
 <br>
 
 # Tech Stack
@@ -28,7 +30,7 @@ This is the backend for my simple file sharing service that I made for my final 
 - [x] Update folders
 - [x] Delete folders
 - [x] Manage folder's collaborators
-- [ ] Download folder
+- [x] Download folder
 - [x] Manage folders' tags
 
 ## Files:
