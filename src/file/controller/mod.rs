@@ -1,4 +1,5 @@
 pub mod collab;
+pub mod content;
 pub mod create;
 pub mod delete;
 pub mod get;
@@ -11,12 +12,10 @@ use crate::GlobalState;
 
 use self::{
     collab::set_file_collaborators,
+    content::{generate_file_temp_key, get_file_content},
     create::create_file,
     delete::{delete_file, delete_file_version},
-    get::{
-        content::get_file_content, my::get_my_files, public::get_public_files,
-        shared::get_shared_files,
-    },
+    get::{my::get_my_files, public::get_public_files, shared::get_shared_files},
     restore::restore_file,
     update::update_file,
 };
@@ -31,8 +30,6 @@ pub fn file_routes() -> Router<GlobalState> {
             .merge(get_my_files())
             // GET /file/shared?query
             .merge(get_shared_files())
-            // GET /file/content/:file_id
-            .merge(get_file_content())
             // GET /file/create
             .merge(create_file())
             // POST /file/update/:file_id
@@ -44,6 +41,10 @@ pub fn file_routes() -> Router<GlobalState> {
             // PUT /file/restore/:file_id/:version_number
             .merge(restore_file())
             // PUT /file/collaborators
-            .merge(set_file_collaborators()),
+            .merge(set_file_collaborators())
+            // GET /file/content/:file_id
+            .merge(get_file_content())
+            // POST /file/content/:file_id
+            .merge(generate_file_temp_key()),
     )
 }

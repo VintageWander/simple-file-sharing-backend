@@ -2,7 +2,10 @@ use chrono::{DateTime, FixedOffset};
 
 use crate::{
     error::Error,
-    file::model::select::{child_files_select, file_select, ChildFilesSelect, FileSelect},
+    file::{
+        model::select::{child_files_select, file_select, ChildFilesSelect, FileSelect},
+        utils::decode_key,
+    },
     prisma::{
         file::{self, WhereParam},
         folder, user, Extension, Visibility,
@@ -193,5 +196,18 @@ impl FileService {
             .await?
             .ok_or_else(|| Error::NotFound)?;
         Ok(public_file)
+    }
+
+    pub async fn get_file_from_key(&self, key: String) -> Result<FileSelect, Error> {
+        let file_id = decode_key(key)?;
+        let file = self
+            .db
+            .file()
+            .find_unique(file::id::equals(file_id))
+            .select(file_select::select())
+            .exec()
+            .await?
+            .ok_or_else(|| Error::NotFound)?;
+        Ok(file)
     }
 }
