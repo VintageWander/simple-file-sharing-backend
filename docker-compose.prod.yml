@@ -35,7 +35,8 @@ services:
       MINIO:                  true 
       ENDPOINT:               "http://minio:9000"
     ports:
-      - 8000:8000
+      - 8000:8000             # Backend endpoint
+      - 5555:5555             # Prisma studio
     depends_on:
       - postgres
       - minio
