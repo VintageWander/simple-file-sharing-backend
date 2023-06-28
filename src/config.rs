@@ -29,6 +29,10 @@ pub fn refresh_token_secret() -> String {
     var("REFRESH_TOKEN_SECRET").expect("REFRESH_TOKEN_SECRET is not set")
 }
 
+pub fn share_key_secret() -> String {
+    var("SHARE_KEY_SECRET").expect("SHARE_KEY_SECRET is not set")
+}
+
 pub fn aws_access_key_id() -> String {
     var("AWS_ACCESS_KEY_ID").expect("AWS_ACCESS_KEY_ID is not set")
 }
