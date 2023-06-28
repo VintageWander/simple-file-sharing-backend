@@ -43,6 +43,7 @@ This is the backend for my simple file sharing service that I made for my final 
 - [x] Manage file versions
 - [x] Manage file's collaborators
 - [x] Download file
+- [x] Access to file temporary
 - [x] File extensions unrestricted
 - [x] Manage files' tags
 

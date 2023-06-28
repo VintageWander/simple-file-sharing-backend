@@ -70,6 +70,7 @@
 - [x] Update file
 - [x] Delete file
 - [x] Download file
+- [x] Access to file temporary
 - [x] Manage file's collaborators
 - [x] Manage files' tags
 
