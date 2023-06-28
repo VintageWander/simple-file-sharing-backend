@@ -2,7 +2,7 @@ use std::{collections::VecDeque, io::Write};
 
 use axum::{
     body::StreamBody,
-    extract::{Path, State},
+    extract::State,
     http::header::{CONTENT_DISPOSITION, CONTENT_TYPE},
     response::{AppendHeaders, IntoResponse},
     routing::get,
@@ -13,6 +13,7 @@ use tokio_util::io::ReaderStream;
 use zip::{write::FileOptions, ZipWriter};
 
 use crate::{
+    extractors::param::ParamId,
     prisma::folder,
     user::model::{loggedin::LoggedInUser, select::UserSelect},
     GlobalState, WebResult,
@@ -26,7 +27,7 @@ pub fn get_folder_content() -> Router<GlobalState> {
             ..
         }): State<GlobalState>,
         user_or_guest: Option<LoggedInUser>,
-        Path(folder_id): Path<String>,
+        ParamId(folder_id): ParamId,
     ) -> WebResult {
         // Find the folder from param id
         let found_folder = match user_or_guest {
