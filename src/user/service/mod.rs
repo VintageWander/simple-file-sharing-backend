@@ -1,5 +1,10 @@
 use std::sync::Arc;
 
+use argon2::{
+    password_hash::{rand_core::OsRng, SaltString},
+    Argon2, PasswordHasher,
+};
+
 use crate::{
     error::Error,
     prisma::{
@@ -15,11 +20,15 @@ use super::model::select::{
 #[derive(Clone)]
 pub struct UserService {
     pub db: Arc<PrismaClient>,
+    salt: SaltString,
 }
 
 impl UserService {
     pub fn init(db: &Arc<PrismaClient>) -> Self {
-        Self { db: db.clone() }
+        Self {
+            db: db.clone(),
+            salt: SaltString::generate(&mut OsRng),
+        }
     }
 
     pub async fn get_users(&self, filters: Vec<WhereParam>) -> Result<Vec<UserSelect>, Error> {
@@ -38,6 +47,9 @@ impl UserService {
         username: String,
         password: String,
     ) -> Result<UserSelect, Error> {
+        let password = Argon2::default()
+            .hash_password(password.as_bytes(), &self.salt)?
+            .to_string();
         self.db
             .user()
             .find_first(vec![
@@ -85,6 +97,9 @@ impl UserService {
         email: String,
         password: String,
     ) -> Result<UserSelect, Error> {
+        let password = Argon2::default()
+            .hash_password(password.as_bytes(), &self.salt)?
+            .to_string();
         self.db
             .user()
             .create(username, email, password, vec![])

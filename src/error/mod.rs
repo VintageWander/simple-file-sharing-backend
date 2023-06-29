@@ -59,10 +59,13 @@ pub enum Error {
     MultipleInvalidFields(#[from] ValidationErrors),
 
     /*
-        Authorization errors
+        Authentication errors
     */
     #[error("JWT error")]
     Jwt(#[from] jsonwebtoken::errors::Error),
+
+    #[error("Password hashing error")]
+    PasswordHashing(#[from] argon2::password_hash::Error),
 
     #[error("Missing refresh token")]
     MissingRefreshToken,
@@ -150,10 +153,13 @@ impl IntoResponse for Error {
             ),
 
             /*
-                Authorization
+                Authentication errors
             */
             Error::Jwt(e) => {
                 Web::bad_request("Token error", format!("Please login again. Error: {}", e))
+            }
+            Error::PasswordHashing(e) => {
+                Web::internal_error("Cannot hash the password", e)
             }
             Error::MissingRefreshToken => {
                 Web::bad_request("Refresh token not found", "Please provide a refresh token")
