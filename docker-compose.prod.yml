@@ -21,19 +21,11 @@ services:
        cargo build  --release                     && \
        cargo run    --release                      & \
        npx -y prisma studio"
-    environment:
-      DATABASE_URL:           "postgres://local:password@postgres:5432/local"
-      PORT:                   8000
-      ORIGIN:                 "http://host.docker.internal:5000"
-      ACCESS_TOKEN_SECRET:    "access-token-secret" 
-      REFRESH_TOKEN_SECRET:   "refresh-token-secret" 
-      SHARE_KEY_SECRET:       "share-key-secret"
-      AWS_ACCESS_KEY_ID:      "local-access-key"
-      AWS_SECRET_ACCESS_KEY:  "local-secret-key" 
-      AWS_BUCKET_NAME:        "sfs-storage" 
-      AWS_REGION:             "us-east-1"
-      MINIO:                  true 
-      ENDPOINT:               "http://minio:9000"
+    volumes:
+      - type: bind
+        source: ./.env
+        target: /app/.env
+        read_only: true
     ports:
       - 8000:8000             # Backend endpoint
       - 5555:5555             # Prisma studio
