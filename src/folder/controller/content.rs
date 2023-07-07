@@ -53,8 +53,6 @@ pub fn get_folder_content() -> Router<GlobalState> {
         folder_id_queue.push_back(found_folder.id.clone());
 
         while let Some(folder_id) = folder_id_queue.pop_front() {
-            // Take the found_folder's child folders ids
-
             // Inner join the child folders
             let folder = folder_service.get_folder_by_id(folder_id).await?;
 
@@ -64,6 +62,7 @@ pub fn get_folder_content() -> Router<GlobalState> {
             // Add a directory at that position
             zip.add_directory(path.clone(), FileOptions::default())?;
 
+            // Take the found_folder's child folders ids
             // Extends the folder_id_queue with the child folders ids
             folder_id_queue.extend(folder.child_folders.into_iter().map(|f| f.id));
 
@@ -98,6 +97,7 @@ pub fn get_folder_content() -> Router<GlobalState> {
         let body = StreamBody::new(stream);
 
         // Delete the file
+        // We can do this because the entire zip file has been loaded to the StreamBody
         tokio::fs::remove_file(zip_location).await?;
 
         Ok((
