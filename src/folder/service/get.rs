@@ -234,9 +234,7 @@ impl FolderService {
 
         folder_id_queue.push_back(folder_id);
 
-        while !folder_id_queue.is_empty() {
-            let first_folder_id = folder_id_queue.pop_front().expect("This should not error");
-
+        while let Some(first_folder_id) = folder_id_queue.pop_front() {
             let first_folder = self.get_folder_by_id(first_folder_id).await?;
 
             folder_id_queue.extend(first_folder.child_folders.into_iter().map(|f| f.id));

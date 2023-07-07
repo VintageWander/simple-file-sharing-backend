@@ -38,8 +38,7 @@ pub fn set_folder_collaborators() -> Router<GlobalState> {
 
         folder_id_queue.push_back(target_folder.id);
 
-        while !folder_id_queue.is_empty() {
-            let folder_id = folder_id_queue.pop_front().expect("This should not error");
+        while let Some(folder_id) = folder_id_queue.pop_front() {
             let folder = folder_service
                 .get_folder_by_user_id(vec![folder::id::equals(folder_id)], user_id.clone())
                 .await?;

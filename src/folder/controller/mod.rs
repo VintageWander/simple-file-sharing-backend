@@ -4,13 +4,12 @@ use crate::GlobalState;
 
 use self::{
     collab::set_folder_collaborators,
-    get::{
-        content::get_folder_content, my::get_my_folders, public::get_public_folders,
-        shared::get_shared_folders,
-    },
+    content::get_folder_content,
+    get::{my::get_my_folders, public::get_public_folders, shared::get_shared_folders},
 };
 
 pub mod collab;
+pub mod content;
 pub mod create;
 pub mod delete;
 pub mod get;

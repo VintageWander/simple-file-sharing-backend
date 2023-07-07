@@ -52,9 +52,8 @@ pub fn get_folder_content() -> Router<GlobalState> {
         // Push the found_folder id in
         folder_id_queue.push_back(found_folder.id.clone());
 
-        while !folder_id_queue.is_empty() {
+        while let Some(folder_id) = folder_id_queue.pop_front() {
             // Take the found_folder's child folders ids
-            let folder_id = folder_id_queue.pop_front().expect("This should not error");
 
             // Inner join the child folders
             let folder = folder_service.get_folder_by_id(folder_id).await?;
