@@ -17,17 +17,41 @@ services:
        apt-get upgrade -y                                        && \
        curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
        apt-get install -y nodejs && npm install -g npm           && \
-       cargo prisma generate                                     && \
-       cargo prisma migrate dev --name production                && \
-       cargo prisma migrate deploy                               && \
-       cargo build  --release                                    && \
-       cargo run    --release                                     & \
-       npx -y prisma studio"
-    volumes:
-      - type: bind
-        source: ./.env
-        target: /app/.env
-        read_only: true
+       cargo  prisma generate                                    && \
+       cargo  prisma migrate dev --name production               && \
+       cargo  prisma migrate deploy                              && \
+       npx -y prisma studio                                       & \
+       cargo  run    --release"                                   
+    environment:
+      # Database
+      DATABASE_URL:          "postgres://local:password@postgres:5432/local"
+
+      # Backend environment variables
+
+      # Port is the backend's running port
+      PORT:                  8000
+      # Origin is the frontend's address, to use with CORS
+      ORIGIN:                "http://localhost:5000"
+
+      # Token secrets
+      ACCESS_TOKEN_SECRET:   "access-token-secret"
+      REFRESH_TOKEN_SECRET:  "refresh-token-secret"
+
+      # Secret key used to encrypt file ids for temporary access
+      SHARE_KEY_SECRET:      "local-share-key"
+
+      # AWS S3 tokens
+      AWS_ACCESS_KEY_ID:     "local-access-key"
+      AWS_SECRET_ACCESS_KEY: "local-secret-key"
+      AWS_BUCKET_NAME:       "local-bucket"
+      AWS_REGION:            "us-east-1"
+
+      # If you set MINIO to true, make sure to also provide ENDPOINT
+
+      # Minio enable
+      MINIO:                 true
+      # Minio endpoint
+      ENDPOINT:              "http://minio:9000"
     ports:
       - 8000:8000             # Backend endpoint
       - 5555:5555             # Prisma studio
