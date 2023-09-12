@@ -38,7 +38,7 @@ pub fn check_fullpath(fullpath: &str) -> Result<(), ValidationError> {
     */
     check_with(
         fullpath,
-        r#"^(([a-zA-Z0-9-_]{3,50}[/])*)[a-zA-Z0-9-_]{3,50}\.(png|txt|jpg|jpeg|mp3)$"#,
+        r"^(([a-zA-Z0-9-_]{3,50}[/])*)[a-zA-Z0-9-_]{3,50}\.(png|txt|jpg|jpeg|mp3)$",
         "The fullpath is incorrect",
     )
 }
