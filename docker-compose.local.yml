@@ -47,8 +47,8 @@ services:
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set minio http://minio:9000 minio-admin minio-password;
-      /usr/bin/mc mb minio/local-bucket;
-      /usr/bin/mc anonymous set public minio/local-bucket;
+      /usr/bin/mc mb minio/sfs-storage;
+      /usr/bin/mc anonymous set public minio/sfs-storage;
       /usr/bin/mc admin user svcacct add \
       --access-key local-access-key      \
       --secret-key local-secret-key      \
