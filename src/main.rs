@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::sync::Arc;
 
 use aws::S3;
 use axum::response::Response;
@@ -13,6 +13,7 @@ use prisma::PrismaClient;
 
 use routes::routes;
 use tag::service::TagService;
+use tokio::net::TcpListener;
 use user::service::UserService;
 
 mod auth;
@@ -72,11 +73,12 @@ async fn main() {
 
     let port = port();
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
 
-    println!("Server is running at {port}");
-    axum::Server::bind(&addr)
-        .serve(routes.into_make_service())
+    axum::serve(listener, routes)
         .await
-        .expect("Server crashed")
+        .map(|_| {
+            println!("Server started at port {port}");
+        })
+        .expect("Server crashed");
 }
