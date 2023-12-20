@@ -13,14 +13,19 @@ services:
     build: .
     command: >
       sh -c
-      "apt-get update                                            && \
-       apt-get upgrade -y                                        && \
-       curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-       apt-get install -y nodejs && npm install -g npm           && \
-       cargo  prisma generate                                    && \
-       cargo  prisma migrate dev --name production               && \
-       cargo  prisma migrate deploy                              && \
-       npx -y prisma studio                                       & \
+      "apt-get update                                                                                                           && \
+       apt-get upgrade -y                                                                                                       && \
+       apt-get install -y ca-certificates curl gnupg                                                                            && \
+       mkdir -p /etc/apt/keyrings                                                                                               && \
+       curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+       echo \"deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_21.x nodistro main\" |              \
+       tee /etc/apt/sources.list.d/nodesource.list                                                                              && \
+       apt-get update                                                                                                           && \
+       apt-get install -y nodejs                                                                                                && \
+       cargo  prisma generate                                                                                                   && \
+       cargo  prisma migrate dev --name production                                                                              && \
+       cargo  prisma migrate deploy                                                                                             && \
+       npx -y prisma studio                                                                                                      & \
        cargo  run    --release"                                   
     environment:
       # Database
@@ -43,7 +48,7 @@ services:
       # AWS S3 tokens
       AWS_ACCESS_KEY_ID:     "local-access-key"
       AWS_SECRET_ACCESS_KEY: "local-secret-key"
-      AWS_BUCKET_NAME:       "local-bucket"
+      AWS_BUCKET_NAME:       "sfs-storage"
       AWS_REGION:            "us-east-1"
 
       # If you set MINIO to true, make sure to also provide ENDPOINT
@@ -86,8 +91,8 @@ services:
     # volumes:
     #   - ./data/minio:/data
     environment:
-      MINIO_ROOT_USER: minio-admin
-      MINIO_ROOT_PASSWORD: minio-password
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
     command: server /data --console-address ":9090"
     networks:
       - local
@@ -101,14 +106,14 @@ services:
       - minio
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set minio http://minio:9000 minio-admin minio-password;
-      /usr/bin/mc mb minio/local-bucket;
-      /usr/bin/mc anonymous set public minio/local-bucket;
-      /usr/bin/mc admin user svcacct add \
-      --access-key local-access-key      \
-      --secret-key local-secret-key      \
-      minio                              \
-      minio-admin;
+      /usr/bin/mc alias set minio http://minio:9000 admin password;
+      /usr/bin/mc mb minio/sfs-storage;
+      /usr/bin/mc anonymous set public minio/sfs-storage;
+      /usr/bin/mc admin user svcacct add  \
+      --access-key local-access-key       \
+      --secret-key local-secret-key       \
+      minio                               \
+      admin;
       "
     
 
