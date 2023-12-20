@@ -1,7 +1,7 @@
 use std::{collections::VecDeque, io::Write};
 
 use axum::{
-    body::StreamBody,
+    body::Body,
     extract::State,
     http::header::{CONTENT_DISPOSITION, CONTENT_TYPE},
     response::{AppendHeaders, IntoResponse},
@@ -94,7 +94,7 @@ pub fn get_folder_content() -> Router<GlobalState> {
 
         let stream = ReaderStream::new(bytes);
 
-        let body = StreamBody::new(stream);
+        let body = Body::from_stream(stream);
 
         // Delete the file
         // We can do this because the entire zip file has been loaded to the StreamBody
