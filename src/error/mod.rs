@@ -3,7 +3,7 @@ pub mod print;
 pub mod query;
 
 use aws_sdk_s3::{
-    error::SdkError,
+    error::{BuildError, SdkError},
     operation::{
         copy_object::CopyObjectError, delete_object::DeleteObjectError,
         delete_objects::DeleteObjectsError, get_object::GetObjectError,
@@ -99,6 +99,9 @@ pub enum Error {
 
     #[error("Delete files error")]
     DeleteObjects(#[from] SdkError<DeleteObjectsError>),
+
+    #[error("Build ObjectIdentifier error")]
+    BuildObjectIdentifier(#[from] BuildError),
 
     /*
         General errors
@@ -205,8 +208,10 @@ impl IntoResponse for Error {
                 "Cannot delete multiple files",
                 "This is due to database error, which make some files couldn't be deleted"
             ),
-
-
+            Error::BuildObjectIdentifier(_) => Web::internal_error(
+                "Object ID error", 
+                "This is due to database error, which causes id of some file are invalid"
+            ),
             /*
                 General errors
             */
