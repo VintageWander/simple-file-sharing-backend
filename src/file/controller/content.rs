@@ -1,5 +1,5 @@
 use axum::{
-    body::StreamBody,
+    body::Body,
     extract::{Query, State},
     http::header::{CONTENT_DISPOSITION, CONTENT_TYPE},
     response::{AppendHeaders, IntoResponse},
@@ -72,7 +72,7 @@ pub fn get_file_content() -> Router<GlobalState> {
 
         let stream = ReaderStream::new(bytes.into_async_read());
 
-        let body = StreamBody::new(stream);
+        let body = Body::from_stream(stream);
 
         let full_filename = format!(
             "{}.{}",
