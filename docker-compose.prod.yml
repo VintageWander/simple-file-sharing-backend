@@ -2,9 +2,6 @@ version: '3.8'
 
 name: simple-file-sharing
 
-networks:
-  local:
-
 services:
 
 # Main service definition
@@ -63,8 +60,6 @@ services:
     depends_on:
       - postgres
       - minio
-    networks:
-      - local
 
 # Database service definition
   postgres:
@@ -78,8 +73,20 @@ services:
       - 5432:5432
     # volumes:
     #   - ./data/postgres:/var/lib/postgresql/data
-    networks:
-      - local
+
+# Postgres GUI
+  postgres-gui:
+    container_name: postgres-gui
+    image: dpage/pgadmin4
+    ports:
+      - 5050:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+    depends_on:
+      - postgres
 
 # Minio service definition
   minio:
@@ -94,14 +101,11 @@ services:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: password
     command: server /data --console-address ":9090"
-    networks:
-      - local
+    
 # Create default bucket on Minio startup
   createbucket:
     container_name: create_bucket_task
     image: minio/mc:latest
-    networks:
-      - local
     depends_on:
       - minio
     entrypoint: >
