@@ -11,8 +11,8 @@ impl S3 {
             .bucket(&self.bucket_name)
             .prefix(prefix);
         let res = req.send().await?;
-        let contents = res.contents().unwrap_or_default();
-        let contents = contents
+        let contents = res
+            .contents()
             .iter()
             .filter_map(|o| o.key.as_ref())
             .map(|s| s.to_string())

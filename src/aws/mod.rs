@@ -37,6 +37,7 @@ impl S3 {
         let region = Region::new(aws_region());
 
         let mut conf_builder = config::Builder::new()
+            .behavior_version_latest()
             .region(region)
             .credentials_provider(cred);
 
