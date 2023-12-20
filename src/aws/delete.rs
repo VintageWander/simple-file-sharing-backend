@@ -23,12 +23,18 @@ impl S3 {
         check_dir(fullpath)?;
 
         let objs = self.get_all(fullpath).await?;
-        let delete = objs
-            .into_iter()
-            .map(|s| ObjectIdentifier::builder().set_key(Some(s)).build())
-            .collect::<Vec<_>>();
 
-        let delete = Delete::builder().set_objects(Some(delete)).build();
+        let mut delete = vec![];
+        for obj in objs {
+            let obj_id = ObjectIdentifier::builder().set_key(Some(obj)).build()?;
+            delete.push(obj_id);
+        }
+        // objs
+        //     .into_iter()
+        //     .map(|s| ObjectIdentifier::builder().set_key(Some(s)).build()?)
+        //     .collect::<Vec<_>>();
+
+        let delete = Delete::builder().set_objects(Some(delete)).build()?;
 
         self.client
             .delete_objects()
