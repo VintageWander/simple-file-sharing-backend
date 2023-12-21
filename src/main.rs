@@ -1,19 +1,18 @@
 use std::sync::Arc;
 
-use aws::S3;
 use axum::response::Response;
-
-use config::{check_env, port, setup_cors};
 use dotenvy::dotenv;
+use tokio::net::TcpListener;
+
+use aws::S3;
+use config::{check_env, port, setup_cors};
 use error::Error;
 use file::service::FileService;
 use file_version::service::FileVersionService;
 use folder::service::FolderService;
 use prisma::PrismaClient;
-
 use routes::routes;
 use tag::service::TagService;
-use tokio::net::TcpListener;
 use user::service::UserService;
 
 mod auth;
@@ -75,10 +74,7 @@ async fn main() {
 
     let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
 
-    axum::serve(listener, routes)
-        .await
-        .map(|_| {
-            println!("Server started at port {port}");
-        })
-        .expect("Server crashed");
+    println!("Server started at port {port}");
+
+    axum::serve(listener, routes).await.expect("Server crashed");
 }
