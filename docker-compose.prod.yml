@@ -55,8 +55,8 @@ services:
       # Minio endpoint
       ENDPOINT:              "http://minio:9000"
     ports:
-      - 8000:8000             # Backend endpoint
-      - 5555:5555             # Prisma studio
+      - "8000:8000"             # Backend endpoint
+      - "5555:5555"             # Prisma studio
     depends_on:
       - postgres
       - minio
@@ -70,7 +70,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: local
     ports:
-      - 5432:5432
+      - "5432:5432"
     # volumes:
     #   - ./data/postgres:/var/lib/postgresql/data
 
@@ -79,7 +79,7 @@ services:
     container_name: postgres-gui
     image: dpage/pgadmin4
     ports:
-      - 5050:80
+      - "5050:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@local.com
       PGADMIN_DEFAULT_PASSWORD: password
@@ -93,8 +93,8 @@ services:
     container_name: minio
     image: minio/minio:latest
     ports:
-      - 9000:9000
-      - 9090:9090
+      - "9000:9000"
+      - "9090:9090"
     # volumes:
     #   - ./data/minio:/data
     environment:
