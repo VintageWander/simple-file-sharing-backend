@@ -17,6 +17,7 @@ docker-compose.dev.yml
 
 # IDE
 /.vscode
+/.idea
 
 # Minio and Postgres data
 /data
