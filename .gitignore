@@ -5,6 +5,8 @@
 .env
 docker-compose.yml
 docker-compose.dev.yml
+/certs/localhost.pem
+/certs/localhost-key.pem
 
 # Generated Prisma types and logic
 /src/prisma.rs
