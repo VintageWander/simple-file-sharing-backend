@@ -71,15 +71,15 @@ async fn main() {
 
     let port = port();
 
-    println!("Server started at port {port}");
-
     if port == 443 {
         let tls_config =
-            RustlsConfig::from_pem_file("cert/localhost.pem", "cert/localhost-key.pem")
+            RustlsConfig::from_pem_file("certs/localhost.pem", "certs/localhost-key.pem")
                 .await
                 .expect("Cannot find certifications to enable https");
 
         let addr = SocketAddr::from(([0, 0, 0, 0], port));
+
+        println!("Server started at https://localhost:{port}");
 
         axum_server::bind_rustls(addr, tls_config)
             .serve(routes.into_make_service())
@@ -87,6 +87,8 @@ async fn main() {
             .expect("Server crashed")
     } else {
         let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
+
+        println!("Server started at http://localhost:{port}");
 
         axum::serve(listener, routes).await.expect("Server crashed");
     }
