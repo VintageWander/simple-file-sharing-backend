@@ -1,6 +1,7 @@
-use std::sync::Arc;
+use std::{net::SocketAddr, sync::Arc};
 
 use axum::response::Response;
+use axum_server::tls_rustls::RustlsConfig;
 use dotenvy::dotenv;
 use tokio::net::TcpListener;
 
@@ -70,9 +71,23 @@ async fn main() {
 
     let port = port();
 
-    let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
-
     println!("Server started at port {port}");
 
-    axum::serve(listener, routes).await.expect("Server crashed");
+    if port == 443 {
+        let tls_config =
+            RustlsConfig::from_pem_file("cert/localhost.pem", "cert/localhost-key.pem")
+                .await
+                .expect("Cannot find certifications to enable https");
+
+        let addr = SocketAddr::from(([0, 0, 0, 0], port));
+
+        axum_server::bind_rustls(addr, tls_config)
+            .serve(routes.into_make_service())
+            .await
+            .expect("Server crashed")
+    } else {
+        let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
+
+        axum::serve(listener, routes).await.expect("Server crashed");
+    }
 }
