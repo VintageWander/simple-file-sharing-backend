@@ -35,7 +35,6 @@ mod web;
 
 #[derive(Clone)]
 pub struct GlobalState {
-    pub db: Arc<PrismaClient>,
     pub user_service: UserService,
     pub folder_service: FolderService,
     pub file_service: FileService,
@@ -59,7 +58,6 @@ async fn main() {
     let client = Arc::new(client);
 
     let state = GlobalState {
-        db: client.clone(),
         user_service: UserService::init(&client),
         folder_service: FolderService::init(&client),
         file_service: FileService::init(&client),
