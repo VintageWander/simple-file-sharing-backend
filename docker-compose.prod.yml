@@ -10,20 +10,22 @@ services:
     build: .
     command: >
       sh -c
-      "apt-get update                                                                                                           && \
-       apt-get upgrade -y                                                                                                       && \
-       apt-get install -y ca-certificates curl gnupg                                                                            && \
-       mkdir -p /etc/apt/keyrings                                                                                               && \
-       curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-       echo \"deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_21.x nodistro main\" |              \
-       tee /etc/apt/sources.list.d/nodesource.list                                                                              && \
-       apt-get update                                                                                                           && \
-       apt-get install -y nodejs                                                                                                && \
-       cargo  prisma generate                                                                                                   && \
-       cargo  prisma migrate dev --name production                                                                              && \
-       cargo  prisma migrate deploy                                                                                             && \
-       npx -y prisma studio                                                                                                      & \
-       cargo  run    --release"                                   
+      "apt-get update;
+       apt-get upgrade -y;
+       apt-get install -y ca-certificates curl gnupg;
+       mkdir -p /etc/apt/keyrings;
+       curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg;
+       echo \"deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_21.x nodistro main\" | \
+       tee /etc/apt/sources.list.d/nodesource.list;
+       apt-get update;
+       apt-get install -y nodejs;
+       cargo prisma generate;
+       cargo prisma migrate dev --name production;
+       cargo prisma migrate deploy;
+       npm install -g local-ssl-proxy;
+       npx -y prisma studio & \
+       cargo run --release & \
+       local-ssl-proxy --key /cert/localhost.key --cert /cert/localhost.cert --target 5555 --source 5556"
     environment:
       # Database
       DATABASE_URL:          "postgres://local:password@postgres:5432/local"
@@ -62,10 +64,10 @@ services:
       ENDPOINT:              "http://minio:9000"
     ports:
       - "8000:8000"             # Backend endpoint
-      - "5555:5555"             # Prisma studio
+      - "5556:5556"             # Prisma studio
     volumes:
-      - $HOME/cert/localhost.cert:/cert/localhost.cert
-      - $HOME/cert/localhost.key:/cert/localhost.key
+      - ./cert/localhost.cert:/cert/localhost.cert
+      - ./cert/localhost.key:/cert/localhost.key
     depends_on:
       - postgres
       - minio
@@ -83,8 +85,8 @@ services:
       PGADMIN_ENABLE_TLS: true
     volumes:
       # Enabling HTTPS
-      - $HOME/cert/localhost.cert:/certs/server.cert
-      - $HOME/cert/localhost.key:/certs/server.key
+      - ./cert/localhost.cert:/certs/server.cert
+      - ./cert/localhost.key:/certs/server.key
       # Load config file
       # - ./servers.json:/pgadmin4/servers.json
       - ./servers-ssl.json:/pgadmin4/servers.json
@@ -107,8 +109,8 @@ services:
       -c ssl_key_file=/var/lib/postgresql/server.key
     volumes:
     #   - ./data/postgres:/var/lib/postgresql/data
-      - $HOME/cert/localhost.cert:/var/lib/postgresql/server.cert
-      - $HOME/cert/localhost.key:/var/lib/postgresql/server.key
+      - ./cert/localhost.cert:/var/lib/postgresql/server.cert
+      - ./cert/localhost.key:/var/lib/postgresql/server.key
 
 # Minio service definition
   minio:
@@ -125,14 +127,12 @@ services:
     command: server /data --console-address ":9090" --certs-dir "/certs"
     volumes:
       # - ./data/minio:/data
-      # Mount CA for MinIO
-      - $HOME/cert/rootCA.crt:/certs/CAs/rootCA.crt
       # Certs for console
-      - $HOME/cert/localhost.cert:/certs/public.crt
-      - $HOME/cert/localhost.key:/certs/private.key
+      - ./cert/localhost.cert:/certs/public.crt
+      - ./cert/localhost.key:/certs/private.key
       # Certs for MinIO client to access
-      - $HOME/cert/minio/public.crt:/certs/minio/public.crt
-      - $HOME/cert/minio/private.key:/certs/minio/private.key
+      - ./cert/minio/public.crt:/certs/minio/public.crt
+      - ./cert/minio/private.key:/certs/minio/private.key
     
 # Create default bucket on Minio startup
   createbucket:

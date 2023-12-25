@@ -16,8 +16,8 @@ services:
       PGADMIN_ENABLE_TLS: true
     volumes:
       # Enabling HTTPS
-      - $HOME/cert/localhost.cert:/certs/server.cert
-      - $HOME/cert/localhost.key:/certs/server.key
+      - ./cert/localhost.cert:/certs/server.cert
+      - ./cert/localhost.key:/certs/server.key
       # Load config file
       # - ./servers.json:/pgadmin4/servers.json
       - ./servers-ssl.json:/pgadmin4/servers.json
@@ -40,8 +40,8 @@ services:
       -c ssl_key_file=/var/lib/postgresql/server.key
     volumes:
     #   - ./data/postgres:/var/lib/postgresql/data
-      - $HOME/cert/localhost.cert:/var/lib/postgresql/server.cert
-      - $HOME/cert/localhost.key:/var/lib/postgresql/server.key
+      - ./cert/localhost.cert:/var/lib/postgresql/server.cert
+      - ./cert/localhost.key:/var/lib/postgresql/server.key
 
 # Minio service definition
   minio:
@@ -56,14 +56,12 @@ services:
     command: server /data --console-address ":9090" --certs-dir "/certs"
     volumes:
       # - ./data/minio:/data
-      # Mount CA for MinIO
-      - $HOME/cert/rootCA.crt:/certs/CAs/rootCA.crt
       # Certs for console
-      - $HOME/cert/localhost.cert:/certs/public.crt
-      - $HOME/cert/localhost.key:/certs/private.key
+      - ./cert/localhost.cert:/certs/public.crt
+      - ./cert/localhost.key:/certs/private.key
       # Certs for MinIO client to access
-      - $HOME/cert/minio/public.crt:/certs/minio/public.crt
-      - $HOME/cert/minio/private.key:/certs/minio/private.key
+      - ./cert/minio/public.crt:/certs/minio/public.crt
+      - ./cert/minio/private.key:/certs/minio/private.key
 
 # Create default bucket on Minio startup
   createbucket:
