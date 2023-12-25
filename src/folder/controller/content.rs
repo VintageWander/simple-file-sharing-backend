@@ -1,22 +1,22 @@
 use std::{collections::VecDeque, io::Write};
+use std::fs::File;
 
 use axum::{
     body::Body,
     extract::State,
     http::header::{CONTENT_DISPOSITION, CONTENT_TYPE},
     response::{AppendHeaders, IntoResponse},
-    routing::get,
     Router,
+    routing::get,
 };
-use std::fs::File;
 use tokio_util::io::ReaderStream;
 use zip::{write::FileOptions, ZipWriter};
 
 use crate::{
     extractors::param::ParamId,
+    GlobalState,
     prisma::folder,
-    user::model::{loggedin::LoggedInUser, select::UserSelect},
-    GlobalState, WebResult,
+    user::model::{loggedin::LoggedInUser, select::UserSelect}, WebResult,
 };
 
 pub fn get_folder_content() -> Router<GlobalState> {
