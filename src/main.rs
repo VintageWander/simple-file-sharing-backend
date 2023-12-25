@@ -6,7 +6,7 @@ use dotenvy::dotenv;
 use tokio::net::TcpListener;
 
 use aws::S3;
-use config::{check_env, port, setup_cors};
+use config::{check_env, hostname, port, setup_cors};
 use error::Error;
 use file::service::FileService;
 use file_version::service::FileVersionService;
@@ -15,6 +15,8 @@ use prisma::PrismaClient;
 use routes::routes;
 use tag::service::TagService;
 use user::service::UserService;
+
+use crate::config::{https, ssl_cert_key};
 
 mod auth;
 mod error;
@@ -69,17 +71,20 @@ async fn main() {
 
     let routes = routes().with_state(state).layer(setup_cors());
 
+    let hostname = hostname();
     let port = port();
 
-    if port == 443 {
-        let tls_config =
-            RustlsConfig::from_pem_file("certs/localhost.pem", "certs/localhost-key.pem")
+    if https() {
+        let tls_config = {
+            let (cert_path, key_path) = ssl_cert_key();
+            RustlsConfig::from_pem_file(cert_path, key_path)
                 .await
-                .expect("Cannot find certifications to enable https");
+                .expect("Cannot find certifications to enable https")
+        };
 
         let addr = SocketAddr::from(([0, 0, 0, 0], port));
 
-        println!("Server started at https://localhost:{port}");
+        println!("Server started at https://{hostname}:{port}");
 
         axum_server::bind_rustls(addr, tls_config)
             .serve(routes.into_make_service())
@@ -88,7 +93,7 @@ async fn main() {
     } else {
         let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
 
-        println!("Server started at http://localhost:{port}");
+        println!("Server started at http://{hostname}:{port}");
 
         axum::serve(listener, routes).await.expect("Server crashed");
     }

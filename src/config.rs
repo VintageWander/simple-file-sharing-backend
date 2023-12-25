@@ -17,6 +17,26 @@ pub fn port() -> u16 {
         .parse()
         .expect("PORT is not a number")
 }
+
+pub fn hostname() -> String {
+    var("HOSTNAME").unwrap_or("localhost".into())
+}
+
+pub fn https() -> bool {
+    var("HTTPS").unwrap_or_default() == "true"
+}
+
+pub fn ssl_cert_key() -> (String, String) {
+    if https() {
+        (
+            var("SSL_CERT").expect("Certificate path wasn't set"),
+            var("SSL_KEY").expect("SSL key path wasn't set"),
+        )
+    } else {
+        ("".into(), "".into())
+    }
+}
+
 pub fn origin() -> String {
     var("ORIGIN").expect("ORIGIN is not set")
 }
