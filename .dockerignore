@@ -3,7 +3,7 @@
 
 # Credentials
 .env
-/cert/*.pem
+/cert
 
 # Generated Prisma types and logic
 /src/prisma.rs
