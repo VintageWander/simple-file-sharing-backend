@@ -61,13 +61,28 @@ This is the backend for my simple file sharing service that I made for my final 
 <br>
 
 # How to deploy locally
+## Adding certificates and keys
+This server now runs https by DEFAULT <br>
+If you want to run this app locally, you can create some self-signed certificates <br>
+The tool [`mkcert`](https://github.com/FiloSottile/mkcert) in this example will be used, you can however create certificates and private keys in any certain way that you want <br>
+This server's certificates will be stored in [`/cert`](./cert/) <br> 
+
+```bash
+cd /cert
+mkcert -key-file localhost.key -cert-file localhost.cert localhost
+cd /minio
+mkcert -key-file private.key -cert-file public.crt minio
+```
+
+## Adjusting variables
 1. Adjust some variables in the [`docker-compose.prod.yml`](./docker-compose.prod.yml) based on your likings 
 
-2. Wait for the `simple-file-sharing` container to finish building
+2. Wait for the `backend` container in the stack `simple-file-sharing` to finish building. Remember to look at the logs
 
 3. After the stack finished building and running successfully. These are the endpoints for checking the storage and database
 - Database: <br>
-  Access [`http://localhost:5555`](http://localhost:5555) to see the database rows
+  Access [`https://localhost:5556`](https://localhost:5556) to see the database tables and rows (opening Prisma Studio) <br>
+  Access [`https://localhost:5050`](https://localhost:5050) to enter `pgAdmin4` webpage, can be used for advanced database monitoring
 
 - By default, the `docker-compose` stack exposes Minio console to manage the files underneath. <br>
-  Access [`http://localhost:9090`](http://localhost:9090) to see the console, login to see the buckets and data
+  Access [`https://localhost:9090`](https://localhost:9090) to see the MinIO console, login to see the buckets and data
