@@ -3,6 +3,7 @@
 
 # Credentials
 .env
+/cert/*.pem
 
 # Generated Prisma types and logic
 /src/prisma.rs
@@ -15,6 +16,7 @@
 
 # IDE
 /.vscode
+/.idea
 
 # Minio and Postgres data
 /data
