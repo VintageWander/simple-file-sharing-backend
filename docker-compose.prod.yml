@@ -32,6 +32,12 @@ services:
 
       # Port is the backend's running port
       PORT:                  8000
+      # Hostname
+      HOSTNAME:              "localhost" # default is localhost
+      # Enable HTTPS
+      HTTPS:                 true
+      SSL_CERT:              /cert/localhost.cert
+      SSL_KEY:               /cert/localhost.key
       # Origin is the frontend's address, to use with CORS
       ORIGIN:                "http://localhost:5000"
 
@@ -57,9 +63,33 @@ services:
     ports:
       - "8000:8000"             # Backend endpoint
       - "5555:5555"             # Prisma studio
+    volumes:
+      - $HOME/cert/localhost.cert:/cert/localhost.cert
+      - $HOME/cert/localhost.key:/cert/localhost.key
     depends_on:
       - postgres
       - minio
+
+# Postgres GUI
+  postgres-gui:
+    container_name: postgres-gui
+    image: dpage/pgadmin4
+    ports:
+      # - "5050:80"
+      - "5050:443"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_ENABLE_TLS: true
+    volumes:
+      # Enabling HTTPS
+      - $HOME/cert/localhost.cert:/certs/server.cert
+      - $HOME/cert/localhost.key:/certs/server.key
+      # Load config file
+      # - ./servers.json:/pgadmin4/servers.json
+      - ./servers-ssl.json:/pgadmin4/servers.json
+    depends_on:
+      - postgres
 
 # Database service definition
   postgres:
@@ -71,22 +101,14 @@ services:
       POSTGRES_DB: local
     ports:
       - "5432:5432"
-    # volumes:
-    #   - ./data/postgres:/var/lib/postgresql/data
-
-# Postgres GUI
-  postgres-gui:
-    container_name: postgres-gui
-    image: dpage/pgadmin4
-    ports:
-      - "5050:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@local.com
-      PGADMIN_DEFAULT_PASSWORD: password
+    command: >
+      -c ssl=on
+      -c ssl_cert_file=/var/lib/postgresql/server.cert
+      -c ssl_key_file=/var/lib/postgresql/server.key
     volumes:
-      - ./servers.json:/pgadmin4/servers.json
-    depends_on:
-      - postgres
+    #   - ./data/postgres:/var/lib/postgresql/data
+      - $HOME/cert/localhost.cert:/var/lib/postgresql/server.cert
+      - $HOME/cert/localhost.key:/var/lib/postgresql/server.key
 
 # Minio service definition
   minio:
@@ -100,7 +122,17 @@ services:
     environment:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: password
-    command: server /data --console-address ":9090"
+    command: server /data --console-address ":9090" --certs-dir "/certs"
+    volumes:
+      # - ./data/minio:/data
+      # Mount CA for MinIO
+      - $HOME/cert/rootCA.crt:/certs/CAs/rootCA.crt
+      # Certs for console
+      - $HOME/cert/localhost.cert:/certs/public.crt
+      - $HOME/cert/localhost.key:/certs/private.key
+      # Certs for MinIO client to access
+      - $HOME/cert/minio/public.crt:/certs/minio/public.crt
+      - $HOME/cert/minio/private.key:/certs/minio/private.key
     
 # Create default bucket on Minio startup
   createbucket:
@@ -110,12 +142,12 @@ services:
       - minio
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set minio http://minio:9000 admin password;
-      /usr/bin/mc mb minio/sfs-storage;
-      /usr/bin/mc anonymous set public minio/sfs-storage;
-      /usr/bin/mc admin user svcacct add  \
-      --access-key local-access-key       \
-      --secret-key local-secret-key       \
-      minio                               \
+      /usr/bin/mc --insecure alias set minio https://minio:9000 admin password;
+      /usr/bin/mc --insecure mb minio/sfs-storage;
+      /usr/bin/mc --insecure anonymous set public minio/sfs-storage;
+      /usr/bin/mc --insecure admin user svcacct add \
+      --access-key local-access-key                 \
+      --secret-key local-secret-key                 \
+      minio                                         \
       admin;
       "

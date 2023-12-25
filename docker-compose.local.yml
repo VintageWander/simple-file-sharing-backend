@@ -50,12 +50,20 @@ services:
     ports:
       - "9000:9000"
       - "9090:9090"
-    # volumes:
-    #   - ./data/minio:/data
     environment:
       MINIO_ROOT_USER: minio-admin
       MINIO_ROOT_PASSWORD: minio-password
-    command: server /data --console-address ":9090"
+    command: server /data --console-address ":9090" --certs-dir "/certs"
+    volumes:
+      # - ./data/minio:/data
+      # Mount CA for MinIO
+      - $HOME/cert/rootCA.crt:/certs/CAs/rootCA.crt
+      # Certs for console
+      - $HOME/cert/localhost.cert:/certs/public.crt
+      - $HOME/cert/localhost.key:/certs/private.key
+      # Certs for MinIO client to access
+      - $HOME/cert/minio/public.crt:/certs/minio/public.crt
+      - $HOME/cert/minio/private.key:/certs/minio/private.key
 
 # Create default bucket on Minio startup
   createbucket:
@@ -65,12 +73,12 @@ services:
       - minio
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set minio http://minio:9000 minio-admin minio-password;
-      /usr/bin/mc mb minio/sfs-storage;
-      /usr/bin/mc anonymous set public minio/sfs-storage;
-      /usr/bin/mc admin user svcacct add \
-      --access-key local-access-key      \
-      --secret-key local-secret-key      \
-      minio                              \
+      /usr/bin/mc --insecure alias set minio https://minio:9000 minio-admin minio-password;
+      /usr/bin/mc --insecure mb minio/sfs-storage;
+      /usr/bin/mc --insecure anonymous set public minio/sfs-storage;
+      /usr/bin/mc --insecure admin user svcacct add \
+      --access-key local-access-key                 \
+      --secret-key local-secret-key                 \
+      minio                                         \
       minio-admin;
       "
