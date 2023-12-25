@@ -7,7 +7,7 @@
       "Port": 5432,
       "Username": "local",
       "MaintenanceDB": "local",
-      "SSLMode": "prefer"
+      "SSLMode": "require"
     }
   }
 }

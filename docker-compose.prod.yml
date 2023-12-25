@@ -119,6 +119,3 @@ services:
       minio                               \
       admin;
       "
-    
-
-
