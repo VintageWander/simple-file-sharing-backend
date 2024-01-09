@@ -68,9 +68,9 @@ The tool [`mkcert`](https://github.com/FiloSottile/mkcert) in this example will 
 This server's certificates will be stored in [`/cert`](./cert/) <br> 
 
 ```bash
-cd /cert
+cd cert
 mkcert -key-file localhost.key -cert-file localhost.cert localhost
-cd /minio
+mkdir minio && cd minio
 mkcert -key-file private.key -cert-file public.crt minio
 ```
 
