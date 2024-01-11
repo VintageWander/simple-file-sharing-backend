@@ -10,19 +10,8 @@ services:
     build: .
     command: >
       sh -c
-      "apt-get update;
-       apt-get upgrade -y;
-       apt-get install -y ca-certificates curl gnupg;
-       mkdir -p /etc/apt/keyrings;
-       curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg;
-       echo \"deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_21.x nodistro main\" | \
-       tee /etc/apt/sources.list.d/nodesource.list;
-       apt-get update;
-       apt-get install -y nodejs;
-       cargo prisma generate;
-       cargo prisma migrate dev --name production;
+      "cargo prisma migrate dev --name production;
        cargo prisma migrate deploy;
-       npm install -g local-ssl-proxy;
        npx -y prisma studio & \
        cargo run --release & \
        local-ssl-proxy --key /cert/localhost.key --cert /cert/localhost.cert --target 5555 --source 5556"
