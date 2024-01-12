@@ -8,9 +8,6 @@
 # Generated Prisma types and logic
 /src/prisma.rs
 
-# Prisma migrations
-/prisma/migrations
-
 # OS format config files
 **/.DS_Store
 
