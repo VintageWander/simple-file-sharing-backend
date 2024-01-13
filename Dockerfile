@@ -1,5 +1,5 @@
 # Use a base image with the latest version of Rust installed
-FROM rust:latest
+FROM rust:latest as builder
 
 # Set the working directory in the container
 WORKDIR /app
@@ -7,19 +7,20 @@ WORKDIR /app
 # Copy the local application code into the container
 COPY . .
 
-# Expose port 8000 to the outside world
-EXPOSE 8000
-
-# Install and build dependencies
-RUN apt-get update; \
-    apt-get upgrade -y; \
-    apt-get install -y ca-certificates curl gnupg; \
-    mkdir -p /etc/apt/keyrings; \
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg; \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_21.x nodistro main" | \
-    tee /etc/apt/sources.list.d/nodesource.list; \
-    apt-get update; \
-    apt-get install -y nodejs; \
-    npm install -g local-ssl-proxy; \
-    cargo prisma generate; \ 
+# Build the project and binaries
+RUN cargo build --release -p prisma-cli; \
+    target/release/prisma-cli generate; \
     cargo build --release;
+
+FROM debian:stable-slim
+
+# Transfer binaries to a new layer
+COPY --from=builder /app/cert/                                       /cert/
+COPY --from=builder /app/prisma/                                     /prisma/
+COPY --from=builder /app/target/release/simple-file-sharing-backend  /usr/local/bin/simple-file-sharing-backend
+COPY --from=builder /app/target/release/prisma-cli                   /usr/local/bin/prisma-cli
+
+RUN apt update
+RUN apt install -y libssl-dev ca-certificates
+
+RUN prisma-cli

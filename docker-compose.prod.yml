@@ -9,15 +9,14 @@ services:
     container_name: backend
     build: .
     command: >
-      sh -c
-      "cargo prisma migrate dev --name production;
-       cargo prisma migrate deploy;
-       npx -y prisma studio & \
-       cargo run --release & \
-       local-ssl-proxy --key /cert/localhost.key --cert /cert/localhost.cert --target 5555 --source 5556"
+      sh -c "
+        sleep 1;
+        prisma-cli migrate deploy;
+        simple-file-sharing-backend; 
+      "
     environment:
       # Database
-      DATABASE_URL:          "postgres://local:password@postgres:5432/local"
+      DATABASE_URL:          "postgres://local:password@postgres:5432/local?sslmode=require&sslcert=../cert/localhost.cert&sslidentity=../cert/localhost.p12&sslpassword=localhost"
 
       # Backend environment variables
 
@@ -27,8 +26,8 @@ services:
       HOSTNAME:              "localhost" # default is localhost
       # Enable HTTPS
       HTTPS:                 true
-      SSL_CERT:              /cert/localhost.cert
-      SSL_KEY:               /cert/localhost.key
+      SSL_CERT:              cert/localhost.cert
+      SSL_KEY:               cert/localhost.key
       # Origin is the frontend's address, to use with CORS
       ORIGIN:                "http://localhost:5000"
 
@@ -50,13 +49,9 @@ services:
       # Minio enable
       MINIO:                 true
       # Minio endpoint
-      ENDPOINT:              "http://minio:9000"
+      ENDPOINT:              "https://minio:9000"
     ports:
-      - "8000:8000"             # Backend endpoint
-      - "5556:5556"             # Prisma studio
-    volumes:
-      - ./cert/localhost.cert:/cert/localhost.cert
-      - ./cert/localhost.key:/cert/localhost.key
+      - "8000:8000"          # Backend endpoint
     depends_on:
       - postgres
       - minio
