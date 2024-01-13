@@ -6,7 +6,7 @@ use dotenvy::dotenv;
 use tokio::net::TcpListener;
 
 use aws::S3;
-use config::{check_env, hostname, port, setup_cors};
+use config::{check_env, hostname, https, port, setup_cors, ssl_cert_key};
 use error::Error;
 use file::service::FileService;
 use file_version::service::FileVersionService;
@@ -16,17 +16,14 @@ use routes::routes;
 use tag::service::TagService;
 use user::service::UserService;
 
-use crate::config::{https, ssl_cert_key};
-
 mod auth;
-mod error;
-mod extractors;
-mod folder;
-
 mod aws;
 mod config;
+mod error;
+mod extractors;
 mod file;
 mod file_version;
+mod folder;
 mod impls;
 #[allow(warnings)]
 mod prisma;
