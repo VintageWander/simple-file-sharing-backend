@@ -3,13 +3,21 @@
 
 # Credentials
 .env
-/cert
 
 # Generated Prisma types and logic
 /src/prisma.rs
 
 # OS format config files
 **/.DS_Store
+
+# Docker
+Dockerfile
+docker-compose.local.yml
+docker-compose.prod.yml
+
+# Git
+/.git
+.gitignore
 
 # IDE
 /.vscode
