@@ -16,11 +16,11 @@ codegen-units = 1
 
 [dependencies]
 # Async runtime
-tokio = { version = "1.35.1", features = ["macros", "rt-multi-thread", "net"] }
+tokio = { version = "1.35.1", features = ["rt-multi-thread", "macros", "net"] }
 tokio-util = { version = "0.7.10", features = ["io"] }
 
 # Backend
-axum = { version = "0.7.2", features = ["json", "query", "multipart"] }
+axum = { version = "0.7.2" }
 axum_typed_multipart = "0.11.0"
 axum-extra = { version = "0.9.0", features = ["cookie"] }
 axum-server = { version = "0.6.0", features = ["tls-rustls"] }
@@ -39,7 +39,9 @@ uuid = { version = "1.6.1", features = ["serde"] }
 jsonwebtoken = "9.2.0"
 
 # Database
-prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", tag = "0.6.11" }
+prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", tag = "0.6.11", default-features = false, features = [
+    "postgresql",
+] }
 
 # Storage
 aws-sdk-s3 = { version = "1.8.0", features = ["rt-tokio"] }
@@ -56,7 +58,7 @@ http-serde = "2.0.0"
 thiserror = "1.0.51"
 anyhow = "1.0.75"
 
-# Validtion 
+# Validation 
 validator = { version = "0.16.1", features = ["derive"] }
 fancy-regex = "0.13.0"
 is_empty = "0.2.0"
