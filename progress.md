@@ -50,7 +50,7 @@
 
 # Files
 
-## Service ( Not yet implemented )
+## Service
 ( List of files here does not list ALL files as once, but rather list files within a directory that you're currently standing )
 - [x] See list of public files
 - [x] See list of personal files
@@ -73,5 +73,3 @@
 - [x] Access to file temporary
 - [x] Manage file's collaborators
 - [x] Manage files' tags
-
-
