@@ -70,8 +70,20 @@ This server's certificates will be stored in [`/cert`](./cert/) <br>
 ```bash
 cd cert
 mkcert -key-file localhost.key -cert-file localhost.cert localhost
+openssl pkcs12 -export -in localhost.cert -inkey localhost.key -out localhost.p12 -name localhost
 mkdir minio && cd minio
 mkcert -key-file private.key -cert-file public.crt minio
+```
+
+Make sure that your [`/cert`](./cert/) folder looks like this: <br>
+```bash
+cert
+├── localhost.cert   # Cert
+├── localhost.key    # Key
+├── localhost.p12    # P12 Key
+└── minio
+    ├── private.key  # Key
+    └── public.crt   # Cert
 ```
 
 ## Adjusting variables
