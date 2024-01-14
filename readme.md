@@ -69,13 +69,15 @@ This server's certificates will be stored in [`/cert`](./cert/) <br>
 
 ```bash
 cd cert
-mkcert -key-file localhost.key -cert-file localhost.cert localhost
+mkcert -cert-file localhost.cert -key-file localhost.key localhost
 openssl pkcs12 -export -in localhost.cert -inkey localhost.key -out localhost.p12 -name localhost
+# Type in your desired lock password
 cd minio
-mkcert -key-file private.key -cert-file public.crt minio
+mkcert -cert-file public.crt -key-file private.key minio
 ```
-Finally, add your CA certificate in the folder <br>
+Finally, copy your CA certificate in the folder <br>
 Your [`/cert`](./cert/) folder should look like this: <br>
+
 ```bash
 cert
 ├── localhost.cert
