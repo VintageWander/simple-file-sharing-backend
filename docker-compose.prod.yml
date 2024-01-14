@@ -12,11 +12,13 @@ services:
       sh -c "
         sleep 1;
         prisma-cli migrate deploy;
-        simple-file-sharing-backend; 
+        simple-file-sharing-backend & \
+        local-ssl-proxy --cert cert/localhost.cert --key cert/localhost.key --target 5555 --source 5556 & \
+        until npx prisma studio; do :; done;
       "
     environment:
       # Database
-      DATABASE_URL:          "postgres://local:password@postgres:5432/local?sslmode=require&sslcert=../cert/localhost.cert&sslidentity=../cert/localhost.p12&sslpassword=localhost"
+      DATABASE_URL:          "postgres://local:password@postgres:5432/local?sslmode=require&sslcert=../cert/rootCA.pem&sslidentity=../cert/localhost.p12&sslpassword=localhost"
 
       # Backend environment variables
 
@@ -52,6 +54,7 @@ services:
       ENDPOINT:              "https://minio:9000"
     ports:
       - "8000:8000"          # Backend endpoint
+      - "5556:5556"          # Prisma studio
     depends_on:
       - postgres
       - minio

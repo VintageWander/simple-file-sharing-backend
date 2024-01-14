@@ -71,19 +71,20 @@ This server's certificates will be stored in [`/cert`](./cert/) <br>
 cd cert
 mkcert -key-file localhost.key -cert-file localhost.cert localhost
 openssl pkcs12 -export -in localhost.cert -inkey localhost.key -out localhost.p12 -name localhost
-mkdir minio && cd minio
+cd minio
 mkcert -key-file private.key -cert-file public.crt minio
 ```
-
-Make sure that your [`/cert`](./cert/) folder looks like this: <br>
+Finally, add your CA certificate in the folder <br>
+Your [`/cert`](./cert/) folder should look like this: <br>
 ```bash
 cert
-├── localhost.cert   # Cert
-├── localhost.key    # Key
-├── localhost.p12    # P12 Key
-└── minio
-    ├── private.key  # Key
-    └── public.crt   # Cert
+├── localhost.cert
+├── localhost.key
+├── localhost.p12
+├── minio
+│   ├── private.key
+│   └── public.crt
+└── rootCA.pem
 ```
 
 ## Adjusting variables
@@ -98,3 +99,12 @@ cert
 
 - By default, the `docker-compose` stack exposes Minio console to manage the files underneath. <br>
   Access [`https://localhost:9090`](https://localhost:9090) to see the MinIO console, login to see the buckets and data
+
+## Troubleshooting
+### 1. If you enter Prisma Studio the first time and it shows up an error: <br>
+- Refresh the webpage
+
+The reason for this error is that the first time you enter Prisma Studio it causes a segmentation fault, that's why I've wrote a script that restarts Prisma Studio if it ever does so. Have a look in the [`docker-compose.prod.yml`](./docker-compose.prod.yml) file, specifically `until npx prisma studio; do :; done;`
+
+### 2. Build time is long and the process is slow
+- I purposely set the build parameters to optimize binary speed and size, sacrificing compile time. I will put up a pre-built image on Docker Hub soon.
