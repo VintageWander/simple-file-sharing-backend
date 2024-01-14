@@ -9,6 +9,7 @@ COPY . .
 
 RUN curl -fsSL https://deb.nodesource.com/setup_21.x | bash - && \
     apt install -y nodejs; \
+    npm install -g npm; \
     npm install -g prisma; \
     npm install -g local-ssl-proxy;
 
