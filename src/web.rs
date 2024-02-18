@@ -4,7 +4,7 @@ use axum::{
     Json,
 };
 use http_serde::status_code;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use serde_json::{json, Value};
 
 #[derive(Serialize)]
@@ -18,10 +18,10 @@ pub struct Web {
 
 #[allow(clippy::new_ret_no_self)]
 impl Web {
-    pub fn new<'a>(
+    pub fn new(
         code: StatusCode,
         message: impl ToString,
-        data: impl Serialize + Deserialize<'a>,
+        data: impl Serialize,
         error: impl ToString,
     ) -> Response {
         (
@@ -36,18 +36,15 @@ impl Web {
             .into_response()
     }
 
-    pub fn ok<'a>(message: impl ToString, data: impl Serialize + Deserialize<'a>) -> Response {
+    pub fn ok(message: impl ToString, data: impl Serialize) -> Response {
         Web::new(StatusCode::OK, message, data, "")
     }
 
-    pub fn created<'a>(message: impl ToString, data: impl Serialize + Deserialize<'a>) -> Response {
+    pub fn created(message: impl ToString, data: impl Serialize) -> Response {
         Web::new(StatusCode::CREATED, message, data, "")
     }
 
-    pub fn no_content<'a>(
-        message: impl ToString,
-        data: impl Serialize + Deserialize<'a>,
-    ) -> Response {
+    pub fn no_content(message: impl ToString, data: impl Serialize) -> Response {
         Web::new(StatusCode::NO_CONTENT, message, data, "")
     }
 
