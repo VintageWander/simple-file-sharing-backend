@@ -43,7 +43,7 @@ pub struct GlobalState {
 	pub storage: S3,
 }
 
-type WebResult = std::result::Result<Response, Error>;
+type WebResult = Result<Response, Error>;
 
 #[tokio::main]
 async fn main() {

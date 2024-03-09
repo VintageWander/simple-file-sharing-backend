@@ -2,16 +2,16 @@ use axum::{async_trait, body::Body, extract::FromRequest, http::Request, Json};
 use serde::Deserialize;
 use validator::Validate;
 
-use crate::{error::Error, prisma::Visibility, validation::uuid::check_uuid, GlobalState};
+use crate::{error::Error, prisma::Visibility, validation::uuid::check_uuid_option, GlobalState};
 
 use super::validation::check_folder_name;
 
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateFolderRequest {
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub parent: Option<String>,
-	#[validate(custom = "check_folder_name")]
+	#[validate(custom(function = "check_folder_name"))]
 	pub folder_name: String,
 	pub visibility: Option<Visibility>,
 }

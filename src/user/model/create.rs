@@ -9,16 +9,16 @@ use super::validation::{check_password, check_username};
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateUserRequest {
-	#[validate(custom = "check_username")]
+	#[validate(custom(function = "check_username"))]
 	pub username: String,
 
 	#[validate(email(message = "Invalid email form"))]
 	pub email: String,
 
-	#[validate(custom = "check_password")]
+	#[validate(custom(function = "check_password"))]
 	pub password: String,
 
-	#[validate(custom = "check_password")]
+	#[validate(custom(function = "check_password"))]
 	pub confirm_password: String,
 }
 

@@ -59,6 +59,6 @@ thiserror = "1.0.51"
 anyhow = "1.0.75"
 
 # Validation 
-validator = { version = "0.16.1", features = ["derive"] }
+validator = { version = "0.17.0", features = ["derive"] }
 fancy-regex = "0.13.0"
 is_empty = "0.2.0"

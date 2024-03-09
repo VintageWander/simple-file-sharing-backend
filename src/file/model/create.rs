@@ -3,11 +3,11 @@ use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use bytes::Bytes;
 use validator::Validate;
 
-use crate::{error::Error, prisma::Visibility, validation::uuid::check_uuid, GlobalState};
+use crate::{error::Error, prisma::Visibility, validation::uuid::check_uuid_option, GlobalState};
 
 #[derive(TryFromMultipart, Validate)]
 pub struct CreateFileRequest {
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub parent: Option<String>,
 
 	pub visibility: Option<Visibility>,

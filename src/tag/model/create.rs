@@ -9,7 +9,7 @@ use super::validation::check_tag_name;
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateTagRequest {
-	#[validate(custom = "check_tag_name")]
+	#[validate(custom(function = "check_tag_name"))]
 	pub tag_name: String,
 }
 

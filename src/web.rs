@@ -7,7 +7,7 @@ use http_serde::status_code;
 use serde::Serialize;
 use serde_json::{json, Value};
 
-#[derive(Serialize)]
+#[derive(Serialize)] 
 pub struct Web {
 	#[serde(with = "status_code")]
 	pub code: StatusCode,

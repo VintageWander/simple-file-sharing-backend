@@ -8,23 +8,23 @@ use is_empty::IsEmpty;
 use serde::Deserialize;
 use validator::Validate;
 
-use crate::{error::Error, prisma::Visibility, validation::uuid::check_uuid, GlobalState};
+use crate::{error::Error, prisma::Visibility, validation::uuid::check_uuid_option, GlobalState};
 
-use super::validation::check_folder_name;
+use super::validation::check_folder_name_option;
 
 #[derive(Deserialize, Validate, IsEmpty)]
 #[serde(rename_all = "camelCase")]
 pub struct FolderQuery {
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub id: Option<String>,
 
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub owner_id: Option<String>,
 
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub parent_folder_id: Option<String>,
 
-	#[validate(custom = "check_folder_name")]
+	#[validate(custom(function = "check_folder_name_option"))]
 	pub folder_name: Option<String>,
 
 	pub visibility: Option<Visibility>,

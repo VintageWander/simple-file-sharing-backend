@@ -5,25 +5,25 @@ use validator::Validate;
 
 use crate::{error::Error, validation::validation_message, GlobalState};
 
-use super::validation::{check_password, check_username};
+use super::validation::{check_password, check_password_option, check_username_option};
 
 #[derive(Deserialize, Validate, IsEmpty)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateUserRequest {
-	#[validate(custom = "check_username")]
+	#[validate(custom(function = "check_username_option"))]
 	pub username: Option<String>,
 
 	#[validate(email(message = "Invalid email form"))]
 	pub email: Option<String>,
 
-	#[validate(custom = "check_password")]
+	#[validate(custom(function = "check_password"))]
 	#[is_empty(if = "String::is_empty")]
 	pub password: String,
 
-	#[validate(custom = "check_password")]
+	#[validate(custom(function = "check_password_option"))]
 	pub new_password: Option<String>,
 
-	#[validate(custom = "check_password")]
+	#[validate(custom(function = "check_password_option"))]
 	pub confirm_new_password: Option<String>,
 }
 

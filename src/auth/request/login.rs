@@ -11,9 +11,9 @@ use crate::{
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct LoginRequest {
-	#[validate(custom = "check_username")]
+	#[validate(custom(function = "check_username"))]
 	pub username: String,
-	#[validate(custom = "check_password")]
+	#[validate(custom(function = "check_password"))]
 	pub password: String,
 }
 

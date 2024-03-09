@@ -6,23 +6,23 @@ use axum::{
 use serde::Deserialize;
 use validator::Validate;
 
-use crate::{error::Error, validation::uuid::check_uuid, GlobalState};
+use crate::{error::Error, validation::uuid::check_uuid_option, GlobalState};
 
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct TagQuery {
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub id: Option<String>,
 
 	pub tag_name: Option<String>,
 
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub owner_id: Option<String>,
 
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub file_id: Option<String>,
 
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub folder_id: Option<String>,
 }
 

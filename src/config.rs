@@ -7,7 +7,7 @@ use axum::http::{
 };
 use dotenvy::var;
 use tower_http::cors::CorsLayer;
-use validator::{validate_url, ValidationError};
+use validator::{ValidateUrl, ValidationError};
 
 use crate::validation::check_with;
 
@@ -82,7 +82,7 @@ pub fn endpoint() -> String {
 }
 
 pub fn check_env() {
-	if !validate_url(origin()) {
+	if !origin().validate_url() {
 		panic!("Invalid origin");
 	}
 	if check_aws_region(&aws_region()).is_err() {

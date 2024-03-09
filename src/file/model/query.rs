@@ -11,25 +11,25 @@ use validator::Validate;
 use crate::{
 	error::Error,
 	prisma::{Extension, Visibility},
-	validation::uuid::check_uuid,
+	validation::uuid::check_uuid_option,
 	GlobalState,
 };
 
-use super::validation::check_filename;
+use super::validation::check_filename_option;
 
 #[derive(Deserialize, Validate, IsEmpty)]
 #[serde(rename_all = "camelCase")]
 pub struct FileQuery {
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub id: Option<String>,
 
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub owner_id: Option<String>, // ignored
 
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid_option"))]
 	pub parent_folder_id: Option<String>, // ignored
 
-	#[validate(custom = "check_filename")]
+	#[validate(custom(function = "check_filename_option"))]
 	pub filename: Option<String>,
 
 	pub extension: Option<Extension>,

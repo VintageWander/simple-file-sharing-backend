@@ -8,13 +8,13 @@ use crate::{error::Error, validation::uuid::check_uuid_set, GlobalState};
 
 #[derive(Deserialize, Validate)]
 pub struct SetTagRequest {
-	#[validate(custom = "check_uuid_set")]
+	#[validate(custom(function = "check_uuid_set"))]
 	pub tag_names: HashSet<String>,
 
-	#[validate(custom = "check_uuid_set")]
+	#[validate(custom(function = "check_uuid_set"))]
 	pub file_ids: HashSet<String>,
 
-	#[validate(custom = "check_uuid_set")]
+	#[validate(custom(function = "check_uuid_set"))]
 	pub folder_ids: HashSet<String>,
 }
 

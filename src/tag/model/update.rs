@@ -5,12 +5,12 @@ use validator::Validate;
 
 use crate::{error::Error, GlobalState};
 
-use super::validation::check_tag_name;
+use super::validation::check_tag_name_option;
 
 #[derive(Deserialize, IsEmpty, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateTagRequest {
-	#[validate(custom = "check_tag_name")]
+	#[validate(custom(function = "check_tag_name_option"))]
 	pub tag_name: Option<String>,
 }
 

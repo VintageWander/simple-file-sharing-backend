@@ -9,10 +9,10 @@ use super::validation::check_password;
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct DeleteUserRequest {
-	#[validate(custom = "check_password")]
+	#[validate(custom(function = "check_password"))]
 	pub password: String,
 
-	#[validate(custom = "check_password")]
+	#[validate(custom(function = "check_password"))]
 	pub confirm_password: String,
 }
 

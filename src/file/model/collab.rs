@@ -13,10 +13,10 @@ use crate::{
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct SetFileCollabRequest {
-	#[validate(custom = "check_uuid")]
+	#[validate(custom(function = "check_uuid"))]
 	pub file_id: String,
 
-	#[validate(custom = "check_uuid_set")]
+	#[validate(custom(function = "check_uuid_set"))]
 	pub user_ids: HashSet<String>,
 }
 

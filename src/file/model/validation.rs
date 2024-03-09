@@ -2,18 +2,22 @@ use validator::ValidationError;
 
 use crate::validation::check_with;
 
-pub fn check_filename(filename: &str) -> Result<(), ValidationError> {
+pub fn check_filename_option(filename: &Option<String>) -> Result<(), ValidationError> {
 	/*
 		hello
 		This regex matches hello,
 		Rejects hello.txt and .txt
 		This can also match hello_world or hello-world
 	*/
-	check_with(
-		filename,
-		r#"^[a-zA-Z0-9-_]{3,50}$"#,
-		"The name can only contain a-z A-Z 0-9 and within 3 to 50 characters in length",
-	)
+	if let Some(filename) = filename {
+		check_with(
+			filename,
+			r#"^[a-zA-Z0-9-_]{3,50}$"#,
+			"The name can only contain a-z A-Z 0-9 and within 3 to 50 characters in length",
+		)
+	} else {
+		Ok(())
+	}
 }
 
 pub fn check_dir(position: &str) -> Result<(), ValidationError> {
