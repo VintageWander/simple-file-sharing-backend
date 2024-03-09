@@ -1,11 +1,11 @@
 use crate::prisma::file_version;
 
 file_version::select!(file_version_select {
-    file: select {
-        id
-        extension
-    }
-    version_number
+	file: select {
+		id
+		extension
+	}
+	version_number
 });
 
 // pub type FileVersion = file_version::Data;

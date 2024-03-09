@@ -3,16 +3,16 @@ pub mod print;
 pub mod query;
 
 use aws_sdk_s3::{
-    error::{BuildError, SdkError},
-    operation::{
-        copy_object::CopyObjectError, delete_object::DeleteObjectError,
-        delete_objects::DeleteObjectsError, get_object::GetObjectError,
-        list_objects_v2::ListObjectsV2Error, put_object::PutObjectError,
-    },
+	error::{BuildError, SdkError},
+	operation::{
+		copy_object::CopyObjectError, delete_object::DeleteObjectError,
+		delete_objects::DeleteObjectsError, get_object::GetObjectError,
+		list_objects_v2::ListObjectsV2Error, put_object::PutObjectError,
+	},
 };
 use axum::{
-    extract::rejection::{JsonRejection, PathRejection, QueryRejection},
-    response::IntoResponse,
+	extract::rejection::{JsonRejection, PathRejection, QueryRejection},
+	response::IntoResponse,
 };
 use axum_typed_multipart::TypedMultipartError;
 use prisma_client_rust::QueryError;
@@ -23,108 +23,108 @@ use validator::{ValidationError, ValidationErrors};
 use crate::web::Web;
 
 use self::{
-    multipart::match_multipart_error, print::extract_validation_error, query::match_query_error,
+	multipart::match_multipart_error, print::extract_validation_error, query::match_query_error,
 };
 
 #[derive(Debug, Error)]
 pub enum Error {
-    /*
-        Database errors
-    */
-    #[error("Query error")]
-    DatabaseQuery(#[from] QueryError),
+	/*
+		Database errors
+	*/
+	#[error("Query error")]
+	DatabaseQuery(#[from] QueryError),
 
-    /*
-        Request parsing errors
-    */
-    #[error("Path parsing error")]
-    Path(#[from] PathRejection),
+	/*
+		Request parsing errors
+	*/
+	#[error("Path parsing error")]
+	Path(#[from] PathRejection),
 
-    #[error("Json parse error")]
-    Json(#[from] JsonRejection),
+	#[error("Json parse error")]
+	Json(#[from] JsonRejection),
 
-    #[error("Query string parse error")]
-    Query(#[from] QueryRejection),
+	#[error("Query string parse error")]
+	Query(#[from] QueryRejection),
 
-    #[error("Multipart error")]
-    Multipart(#[from] TypedMultipartError),
+	#[error("Multipart error")]
+	Multipart(#[from] TypedMultipartError),
 
-    /*
-        Validation errors
-    */
-    #[error("Single invalid field")]
-    SingleInvalidField(#[from] ValidationError),
+	/*
+		Validation errors
+	*/
+	#[error("Single invalid field")]
+	SingleInvalidField(#[from] ValidationError),
 
-    #[error("Multiple invalid fields")]
-    MultipleInvalidFields(#[from] ValidationErrors),
+	#[error("Multiple invalid fields")]
+	MultipleInvalidFields(#[from] ValidationErrors),
 
-    /*
-        Authentication errors
-    */
-    #[error("JWT error")]
-    Jwt(#[from] jsonwebtoken::errors::Error),
+	/*
+		Authentication errors
+	*/
+	#[error("JWT error")]
+	Jwt(#[from] jsonwebtoken::errors::Error),
 
-    #[error("Password hashing error")]
-    PasswordHashing(#[from] argon2::password_hash::Error),
+	#[error("Password hashing error")]
+	PasswordHashing(#[from] argon2::password_hash::Error),
 
-    #[error("Missing refresh token")]
-    MissingRefreshToken,
+	#[error("Missing refresh token")]
+	MissingRefreshToken,
 
-    #[error("Unauthorized")]
-    Unauthorized,
+	#[error("Unauthorized")]
+	Unauthorized,
 
-    #[error("Forbidden")]
-    Forbidden,
+	#[error("Forbidden")]
+	Forbidden,
 
-    #[error("Decode token failed")]
-    Decode,
+	#[error("Decode token failed")]
+	Decode,
 
-    /*
-        AWS errors
-    */
-    #[error("Upload file error")]
-    PutObject(#[from] SdkError<PutObjectError>),
+	/*
+		AWS errors
+	*/
+	#[error("Upload file error")]
+	PutObject(#[from] SdkError<PutObjectError>),
 
-    #[error("Get single file error")]
-    GetObject(#[from] SdkError<GetObjectError>),
+	#[error("Get single file error")]
+	GetObject(#[from] SdkError<GetObjectError>),
 
-    #[error("List all files error")]
-    ListObject(#[from] SdkError<ListObjectsV2Error>),
+	#[error("List all files error")]
+	ListObject(#[from] SdkError<ListObjectsV2Error>),
 
-    #[error("Copy file error")]
-    CopyObject(#[from] SdkError<CopyObjectError>),
+	#[error("Copy file error")]
+	CopyObject(#[from] SdkError<CopyObjectError>),
 
-    #[error("Delete file error")]
-    DeleteObject(#[from] SdkError<DeleteObjectError>),
+	#[error("Delete file error")]
+	DeleteObject(#[from] SdkError<DeleteObjectError>),
 
-    #[error("Delete files error")]
-    DeleteObjects(#[from] SdkError<DeleteObjectsError>),
+	#[error("Delete files error")]
+	DeleteObjects(#[from] SdkError<DeleteObjectsError>),
 
-    #[error("Build ObjectIdentifier error")]
-    BuildObjectIdentifier(#[from] BuildError),
+	#[error("Build ObjectIdentifier error")]
+	BuildObjectIdentifier(#[from] BuildError),
 
-    /*
-        General errors
-    */
-    #[error("Not Found")]
-    NotFound,
+	/*
+		General errors
+	*/
+	#[error("Not Found")]
+	NotFound,
 
-    #[error("No content for response")]
-    NoContent,
+	#[error("No content for response")]
+	NoContent,
 
-    /*
-        Download error
-    */
-    #[error("Download error")]
-    Download(#[from] std::io::Error),
+	/*
+		Download error
+	*/
+	#[error("Download error")]
+	Download(#[from] std::io::Error),
 
-    #[error("Zip error")]
-    Zip(#[from] zip::result::ZipError),
+	#[error("Zip error")]
+	Zip(#[from] zip::result::ZipError),
 }
 
 impl IntoResponse for Error {
-    fn into_response(self) -> axum::response::Response {
-        match self {
+	fn into_response(self) -> axum::response::Response {
+		match self {
             /*
                 Database errors
             */
@@ -230,5 +230,5 @@ impl IntoResponse for Error {
             Error::Download(e) => Web::internal_error("The download process failed", e),
             Error::Zip(e) => Web::internal_error("The zip process failed", e)
         }
-    }
+	}
 }

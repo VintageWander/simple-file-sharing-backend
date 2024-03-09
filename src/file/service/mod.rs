@@ -9,11 +9,11 @@ pub mod update;
 
 #[derive(Clone)]
 pub struct FileService {
-    pub db: Arc<PrismaClient>,
+	pub db: Arc<PrismaClient>,
 }
 
 impl FileService {
-    pub fn init(db: &Arc<PrismaClient>) -> Self {
-        Self { db: db.clone() }
-    }
+	pub fn init(db: &Arc<PrismaClient>) -> Self {
+		Self { db: db.clone() }
+	}
 }

@@ -6,12 +6,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Claims {
-    sub: String,
-    name: String,
-    exp: usize,
+	sub: String,
+	name: String,
+	exp: usize,
 }
 
 pub enum TokenType {
-    Access,
-    Refresh,
+	Access,
+	Refresh,
 }

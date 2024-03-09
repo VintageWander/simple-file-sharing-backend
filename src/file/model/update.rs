@@ -8,27 +8,27 @@ use crate::{error::Error, prisma::Visibility, validation::uuid::check_uuid, Glob
 
 #[derive(TryFromMultipart, Validate, IsEmpty)]
 pub struct UpdateFileRequest {
-    #[validate(custom = "check_uuid")]
-    pub parent: Option<String>,
+	#[validate(custom = "check_uuid")]
+	pub parent: Option<String>,
 
-    pub visibility: Option<Visibility>,
+	pub visibility: Option<Visibility>,
 
-    pub file: Option<FieldData<Bytes>>,
+	pub file: Option<FieldData<Bytes>>,
 }
 
 #[async_trait]
 impl FromRequest<GlobalState, Body> for UpdateFileRequest {
-    type Rejection = Error;
-    async fn from_request(
-        req: Request<Body>,
-        state: &GlobalState,
-    ) -> Result<Self, Self::Rejection> {
-        let TypedMultipart(body) =
-            TypedMultipart::<UpdateFileRequest>::from_request(req, state).await?;
-        if body.is_empty() {
-            return Err(Error::NoContent);
-        }
-        body.validate()?;
-        Ok(body)
-    }
+	type Rejection = Error;
+	async fn from_request(
+		req: Request<Body>,
+		state: &GlobalState,
+	) -> Result<Self, Self::Rejection> {
+		let TypedMultipart(body) =
+			TypedMultipart::<UpdateFileRequest>::from_request(req, state).await?;
+		if body.is_empty() {
+			return Err(Error::NoContent);
+		}
+		body.validate()?;
+		Ok(body)
+	}
 }

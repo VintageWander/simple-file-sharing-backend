@@ -11,18 +11,18 @@ pub mod set;
 pub mod update;
 
 pub fn tag_route() -> Router<GlobalState> {
-    Router::new().nest(
-        "/tag",
-        Router::new()
-            // GET /tag
-            .merge(get_tags())
-            // POST /tag/create
-            .merge(create_tag())
-            // POST /tag/update/:tag_id
-            .merge(update_tag())
-            // DELETE /tag/delete/:tag_id
-            .merge(delete_tag())
-            // PUT /tag/set
-            .merge(set()),
-    )
+	Router::new().nest(
+		"/tag",
+		Router::new()
+			// GET /tag
+			.merge(get_tags())
+			// POST /tag/create
+			.merge(create_tag())
+			// POST /tag/update/:tag_id
+			.merge(update_tag())
+			// DELETE /tag/delete/:tag_id
+			.merge(delete_tag())
+			// PUT /tag/set
+			.merge(set()),
+	)
 }

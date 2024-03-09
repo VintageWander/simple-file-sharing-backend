@@ -1,16 +1,16 @@
 use crate::prisma::user;
 
 user::select!(user_select {
-    id
-    username
-    email
-    created_at
-    updated_at
+	id
+	username
+	email
+	created_at
+	updated_at
 });
 
 user::select!(user_select_with_password {
-    id
-    password
+	id
+	password
 });
 
 // pub type User = user::Data;

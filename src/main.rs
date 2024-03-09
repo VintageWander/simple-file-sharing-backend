@@ -35,63 +35,63 @@ mod web;
 
 #[derive(Clone)]
 pub struct GlobalState {
-    pub user_service: UserService,
-    pub folder_service: FolderService,
-    pub file_service: FileService,
-    pub file_version_service: FileVersionService,
-    pub tag_service: TagService,
-    pub storage: S3,
+	pub user_service: UserService,
+	pub folder_service: FolderService,
+	pub file_service: FileService,
+	pub file_version_service: FileVersionService,
+	pub tag_service: TagService,
+	pub storage: S3,
 }
 
 type WebResult = std::result::Result<Response, Error>;
 
 #[tokio::main]
 async fn main() {
-    dotenv().ok();
-    check_env();
+	dotenv().ok();
+	check_env();
 
-    let client = PrismaClient::_builder()
-        .build()
-        .await
-        .expect("Cannot connect to Postgres");
+	let client = PrismaClient::_builder()
+		.build()
+		.await
+		.expect("Cannot connect to Postgres");
 
-    let client = Arc::new(client);
+	let client = Arc::new(client);
 
-    let state = GlobalState {
-        user_service: UserService::init(&client),
-        folder_service: FolderService::init(&client),
-        file_service: FileService::init(&client),
-        file_version_service: FileVersionService::init(&client),
-        tag_service: TagService::init(&client),
-        storage: S3::init(),
-    };
+	let state = GlobalState {
+		user_service: UserService::init(&client),
+		folder_service: FolderService::init(&client),
+		file_service: FileService::init(&client),
+		file_version_service: FileVersionService::init(&client),
+		tag_service: TagService::init(&client),
+		storage: S3::init(),
+	};
 
-    let routes = routes().with_state(state).layer(setup_cors());
+	let routes = routes().with_state(state).layer(setup_cors());
 
-    let hostname = hostname();
-    let port = port();
+	let hostname = hostname();
+	let port = port();
 
-    if https() {
-        let tls_config = {
-            let (cert_path, key_path) = ssl_cert_key();
-            RustlsConfig::from_pem_file(cert_path, key_path)
-                .await
-                .expect("Cannot find certifications to enable https")
-        };
+	if https() {
+		let tls_config = {
+			let (cert_path, key_path) = ssl_cert_key();
+			RustlsConfig::from_pem_file(cert_path, key_path)
+				.await
+				.expect("Cannot find certifications to enable https")
+		};
 
-        let addr = SocketAddr::from(([0, 0, 0, 0], port));
+		let addr = SocketAddr::from(([0, 0, 0, 0], port));
 
-        println!("Server started at https://{hostname}:{port}");
+		println!("Server started at https://{hostname}:{port}");
 
-        axum_server::bind_rustls(addr, tls_config)
-            .serve(routes.into_make_service())
-            .await
-            .expect("Server crashed")
-    } else {
-        let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
+		axum_server::bind_rustls(addr, tls_config)
+			.serve(routes.into_make_service())
+			.await
+			.expect("Server crashed")
+	} else {
+		let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
 
-        println!("Server started at http://{hostname}:{port}");
+		println!("Server started at http://{hostname}:{port}");
 
-        axum::serve(listener, routes).await.expect("Server crashed");
-    }
+		axum::serve(listener, routes).await.expect("Server crashed");
+	}
 }

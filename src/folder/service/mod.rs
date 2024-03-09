@@ -9,11 +9,11 @@ use crate::prisma::PrismaClient;
 
 #[derive(Clone)]
 pub struct FolderService {
-    pub db: Arc<PrismaClient>,
+	pub db: Arc<PrismaClient>,
 }
 
 impl FolderService {
-    pub fn init(db: &Arc<PrismaClient>) -> Self {
-        Self { db: db.clone() }
-    }
+	pub fn init(db: &Arc<PrismaClient>) -> Self {
+		Self { db: db.clone() }
+	}
 }
